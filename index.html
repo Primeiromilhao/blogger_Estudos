@@ -1,3 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-PT" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudo: Eternidade, Tempo e a Cruz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        soberBlue: '#0f172a',      // slate-900
+                        soberWine: '#881337',     // rose-900
+                        soberWineHover: '#9f1239' // rose-800
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Ajuste para a âncora não ficar escondida debaixo da navbar fixa */
+        section {
+            scroll-margin-top: 5rem;
+        }
+    </style>
+</head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased leading-relaxed">
 
     <nav class="fixed w-full z-50 top-0 bg-soberBlue/95 backdrop-blur-sm shadow-md">
@@ -236,3 +263,4 @@
     </footer>
 
 </body>
+</html>
