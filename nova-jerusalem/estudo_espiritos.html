@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="pt" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espíritos Marinhos | Estudo Profético Bíblico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --gold: #C9A84C;
+            --gold-light: #F0D080;
+            --deep: #050A18;
+            --void: #080C1A;
+            --card-bg: rgba(10, 16, 40, 0.7);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--void);
+            color: #D0D8F0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
+
+        /* ── CANVAS BACKGROUND ── */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            z-index: 100;
+            background: rgba(5, 8, 20, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        nav a {
+            color: #A0AACC;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        nav a:hover { color: var(--gold); }
+
+        /* ── HERO ── */
+        #hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            z-index: 1;
+        }
+
+        .hero-eyebrow {
+            display: inline-block;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gold);
+            border: 1px solid rgba(201,168,76,0.4);
+            padding: 0.4rem 1.2rem;
+            border-radius: 999px;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.8rem, 8vw, 7rem);
+            font-weight: 900;
+            line-height: 1.05;
+            color: #fff;
+            text-shadow: 0 0 80px rgba(201,168,76,0.15);
+            margin-bottom: 1.5rem;
+        }
+        .hero-title span {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-sub {
+            font-size: 1.1rem;
+            color: #8090B0;
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--gold), #A07820);
+            color: #050A18;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 1rem 2.5rem;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(201,168,76,0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 60px rgba(201,168,76,0.5);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: #4050708;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(160,170,200,0.4);
+        }
+        .scroll-line {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(to bottom, transparent, var(--gold));
+            animation: scroll-line 2s infinite;
+        }
+        @keyframes scroll-line {
+            0% { transform: scaleY(0); transform-origin: top; }
+            50% { transform: scaleY(1); transform-origin: top; }
+            51% { transform: scaleY(1); transform-origin: bottom; }
+            100% { transform: scaleY(0); transform-origin: bottom; }
+        }
+
+        /* ── SECTION BASE ── */
+        section { position: relative; z-index: 1; }
+        .section-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+        .section-label {
+            display: inline-block;
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.8rem;
+        }
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            color: #fff;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .section-divider {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(to right, var(--gold), transparent);
+            margin-bottom: 2rem;
+        }
+        .section-desc {
+            color: #8090B0;
+            font-size: 1rem;
+            line-height: 1.75;
+            max-width: 650px;
+        }
+
+        /* ── GLASS CARD ── */
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(201, 168, 76, 0.15);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .glass-card:hover {
+            transform: translateY(-8px) rotateX(2deg);
+            border-color: rgba(201, 168, 76, 0.45);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(201,168,76,0.08);
+        }
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.05));
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1.2rem;
+        }
+        .card-title {
+            font-size: 1.1rem;
+            color: var(--gold-light);
+            margin-bottom: 0.75rem;
+            font-family: 'Cinzel', serif;
+        }
+        .card-text {
+            font-size: 0.88rem;
+            color: #7080A0;
+            line-height: 1.7;
+        }
+        .card-ref {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(201,168,76,0.1);
+            font-size: 0.75rem;
+            color: rgba(201,168,76,0.6);
+            font-style: italic;
+        }
+
+        /* ── SINAIS & SINTOMAS ── */
+        #sinais { background: rgba(5,8,20,0.5); }
+        .symptom-item {
+            display: flex;
+            gap: 1.2rem;
+            padding: 1.2rem 0;
+            border-bottom: 1px solid rgba(201,168,76,0.07);
+            align-items: flex-start;
+            cursor: default;
+            transition: all 0.3s;
+        }
+        .symptom-item:hover .symptom-text { color: #C0CCEE; }
+        .symptom-num {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: rgba(201,168,76,0.2);
+            min-width: 40px;
+            transition: color 0.3s;
+        }
+        .symptom-item:hover .symptom-num { color: var(--gold); }
+        .symptom-title { font-weight: 600; color: #C0CCEE; margin-bottom: 0.3rem; font-size: 0.95rem; }
+        .symptom-text { font-size: 0.83rem; color: #506080; line-height: 1.6; }
+
+        /* ── TIMELINE ── */
+        .timeline { position: relative; padding-left: 2rem; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+        }
+        .tl-item {
+            position: relative;
+            padding: 0 0 2.5rem 2rem;
+        }
+        .tl-dot {
+            position: absolute;
+            left: -5px;
+            top: 4px;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: var(--gold);
+            box-shadow: 0 0 12px rgba(201,168,76,0.6);
+        }
+        .tl-label { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.4rem; }
+        .tl-title { font-family: 'Cinzel', serif; font-size: 1.1rem; color: #E0E8FF; margin-bottom: 0.5rem; }
+        .tl-text { font-size: 0.85rem; color: #5A6A8A; line-height: 1.7; }
+        .tl-verse {
+            margin-top: 0.8rem;
+            padding: 0.7rem 1rem;
+            background: rgba(201,168,76,0.05);
+            border-left: 2px solid var(--gold);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.8rem;
+            color: rgba(201,168,76,0.7);
+            font-style: italic;
+        }
+
+        /* ── ORAÇÃO ── */
+        #oracao {
+            background: linear-gradient(135deg, rgba(10,5,30,0.9), rgba(5,8,20,0.9));
+            border-top: 1px solid rgba(201,168,76,0.1);
+            border-bottom: 1px solid rgba(201,168,76,0.1);
+        }
+        .prayer-box {
+            background: rgba(201,168,76,0.04);
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .prayer-box::before {
+            content: '"';
+            position: absolute;
+            top: -1rem;
+            left: 1.5rem;
+            font-family: 'Cinzel', serif;
+            font-size: 10rem;
+            color: rgba(201,168,76,0.04);
+            line-height: 1;
+            pointer-events: none;
+        }
+        .prayer-text {
+            font-size: 1.05rem;
+            color: #C0CCEE;
+            line-height: 1.9;
+            font-style: italic;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .prayer-attribution {
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(201,168,76,0.5);
+        }
+
+        /* ── DOWNLOADS ── */
+        #downloads { background: var(--void); }
+        .dl-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .dl-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        .dl-card:hover { transform: translateY(-6px); border-color: rgba(201,168,76,0.2); }
+        .dl-card:hover::after { transform: scaleX(1); }
+        .dl-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.03));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+            font-size: 1.3rem;
+            margin: 0 auto 1.2rem auto;
+        }
+        .dl-title { font-family: 'Cinzel', serif; font-size: 1.2rem; color: #D0DAFF; margin-bottom: 0.6rem; text-align: center; }
+        .dl-desc { font-size: 0.85rem; color: #4A5A7A; line-height: 1.65; flex-grow: 1; margin-bottom: 1.5rem; text-align: center; }
+        .dl-btn {
+            display: block;
+            text-align: center;
+            border: 1px solid rgba(201,168,76,0.4);
+            color: var(--gold);
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.85rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .dl-btn:hover {
+            background: var(--gold);
+            color: #050A18;
+            box-shadow: 0 0 30px rgba(201,168,76,0.3);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: #030508;
+            border-top: 1px solid rgba(201,168,76,0.08);
+            text-align: center;
+            padding: 2.5rem 2rem;
+            font-size: 0.78rem;
+            color: #2A3450;
+            z-index: 1;
+            position: relative;
+        }
+        footer span { color: rgba(201,168,76,0.4); }
+
+        /* ── GRID HELPERS ── */
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 3rem; align-items: start; }
+
+        /* ── QUOTE BLOCK ── */
+        .verse-block {
+            background: rgba(201,168,76,0.04);
+            border-left: 3px solid var(--gold);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 12px 12px 0;
+            margin: 1.5rem 0;
+        }
+        .verse-block p { font-style: italic; color: #A0B0D0; font-size: 0.92rem; line-height: 1.75; }
+        .verse-block cite { display: block; margin-top: 0.5rem; font-size: 0.72rem; letter-spacing: 0.15em; color: rgba(201,168,76,0.6); text-transform: uppercase; }
+
+        /* ── BADGE ── */
+        .badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: rgba(201,168,76,0.1);
+            color: var(--gold);
+            border: 1px solid rgba(201,168,76,0.25);
+            padding: 0.2rem 0.7rem;
+            border-radius: 999px;
+            margin-bottom: 0.6rem;
+        }
+
+        /* ── REVEAL ANIMATION (Intersection Observer) ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible { opacity: 1; transform: none; }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+    </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+    <div class="nav-inner">
+        <span class="nav-logo">Espiritualidade & Escritura</span>
+        <div class="hidden md:flex gap-10">
+            <a href="#analise">Análise</a>
+            <a href="#sinais">Sinais</a>
+            <a href="#genesis">Gênesis 6</a>
+            <a href="#libertacao">Libertação</a>
+            <a href="#downloads">Downloads</a>
+        </div>
+    </div>
+</nav>
+
+<section id="hero">
+    <div>
+        <div class="hero-eyebrow">Estudo Profético Bíblico</div>
+        <h1 class="hero-title">
+            Espíritos<br><span>Marinhos</span>
+        </h1>
+        <p class="hero-sub">
+            "Viram os filhos de Deus que as filhas dos homens eram formosas; e tomaram para si mulheres..."<br>— Gênesis 6:2
+        </p>
+        <a href="#analise" class="btn-primary">Iniciar Estudo</a>
+        <div class="scroll-indicator">
+            <div class="scroll-line"></div>
+            <span>Scroll</span>
+        </div>
+    </div>
+</section>
+
+<section id="analise">
+    <div class="section-inner">
+        <div class="grid-2">
+            <div class="reveal">
+                <span class="section-label">Definição & Origem</span>
+                <h2 class="section-title">O que são Espíritos Marinhos?</h2>
+                <div class="section-divider"></div>
+                <p class="section-desc">Na teologia da guerra espiritual e em tradições do mundo todo, os "espíritos marinhos" são entidades demoníacas que habitam e operam a partir das águas — mares, rios e lagos. São reconhecidos por induzir confusão emocional, dependência sexual, rupturas conjugais e bloqueios espirituais. Seus nomes variam entre culturas, mas os padrões de ataque são universais.</p>
+
+                <div class="verse-block">
+                    <p>"O Senhor disse a Satanás: 'De onde vens?' Satanás respondeu ao Senhor: 'De vagar pela terra e de andar por ela.'"</p>
+                    <cite>— Jó 1:7</cite>
+                </div>
+                <div class="verse-block">
+                    <p>"Porque não temos que lutar contra a carne e o sangue, mas contra os principados, contra as potestades, contra os príncipes das trevas deste século."</p>
+                    <cite>— Efésios 6:12</cite>
+                </div>
+            </div>
+
+            <div class="reveal reveal-delay-1" style="display:flex;flex-direction:column;gap:1rem;">
+                <div class="glass-card">
+                    <div class="card-icon">🌊</div>
+                    <span class="badge">Tradição Africana</span>
+                    <div class="card-title">Mami Wata</div>
+                    <p class="card-text">Entidade sedutora relacionada às águas, presente em culturas africanas e caribenhas. Manifesta-se como figura feminina bela e enganosa, prometendo riqueza e poder em troca de lealdade espiritual e castidade perante parceiros humanos.</p>
+                </div>
+                <div class="glass-card">
+                    <div class="card-icon">🔱</div>
+                    <span class="badge">Perspectiva Bíblica</span>
+                    <div class="card-title">Íncubo & Súcubo</div>
+                    <p class="card-text">Do latim <em>incubare</em> (deitar sobre) e <em>succubare</em> (deitar sob). Espíritos que atacam durante o sono. O íncubo assume forma masculina para atacar mulheres; o súcubo, feminina para atacar homens. São demônios de perversão sexual de alto poder.</p>
+                    <div class="card-ref">2 Pedro 2:4 • Judas 6 • Gênesis 6:1-4</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="sinais">
+    <div class="section-inner">
+        <div class="reveal">
+            <span class="section-label">Diagnóstico Espiritual</span>
+            <h2 class="section-title">Como Identificar a Opressão</h2>
+            <div class="section-divider"></div>
+            <p class="section-desc" style="margin-bottom:3rem;">Conhecer os sinais de influência desses espíritos é o primeiro passo para a libertação. Abaixo estão os sintomas mais frequentemente relatados por vítimas:</p>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="symptom-item reveal">
+                    <span class="symptom-num">01</span>
+                    <div>
+                        <div class="symptom-title">Sonhos Eróticos Recorrentes</div>
+                        <p class="symptom-text">Encontros sexuais vívidos e perturbadores durante o sono, muitas vezes com sensações físicas reais. Frequentemente envolvem um ser sem rosto ou uma presença reconhecível.</p>
+                    </div>
+                </div>
+                <div class="symptom-item reveal reveal-delay-1">
+                    <span class="symptom-num">02</span>
+                    <div>
+                        <div class="symptom-title">Orgasmos Espontâneos</div>
+                        <p class="symptom-text">Experiências físicas involuntárias sem estímulo externo. O corpo responde como se sob influência de uma presença física, frequentemente durante o sono.</p>
+                    </div>
+                </div>
+                <div class="symptom-item reveal reveal-delay-2">
+                    <span class="symptom-num">03</span>
+                    <div>
+                        <div class="symptom-title">Desejos Avassaladores Fora de Contexto</div>
+                        <p class="symptom-text">Impulsos sexuais repentinos, incontroláveis e deslocados do contexto — que surgem em momentos inapropriados como durante a oração, o trabalho ou o culto.</p>
+                    </div>
+                </div>
+                <div class="symptom-item reveal">
+                    <span class="symptom-num">04</span>
+                    <div>
+                        <div class="symptom-title">Sensação de Presença no Quarto</div>
+                        <p class="symptom-text">Percepção de não estar sozinho ao adormecer ou acordar. Em casos graves, paralisia do sono combinada com pressão no corpo e sensação de sufocamento.</p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="symptom-item reveal">
+                    <span class="symptom-num">05</span>
+                    <div>
+                        <div class="symptom-title">Casamentos em Sonho</div>
+                        <p class="symptom-text">Sonhos recorrentes em que a pessoa se vê casada, grávida, comprando vestido de noiva ou em cerimônia nupcial com um ser espiritual. Sinal claro de vínculo de aliança.</p>
+                    </div>
+                </div>
+                <div class="symptom-item reveal reveal-delay-1">
+                    <span class="symptom-num">06</span>
+                    <div>
+                        <div class="symptom-title">Rupturas Relacionais Inexplicáveis</div>
+                        <p class="symptom-text">Relacionamentos que sempre terminam de forma misteriosa, com ódio súbito do parceiro, infertilidade sem causa médica ou aversão irracional ao casamento.</p>
+                    </div>
+                </div>
+                <div class="symptom-item reveal reveal-delay-2">
+                    <span class="symptom-num">07</span>
+                    <div>
+                        <div class="symptom-title">Vício em Fantasia Sexual</div>
+                        <p class="symptom-text">O êxtase espiritual produzido por esses demônios é de intensidade superior ao sexo natural, criando dependência da fantasia e da masturbação como falso consolo emocional.</p>
+                    </div>
+                </div>
+                <div class="symptom-item reveal">
+                    <span class="symptom-num">08</span>
+                    <div>
+                        <div class="symptom-title">Violência nos Sonhos</div>
+                        <p class="symptom-text">Ataques físicos durante o sono: sensação de estrangulamento, espancamento, restrição de movimentos. Comportamento idêntico ao de um abusador ou estuprador espiritual.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="genesis">
+    <div class="section-inner">
+        <div class="reveal">
+            <span class="section-label">Fundamento Bíblico</span>
+            <h2 class="section-title">Gênesis 6 — O Portal da Corrupção</h2>
+            <div class="section-divider"></div>
+        </div>
+
+        <div class="grid-2" style="margin-top:2rem;">
+            <div class="reveal">
+                <p class="section-desc">Este texto bíblico é o epicentro do debate sobre a origem dos espíritos que corrompem a humanidade sexualmente. Três grandes correntes interpretativas disputam o significado de "filhos de Deus" (בְּנֵי הָאֱלֹהִים — <em>bene ha-Elohim</em>):</p>
+
+                <div style="margin-top:2rem;display:flex;flex-direction:column;gap:1rem;">
+                    <div class="glass-card">
+                        <span class="badge">Visão 1</span>
+                        <div class="card-title">Cosmológica (Anjos Caídos)</div>
+                        <p class="card-text">Os "filhos de Deus" são anjos rebeldes que assumiram forma física e coabitaram com mulheres humanas. O termo <em>bene ha-Elohim</em> em Jó 1:6, 2:1 e 38:7 refere-se inequivocamente a seres celestiais. A União produziu os Nephilim — gigantes espirituais e físicos.</p>
+                        <div class="card-ref">Referências: Jó 1:6 • 2 Pedro 2:4 • Judas 6 • 1 Enoque 6-8</div>
+                    </div>
+                    <div class="glass-card">
+                        <span class="badge">Visão 2</span>
+                        <div class="card-title">Sete vs Caim (Linhagens)</div>
+                        <p class="card-text">Os "filhos de Deus" = linhagem piedosa de Sete; as "filhas dos homens" = linhagem de Caim. O casamento interreligioso corrompeu a semente prometida. Agostinho e Calvino favoreceram esta visão, que enfatiza a preservação espiritual da linhagem do Salvador.</p>
+                        <div class="card-ref">Contexto: Gênesis 4 (Caim) e Gênesis 5 (Sete)</div>
+                    </div>
+                    <div class="glass-card">
+                        <span class="badge">Visão 3</span>
+                        <div class="card-title">Tiranos / Reis Despóticos</div>
+                        <p class="card-text">O termo Elohim aplicado a juízes e governantes (Salmos 82:6). Os "filhos de Deus" seriam reis que abusavam do poder instituindo haréns forçados, paralelo ao direito do senhor feudal. Contexto histórico do Antigo Oriente Próximo.</p>
+                        <div class="card-ref">Paralelo: Épico de Gilgamesh • Salmos 82:6</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal reveal-delay-1">
+                <div class="timeline">
+                    <div class="tl-item">
+                        <div class="tl-dot"></div>
+                        <div class="tl-label">Éden</div>
+                        <div class="tl-title">A Queda e a Promessa</div>
+                        <p class="tl-text">Satanás aborda Eva fisicamente (Gn 3). A promessa de guerra entre a semente da mulher e a semente da serpente é declarada. Isso explica por que a sexualidade humana se torna campo de batalha.</p>
+                        <div class="tl-verse">"E porei inimizade entre ti e a mulher, e entre a tua semente e a sua semente." — Gn 3:15</div>
+                    </div>
+                    <div class="tl-item">
+                        <div class="tl-dot"></div>
+                        <div class="tl-label">Pré-Dilúvio</div>
+                        <div class="tl-title">A Grande Corrupção</div>
+                        <p class="tl-text">Gênesis 6:1-4. Seres sobrenaturais cruzam a fronteira dimensional para se unir a humanas. Os Nephilim nascem. A corrupção atinge nível máximo: "Todo propósito dos pensamentos do seu coração era somente o mal continuamente."</p>
+                        <div class="tl-verse">"Quando os filhos de Deus viram as filhas dos homens..." — Gn 6:2</div>
+                    </div>
+                    <div class="tl-item">
+                        <div class="tl-dot"></div>
+                        <div class="tl-label">O Juízo</div>
+                        <div class="tl-title">O Dilúvio & Prisão dos Anjos</div>
+                        <p class="tl-text">Deus julgou a terra com o dilúvio. Os anjos caídos foram "lançados no Tártaro, em cadeias eternas", aguardando o juízo final. Noé, "perfeito em suas gerações", é preservado.</p>
+                        <div class="tl-verse">"Pois se Deus não poupou os anjos que pecaram, mas os precipitou no abismo..." — 2 Pedro 2:4</div>
+                    </div>
+                    <div class="tl-item">
+                        <div class="tl-dot"></div>
+                        <div class="tl-label">Hoje</div>
+                        <div class="tl-title">A Estratégia Continua</div>
+                        <p class="tl-text">Os espíritos descendentes dessa rebelião continuam tentando contaminar a humanidade — não mais geneticamente, mas espiritualmente: pelos sonhos, pelos vínculos de alma, pelas adições sexuais e pelos votos espirituais inconscientes.</p>
+                        <div class="tl-verse">"Sede sóbrios e vigilantes. O diabo, vosso adversário, anda em derredor, como leão que ruge..." — 1 Pedro 5:8</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="oracao">
+    <div class="section-inner" style="padding:4rem 2rem;">
+        <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+            <span class="section-label">Proteção Espiritual</span>
+            <h2 class="section-title">Oração de Cobertura</h2>
+            <div class="section-divider" style="margin:1rem auto;"></div>
+            <p style="color:#506080;font-size:0.9rem;max-width:500px;margin:0 auto;">Antes de mergulhar neste estudo, fortaleça sua armadura espiritual com esta oração de proteção incluída no livro:</p>
+        </div>
+        <div class="prayer-box reveal">
+            <p class="prayer-text">
+                "Pai Celestial, humildemente peço que me proteja e me guarde enquanto leio o conteúdo deste livro. Por favor, dê-me clareza mental para compreender o conteúdo e discernimento para que eu reflita sobre minha vida à luz da revelação e do conhecimento que me foram concedidos, Pai. Em nome de Jesus Cristo, nosso Senhor, eu peço e agradeço por estas coisas."
+            </p>
+            <div class="prayer-attribution">Em Nome de Jesus — Amém</div>
+        </div>
+    </div>
+</section>
+
+<section id="libertacao">
+    <div class="section-inner">
+        <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+            <span class="section-label">Ferramentas de Libertação</span>
+            <h2 class="section-title">Como se Libertar</h2>
+            <div class="section-divider" style="margin:1rem auto;"></div>
+            <p style="color:#506080;max-width:580px;margin:0 auto;font-size:0.9rem;line-height:1.75;">A libertação não é um evento único — é um processo de renúncia, cura, guerra espiritual e manutenção constante da sua liberdade. Veja os pilares práticos:</p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <div class="glass-card reveal">
+                <div class="card-icon">📖</div>
+                <div class="card-title">1. Reconhecimento</div>
+                <p class="card-text">O primeiro passo é identificar a opressão pelos sinais. Negar a realidade espiritual não a elimina. O conhecimento quebra o poder da ignorância que sustenta os vínculos demoníacos.</p>
+            </div>
+            <div class="glass-card reveal reveal-delay-1">
+                <div class="card-icon">✝️</div>
+                <div class="card-title">2. Renúncia & Divórcio</div>
+                <p class="card-text">Declaração verbal de renúncia a qualquer aliança, voto ou casamento espiritual. O "divórcio espiritual" é decretado pela autoridade de Jesus Cristo, quebrando os laços de alma estabelecidos nos sonhos.</p>
+            </div>
+            <div class="glass-card reveal reveal-delay-2">
+                <div class="card-icon">🩸</div>
+                <div class="card-title">3. O Sangue de Jesus</div>
+                <p class="card-text">A aplicação declaratória do sangue de Cristo sobre a vida, a cama, o quarto e o sonho. "Pelo sangue do Cordeiro" eles são vencidos (Ap 12:11). Arma de guerra espiritual de maior eficácia.</p>
+            </div>
+            <div class="glass-card reveal">
+                <div class="card-icon">🛡️</div>
+                <div class="card-title">4. A Armadura de Deus</div>
+                <p class="card-text">Vestir diariamente a armadura de Efésios 6: cinto da verdade, couraça da justiça, escudo da fé, capacete da salvação e espada do Espírito. Não é simbólico — é uma realidade espiritual declarada.</p>
+            </div>
+            <div class="glass-card reveal reveal-delay-1">
+                <div class="card-icon">🙏</div>
+                <div class="card-title">5. Jejum & Oração</div>
+                <p class="card-text">"Esta casta não sai senão por oração e jejum" (Mt 17:21). Para demônios de alto escalão como esses, a oração sem jejum frequentemente não é suficiente. O jejum subordina o corpo ao espírito.</p>
+            </div>
+            <div class="glass-card reveal reveal-delay-2">
+                <div class="card-icon">🤝</div>
+                <div class="card-title">6. Conselheiro Espiritual</div>
+                <p class="card-text">Buscar um pastor ou ministério de libertação de confiança. A libertação assistida por um intercessor capacitado é mais eficaz. Segredos mantidos no escuro alimentam o vínculo — trazer à luz rompe os grilhões.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="downloads" style="background:rgba(3,5,12,0.98);border-top:1px solid rgba(201,168,76,0.08);">
+    <div class="section-inner">
+        <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+            <span class="section-label">Recursos</span>
+            <h2 class="section-title">Guia de Estudo para Download</h2>
+            <div class="section-divider" style="margin:1rem auto;"></div>
+        </div>
+        
+        <div style="display: flex; justify-content: center;">
+            <div class="dl-card reveal" style="max-width: 420px; width: 100%;">
+                <div class="dl-icon">📄</div>
+                <div class="dl-title">Guia de Estudo em PDF</div>
+                <p class="dl-desc">Faça o download do material completo de apoio com todos os detalhes bíblicos, raízes hebraicas e os pilares práticos deste estudo.</p>
+                <a href="https://drive.google.com/file/d/13qkhZumCwSRlUbYBvvgrZbOA_tselT6S/view?usp=drive_link" target="_blank" class="dl-btn">Download PDF</a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    <p>&copy; 2026 <span>Hub Educacional Bíblico</span> — Todos os direitos reservados.</p>
+    <p style="margin-top:0.5rem;">Baseado em: <span>Os Espíritos Marinhos</span> • Gênesis 6 • Efésios 6</p>
+</footer>
+
+<script>
+    // ── PARTICLE CANVAS ──
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    }
+
+    class Particle {
+        constructor() { this.reset(); }
+        reset() {
+            this.x = Math.random() * W;
+            this.y = Math.random() * H;
+            this.r = Math.random() * 1.2 + 0.2;
+            this.alpha = Math.random() * 0.4 + 0.05;
+            this.vx = (Math.random() - 0.5) * 0.2;
+            this.vy = (Math.random() - 0.5) * 0.2;
+            this.gold = Math.random() > 0.85;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+            ctx.fillStyle = this.gold
+                ? `rgba(201,168,76,${this.alpha})`
+                : `rgba(100,120,200,${this.alpha * 0.5})`;
+            ctx.fill();
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+        }
+    }
+
+    function initParticles() {
+        particles = Array.from({length: 160}, () => new Particle());
+    }
+
+    function loop() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Deep nebula gradient
+        const grad = ctx.createRadialGradient(W/2, H*0.4, 0, W/2, H*0.4, W*0.7);
+        grad.addColorStop(0, 'rgba(30,10,60,0.15)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(loop);
+    }
+
+    resize();
+    initParticles();
+    loop();
+    window.addEventListener('resize', () => { resize(); initParticles(); });
+
+    // ── REVEAL ON SCROLL ──
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    // ── 3D TILT ON CARDS ──
+    document.querySelectorAll('.glass-card').forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            card.style.transform = `perspective(600px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) translateY(-6px)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+</script>
+</body>
+</html>
