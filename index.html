@@ -1,509 +1,490 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estudos Bíblicos — Índice</title>
-    <meta name="description" content="Página de índice dos estudos bíblicos em HTML. Uma coleção de estudos aprofundados baseados na Palavra de Deus, inspirados na Nova Jerusalém.">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Jerusalém — Escola Bíblica Online</title>
+<meta name="description" content="Escola bíblica online inspirada na Nova Jerusalém. Estudos, meditações, adoração e comunidade para crescer na fé.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#B8860B;--gold-l:#D4A820;--gold-ll:#FFE566;
+  --cream:#FEFAF3;--warm:#FDF5E4;--white:#FFFFFF;
+  --text:#1C1C2E;--text-m:#4A4A6A;--text-l:#7A7A9A;
+  --border:rgba(184,134,11,0.18);--border-s:rgba(184,134,11,0.08);
+  --sapphire:#1B3A6B;--emerald:#14522E;--ruby:#7A1818;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text);overflow-x:hidden}
 
-        :root {
-            --gold: #B8860B;
-            --gold-light: #D4A017;
-            --gold-shine: #FFE66D;
-            --pearl: #FDF8F0;
-            --sapphire: #1B4F8A;
-            --emerald: #1A6B3C;
-            --jasper: #8B1A1A;
-            --crystal: rgba(255,255,255,0.7);
-            --sky: #EAF4FF;
-        }
+/* SKY BG */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 90% 50% at 50% -5%,rgba(255,229,102,0.22) 0%,transparent 65%),
+    radial-gradient(ellipse 60% 40% at 85% 15%,rgba(180,210,255,0.2) 0%,transparent 55%),
+    linear-gradient(180deg,#EBF4FF 0%,#FEFAF3 40%,#FFF8EA 100%)}
 
-        html { scroll-behavior: smooth; }
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(254,250,243,0.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-wrap{max-width:1200px;margin:0 auto;padding:.9rem 1.5rem;display:flex;align-items:center;gap:1.5rem}
+.nav-logo{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-decoration:none;flex-shrink:0}
+.nav-logo span{color:var(--text);font-weight:400}
+nav ul{display:flex;gap:.2rem;list-style:none;margin-left:auto}
+nav a{color:var(--text-m);text-decoration:none;font-size:.8rem;font-weight:500;padding:.4rem .8rem;border-radius:6px;transition:all .25s;white-space:nowrap}
+nav a:hover{color:var(--gold);background:rgba(184,134,11,.07)}
+.nav-cta{background:var(--gold)!important;color:#fff!important;border-radius:20px!important;padding:.4rem 1rem!important}
+.nav-cta:hover{background:var(--gold-l)!important;color:#fff!important}
 
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: var(--pearl);
-            color: #2A2A3A;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
+/* HERO */
+.hero{position:relative;z-index:1;text-align:center;padding:5rem 1.5rem 4rem}
+.hero-tag{display:inline-block;font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);border:1px solid var(--border);padding:.3rem 1rem;border-radius:999px;margin-bottom:1.5rem;background:rgba(255,255,255,.6);backdrop-filter:blur(4px)}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,7vw,5rem);font-weight:700;line-height:1.1;color:var(--text);margin-bottom:1rem}
+.hero h1 em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:1rem;color:var(--text-m);max-width:560px;margin:0 auto 1.2rem;line-height:1.75;font-style:italic}
+.hero-cite{font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(184,134,11,.65)}
+.hero-btns{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:2rem}
+.btn{display:inline-block;text-decoration:none;font-size:.82rem;font-weight:600;padding:.75rem 1.8rem;border-radius:999px;transition:all .3s}
+.btn-gold{background:var(--gold);color:#fff;box-shadow:0 4px 20px rgba(184,134,11,.3)}
+.btn-gold:hover{background:var(--gold-l);transform:translateY(-2px);box-shadow:0 8px 30px rgba(184,134,11,.4)}
+.btn-outline{border:1.5px solid var(--border);color:var(--text-m);background:rgba(255,255,255,.6)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);background:#fff}
 
-        /* ── SKY BACKGROUND ── */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,230,109,0.25) 0%, transparent 70%),
-                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(200,220,255,0.3) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 50% at 20% 80%, rgba(220,240,220,0.2) 0%, transparent 60%),
-                linear-gradient(180deg, #EAF4FF 0%, #FDF8F0 50%, #FFF9EE 100%);
-            z-index: 0;
-            pointer-events: none;
-        }
+/* VERSE TICKER */
+.ticker{background:linear-gradient(90deg,var(--sapphire),#1B4F8A,var(--sapphire));color:#fff;padding:.6rem 0;font-size:.78rem;letter-spacing:.05em;overflow:hidden;position:relative;z-index:1}
+.ticker-inner{display:flex;gap:4rem;animation:ticker 30s linear infinite;white-space:nowrap}
+.ticker-inner span{flex-shrink:0;opacity:.9}
+.ticker-sep{color:rgba(255,229,102,.6);margin:0 1rem}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-        /* ── LIGHT RAYS ── */
-        body::after {
-            content: '';
-            position: fixed;
-            top: -20%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 150%;
-            height: 80%;
-            background: conic-gradient(
-                from 270deg at 50% 0%,
-                transparent 0deg,
-                rgba(255,230,80,0.06) 5deg,
-                transparent 10deg,
-                rgba(255,230,80,0.04) 18deg,
-                transparent 25deg,
-                rgba(255,230,80,0.07) 35deg,
-                transparent 42deg,
-                rgba(255,230,80,0.03) 55deg,
-                transparent 70deg
-            );
-            z-index: 0;
-            pointer-events: none;
-            animation: rays 12s infinite linear;
-        }
-        @keyframes rays { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
+/* MAIN LAYOUT */
+.main{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:3rem 1.5rem;display:grid;grid-template-columns:1fr 320px;gap:2.5rem}
+@media(max-width:900px){.main{grid-template-columns:1fr}}
 
-        /* ── LAYOUT ── */
-        .page-wrapper {
-            position: relative;
-            z-index: 1;
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 0 1.5rem 4rem;
-        }
+/* SECTION LABELS */
+.sec-label{display:flex;align-items:center;gap:.8rem;margin-bottom:1.5rem}
+.sec-label h2{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
 
-        /* ── HEADER ── */
-        header {
-            text-align: center;
-            padding: 5rem 1rem 3rem;
-        }
+/* FEATURED POST */
+.featured-card{background:var(--white);border:1px solid var(--border-s);border-radius:20px;overflow:hidden;margin-bottom:2.5rem;box-shadow:0 2px 20px rgba(0,0,0,.05);transition:box-shadow .3s}
+.featured-card:hover{box-shadow:0 8px 40px rgba(0,0,0,.1)}
+.feat-banner{background:linear-gradient(135deg,var(--sapphire) 0%,#2A518A 50%,#1A3A6A 100%);padding:3rem 2.5rem;position:relative;overflow:hidden}
+.feat-banner::before{content:'✦';position:absolute;right:2rem;top:1rem;font-size:6rem;color:rgba(255,229,102,.07);line-height:1}
+.feat-tag{display:inline-block;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;background:rgba(255,229,102,.15);color:var(--gold-ll);border:1px solid rgba(255,229,102,.25);padding:.25rem .8rem;border-radius:999px;margin-bottom:.8rem}
+.feat-banner h3{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:#fff;line-height:1.25;margin-bottom:.8rem}
+.feat-banner p{font-size:.9rem;color:rgba(255,255,255,.7);line-height:1.7;max-width:480px}
+.feat-meta{display:flex;gap:1rem;margin-top:1.2rem;font-size:.72rem;color:rgba(255,255,255,.5)}
+.feat-body{padding:1.8rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:gap .8rem}
+.feat-excerpt{font-size:.88rem;color:var(--text-m);line-height:1.7;max-width:480px}
+.feat-link{text-decoration:none;font-size:.8rem;font-weight:600;color:var(--gold);border:1.5px solid var(--border);padding:.6rem 1.4rem;border-radius:999px;white-space:nowrap;transition:all .3s;flex-shrink:0;margin-left:1rem}
+.feat-link:hover{background:var(--gold);color:#fff;border-color:var(--gold)}
 
-        .city-icon {
-            display: inline-block;
-            width: 80px;
-            height: 80px;
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
+/* BLOG GRID */
+.posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem;margin-bottom:2.5rem}
+.post-card{background:var(--white);border:1px solid var(--border-s);border-radius:16px;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;transition:all .3s;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.post-card:hover{transform:translateY(-5px);box-shadow:0 12px 32px rgba(0,0,0,.1);border-color:var(--border)}
+.post-cat{padding:.7rem 1rem .3rem;display:flex;align-items:center;gap:.4rem}
+.cat-dot{width:8px;height:8px;border-radius:50%}
+.cat-name{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600}
+.cat-study .cat-dot{background:var(--sapphire)} .cat-study .cat-name{color:var(--sapphire)}
+.cat-med .cat-dot{background:var(--emerald)} .cat-med .cat-name{color:var(--emerald)}
+.cat-wor .cat-dot{background:#7A3A8A} .cat-wor .cat-name{color:#7A3A8A}
+.cat-proph .cat-dot{background:var(--ruby)} .cat-proph .cat-name{color:var(--ruby)}
+.post-card h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;color:var(--text);padding:.2rem 1rem .5rem;line-height:1.35}
+.post-card p{font-size:.78rem;color:var(--text-l);padding:0 1rem;line-height:1.6;flex:1}
+.post-footer{padding:.9rem 1rem;border-top:1px solid rgba(0,0,0,.05);display:flex;justify-content:space-between;align-items:center;margin-top:.8rem}
+.post-time{font-size:.65rem;color:var(--text-l)}
+.post-arrow{font-size:.8rem;color:var(--gold)}
 
-        /* SVG‑inspired geometric city symbol */
-        .city-icon svg { width: 80px; height: 80px; filter: drop-shadow(0 4px 16px rgba(184,134,11,0.35)); }
+/* ADORAÇÃO SECTION */
+.worship-section{background:linear-gradient(135deg,#1A3010,#14521E);border-radius:20px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.worship-section::before{content:'♫';position:absolute;right:1.5rem;top:0;font-size:8rem;color:rgba(255,255,255,.04);line-height:1}
+.worship-section h2{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:600;color:#fff;margin-bottom:.5rem}
+.worship-section>p{font-size:.85rem;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:1.5rem;max-width:480px}
+.worship-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem}
+.worship-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:1.1rem;text-decoration:none;transition:all .3s}
+.worship-card:hover{background:rgba(255,255,255,.12);transform:translateY(-3px)}
+.worship-card span{display:block;font-size:1.4rem;margin-bottom:.5rem}
+.worship-card h4{font-family:'Playfair Display',serif;font-size:.92rem;color:#fff;margin-bottom:.3rem}
+.worship-card p{font-size:.75rem;color:rgba(255,255,255,.55);line-height:1.5}
 
-        .header-eyebrow {
-            display: inline-block;
-            font-size: 0.65rem;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: var(--gold);
-            border: 1px solid rgba(184,134,11,0.35);
-            padding: 0.35rem 1.2rem;
-            border-radius: 999px;
-            margin-bottom: 1.5rem;
-            background: rgba(255,255,255,0.6);
-            backdrop-filter: blur(6px);
-        }
+/* MEDITAÇÕES */
+.med-list{display:flex;flex-direction:column;gap:.8rem;margin-bottom:2.5rem}
+.med-item{background:var(--white);border:1px solid var(--border-s);border-radius:14px;padding:1.2rem 1.5rem;display:flex;gap:1rem;align-items:flex-start;text-decoration:none;transition:all .3s}
+.med-item:hover{border-color:var(--border);box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateX(4px)}
+.med-num{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:700;color:rgba(184,134,11,.2);line-height:1;min-width:36px;transition:color .3s}
+.med-item:hover .med-num{color:var(--gold)}
+.med-title{font-family:'Playfair Display',serif;font-size:.98rem;font-weight:600;color:var(--text);margin-bottom:.25rem}
+.med-desc{font-size:.78rem;color:var(--text-l);line-height:1.55}
+.med-ref{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-top:.4rem}
 
-        h1 {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(2rem, 6vw, 3.8rem);
-            font-weight: 900;
-            line-height: 1.1;
-            color: #1A1A2E;
-            margin-bottom: 1rem;
-        }
-        h1 em {
-            font-style: normal;
-            background: linear-gradient(135deg, var(--gold), var(--gold-shine), var(--gold-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:1.5rem}
+.sidebar-widget{background:var(--white);border:1px solid var(--border-s);border-radius:16px;padding:1.5rem;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.widget-title{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid var(--border-s)}
 
-        .header-verse {
-            font-size: 0.9rem;
-            color: #6070908;
-            color: #607090;
-            max-width: 520px;
-            margin: 0 auto 0.5rem;
-            line-height: 1.7;
-            font-style: italic;
-        }
-        .header-citation {
-            font-size: 0.72rem;
-            letter-spacing: 0.15em;
-            color: rgba(184,134,11,0.7);
-            text-transform: uppercase;
-        }
+/* VERSE OF DAY */
+.verse-day{background:linear-gradient(135deg,var(--sapphire),#2A518A);border-radius:16px;padding:1.8rem}
+.verse-day .widget-title{color:rgba(255,229,102,.8);border-color:rgba(255,229,102,.15)}
+.verse-day blockquote{font-family:'Playfair Display',serif;font-style:italic;font-size:1rem;color:#fff;line-height:1.75;margin-bottom:.8rem}
+.verse-day cite{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,229,102,.65)}
 
-        /* ── SECTION INTRO ── */
-        .intro-box {
-            background: rgba(255,255,255,0.55);
-            border: 1px solid rgba(184,134,11,0.18);
-            border-radius: 16px;
-            padding: 1.5rem 2rem;
-            text-align: center;
-            margin: 2rem 0 3rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.8) inset;
-        }
-        .intro-box p {
-            font-size: 0.95rem;
-            color: #4A5580;
-            line-height: 1.75;
-        }
+/* QUICK LINKS */
+.qlinks{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+.qlinks li a{display:flex;align-items:center;gap:.7rem;text-decoration:none;color:var(--text-m);font-size:.83rem;padding:.5rem .6rem;border-radius:8px;transition:all .25s}
+.qlinks li a:hover{background:rgba(184,134,11,.07);color:var(--gold)}
+.qlinks li a span{font-size:1rem}
 
-        /* ── SECTION HEADING ── */
-        .section-heading {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .section-heading span {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(to right, rgba(184,134,11,0.3), transparent);
-        }
-        .section-heading h2 {
-            font-family: 'Cinzel', serif;
-            font-size: 0.75rem;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: var(--gold);
-            white-space: nowrap;
-        }
+/* PROPHECY BANNER */
+.proph-widget{background:linear-gradient(135deg,#5A1010,#8B1A1A);border-radius:16px;padding:1.8rem}
+.proph-widget .widget-title{color:rgba(255,180,180,.8);border-color:rgba(255,130,130,.15)}
+.proph-widget p{font-size:.82rem;color:rgba(255,255,255,.75);line-height:1.65;font-style:italic;margin-bottom:.8rem}
+.proph-widget cite{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,180,130,.7)}
 
-        /* ── STUDY LINKS GRID ── */
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 1rem;
-            margin-bottom: 3rem;
-        }
+/* SOBRE */
+.subscribe-widget{background:linear-gradient(135deg,rgba(255,229,102,.12),rgba(184,134,11,.06));border:1px solid var(--border)!important}
+.subscribe-widget p{font-size:.82rem;color:var(--text-m);line-height:1.6;margin-bottom:1rem}
+.sub-input{display:flex;flex-direction:column;gap:.6rem}
+.sub-input input{border:1.5px solid var(--border);border-radius:8px;padding:.65rem .9rem;font-size:.82rem;font-family:'Inter',sans-serif;color:var(--text);background:var(--white);outline:none;transition:border-color .25s}
+.sub-input input:focus{border-color:var(--gold)}
+.sub-input button{background:var(--gold);color:#fff;border:none;border-radius:8px;padding:.65rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .25s}
+.sub-input button:hover{background:var(--gold-l)}
 
-        .study-card {
-            position: relative;
-            background: rgba(255,255,255,0.65);
-            border: 1px solid rgba(184,134,11,0.15);
-            border-radius: 14px;
-            padding: 1.5rem 1.5rem 1.5rem 1.3rem;
-            text-decoration: none;
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            backdrop-filter: blur(10px);
-            box-shadow:
-                0 2px 12px rgba(0,0,0,0.05),
-                0 0 0 1px rgba(255,255,255,0.9) inset;
-            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
-            transform-style: preserve-3d;
-            cursor: pointer;
-            overflow: hidden;
-        }
+/* NOVA JERUSALEM SECTION */
+.nj-section{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 1.5rem 4rem}
+.nj-banner{background:linear-gradient(135deg,#EDF4FF,#F5F0FF,#FFF8EA);border:1px solid var(--border);border-radius:24px;padding:3.5rem 3rem;text-align:center;position:relative;overflow:hidden}
+.nj-banner::before{content:'✦';position:absolute;font-size:14rem;color:rgba(184,134,11,.04);top:-2rem;left:-1rem;font-family:'Cinzel',serif;pointer-events:none}
+.nj-banner::after{content:'✦';position:absolute;font-size:14rem;color:rgba(184,134,11,.04);bottom:-4rem;right:-1rem;font-family:'Cinzel',serif;pointer-events:none}
+.nj-banner h2{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4vw,2.8rem);font-weight:700;color:var(--text);margin-bottom:.8rem}
+.nj-banner h2 em{font-style:italic;color:var(--gold)}
+.nj-banner>p{color:var(--text-m);font-size:.95rem;line-height:1.8;max-width:620px;margin:0 auto 2.5rem}
+.gems-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;text-align:left;max-width:900px;margin:0 auto}
+.gem-card{background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);border-radius:14px;padding:1.2rem;backdrop-filter:blur(8px);transition:transform .3s,box-shadow .3s}
+.gem-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.gem-card .gem-ico{font-size:1.6rem;margin-bottom:.5rem}
+.gem-card h4{font-family:'Cinzel',serif;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:.3rem}
+.gem-card p{font-size:.72rem;color:var(--text-l);line-height:1.5}
 
-        .study-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            border-radius: 14px 14px 0 0;
-            background: linear-gradient(90deg, var(--gold), var(--gold-shine), var(--gold-light));
-            opacity: 0;
-            transition: opacity 0.35s;
-        }
+/* FOOTER */
+footer{position:relative;z-index:1;background:#12121E;color:rgba(255,255,255,.5);padding:3rem 1.5rem 2rem}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:2rem;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.07)}
+@media(max-width:700px){.footer-top{grid-template-columns:1fr}}
+.footer-brand{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;color:var(--gold);margin-bottom:.7rem}
+.footer-desc{font-size:.8rem;line-height:1.7;max-width:280px}
+.footer-col h5{font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:.8rem}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:.45rem}
+.footer-col ul a{color:rgba(255,255,255,.45);text-decoration:none;font-size:.8rem;transition:color .25s}
+.footer-col ul a:hover{color:var(--gold)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;flex-wrap:wrap;gap:.5rem}
+.footer-bottom span{color:var(--gold);opacity:.7}
 
-        .study-card:hover {
-            transform: translateY(-6px) perspective(600px) rotateX(2deg);
-            box-shadow: 0 16px 40px rgba(184,134,11,0.12), 0 0 0 1px rgba(184,134,11,0.25) inset;
-            border-color: rgba(184,134,11,0.35);
-            background: rgba(255,255,255,0.85);
-        }
-        .study-card:hover::before { opacity: 1; }
-
-        .card-gem {
-            min-width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            flex-shrink: 0;
-            border: 1px solid rgba(255,255,255,0.6);
-        }
-        .gem-jasper   { background: linear-gradient(135deg, #ffe0e0, #f5c0c0); }
-        .gem-sapphire { background: linear-gradient(135deg, #ddeeff, #b0ccee); }
-        .gem-emerald  { background: linear-gradient(135deg, #d8f5e0, #a8ddb8); }
-        .gem-pearl    { background: linear-gradient(135deg, #fff8f0, #f0eae0); }
-        .gem-topaz    { background: linear-gradient(135deg, #fff3cc, #ffe080); }
-        .gem-amethyst { background: linear-gradient(135deg, #eeddff, #d0b0f0); }
-        .gem-gold     { background: linear-gradient(135deg, #fff0b0, #ffd060); }
-
-        .card-body { flex: 1; }
-        .card-title {
-            font-family: 'Cinzel', serif;
-            font-size: 0.92rem;
-            font-weight: 600;
-            color: #1A1A2E;
-            margin-bottom: 0.35rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .card-title .arrow {
-            opacity: 0;
-            transform: translateX(-4px);
-            transition: all 0.3s;
-            color: var(--gold);
-            font-size: 0.8rem;
-        }
-        .study-card:hover .card-title .arrow { opacity: 1; transform: translateX(0); }
-        .card-desc {
-            font-size: 0.78rem;
-            color: #8090B0;
-            line-height: 1.55;
-        }
-
-        /* ── GEMS SEPARATOR ── */
-        .gems-row {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin: 2.5rem 0;
-            align-items: center;
-        }
-        .gem-dot {
-            width: 10px; height: 10px;
-            border-radius: 50%;
-        }
-        .gem-dot:nth-child(1) { background: #D4B8C0; }
-        .gem-dot:nth-child(2) { background: #B0CCEE; }
-        .gem-dot:nth-child(3) { background: #A8DDB8; }
-        .gem-dot:nth-child(4) { background: #F2D060; width:14px; height:14px; box-shadow: 0 0 12px rgba(242,208,80,0.7); }
-        .gem-dot:nth-child(5) { background: #A8DDB8; }
-        .gem-dot:nth-child(6) { background: #B0CCEE; }
-        .gem-dot:nth-child(7) { background: #D4B8C0; }
-
-        /* ── VERSE BLOCK ── */
-        .verse-block {
-            background: rgba(255,255,255,0.5);
-            border-left: 3px solid var(--gold-light);
-            padding: 1.2rem 1.5rem;
-            border-radius: 0 12px 12px 0;
-            backdrop-filter: blur(8px);
-            margin: 0.5rem 0 2rem;
-        }
-        .verse-block p {
-            font-style: italic;
-            color: #4A5A7A;
-            font-size: 0.9rem;
-            line-height: 1.75;
-        }
-        .verse-block cite {
-            display: block;
-            margin-top: 0.5rem;
-            font-size: 0.7rem;
-            letter-spacing: 0.15em;
-            color: rgba(184,134,11,0.6);
-            text-transform: uppercase;
-        }
-
-        /* ── FOOTER ── */
-        footer {
-            text-align: center;
-            padding: 2.5rem 1rem;
-            border-top: 1px solid rgba(184,134,11,0.15);
-            margin-top: 2rem;
-        }
-        footer p { font-size: 0.78rem; color: #A0A8C0; }
-        footer span { color: var(--gold); }
-
-        /* ── FLOAT ANIMATION ── */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-        .city-icon { animation: float 5s ease-in-out infinite; }
-
-        /* ── REVEAL ── */
-        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
-        .reveal.visible { opacity: 1; transform: none; }
-        .delay-1 { transition-delay: 0.1s; }
-        .delay-2 { transition-delay: 0.2s; }
-        .delay-3 { transition-delay: 0.3s; }
-        .delay-4 { transition-delay: 0.4s; }
-        .delay-5 { transition-delay: 0.5s; }
-        .delay-6 { transition-delay: 0.6s; }
-        .delay-7 { transition-delay: 0.7s; }
-    </style>
+/* REVEAL */
+.rv{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.rv.on{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+</style>
 </head>
 <body>
 
-<div class="page-wrapper">
+<!-- NAV -->
+<nav>
+  <div class="nav-wrap">
+    <a href="#" class="nav-logo">Nova <span>Jerusalém</span></a>
+    <ul>
+      <li><a href="#estudos">Estudos</a></li>
+      <li><a href="#meditacoes">Meditações</a></li>
+      <li><a href="#adoracao">Adoração</a></li>
+      <li><a href="#profecia">Profecia</a></li>
+      <li><a href="#sobre" class="nav-cta">Entrar</a></li>
+    </ul>
+  </div>
+</nav>
 
-    <!-- ── HEADER ── -->
-    <header>
-        <div class="city-icon">
-            <!-- Geometric New Jerusalem icon -->
-            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Base glow -->
-                <circle cx="40" cy="40" r="36" fill="rgba(255,230,100,0.08)"/>
-                <!-- City walls (3D box) -->
-                <polygon points="20,52 40,44 60,52 60,62 40,70 20,62" fill="#FFF8E7" stroke="#C9A84C" stroke-width="1.2"/>
-                <polygon points="20,52 20,62 40,70 40,60 20,52" fill="#F5EDD0" stroke="#C9A84C" stroke-width="1.2"/>
-                <polygon points="40,44 60,52 40,60 20,52" fill="#FFF3C0" stroke="#C9A84C" stroke-width="1.2"/>
-                <!-- Main tower -->
-                <rect x="34" y="32" width="12" height="20" fill="#FFF8E7" stroke="#C9A84C" stroke-width="1.2"/>
-                <!-- Tower roof -->
-                <polygon points="34,32 40,22 46,32" fill="#FFE066" stroke="#C9A84C" stroke-width="1.2"/>
-                <!-- Windows -->
-                <rect x="37" y="38" width="6" height="8" rx="1" fill="#D4AF37" opacity="0.7"/>
-                <!-- Star on top -->
-                <circle cx="40" cy="20" r="3" fill="#FFE066"/>
-                <line x1="40" y1="15" x2="40" y2="25" stroke="#C9A84C" stroke-width="0.8"/>
-                <line x1="35" y1="20" x2="45" y2="20" stroke="#C9A84C" stroke-width="0.8"/>
-                <!-- Side columns -->
-                <rect x="21" y="44" width="5" height="10" fill="#FFF3C0" stroke="#C9A84C" stroke-width="0.8"/>
-                <rect x="54" y="44" width="5" height="10" fill="#FFF3C0" stroke="#C9A84C" stroke-width="0.8"/>
-            </svg>
-        </div>
-        <div class="header-eyebrow">Hub de Estudos Bíblicos</div>
-        <h1>A Nova<br><em>Jerusalém</em></h1>
-        <p class="header-verse">"E vi a santa cidade, a nova Jerusalém, descer do céu, da parte de Deus, adereçada como uma noiva ornamentada para o seu marido."</p>
-        <p class="header-citation">— Apocalipse 21:2</p>
-    </header>
-
-    <!-- ── INTRO ── -->
-    <div class="intro-box reveal">
-        <p>Esta é a <strong>página central de estudos</strong>. Cada estudo abaixo é uma joia — como os doze fundamentos da Nova Jerusalém, adornada com safiras, esmeraldas, jaspe e ouro puro. Escolha um tema e aprofunde-se na Palavra de Deus.</p>
-    </div>
-
-    <!-- ── LINKS DOS ESTUDOS ── -->
-    <div class="section-heading reveal">
-        <span></span>
-        <h2>✦ Estudos Disponíveis ✦</h2>
-        <span style="background:linear-gradient(to left, rgba(184,134,11,0.3), transparent);"></span>
-    </div>
-
-    <div class="links-grid">
-
-        <a href="Espirito_Marinho.html" class="study-card reveal">
-            <div class="card-gem gem-jasper">🌊</div>
-            <div class="card-body">
-                <div class="card-title">Espíritos Marinhos <span class="arrow">→</span></div>
-                <p class="card-desc">Cônjuges espirituais, íncubos, súcubos e a batalha espiritual de Gênesis 6. Identificação e libertação.</p>
-            </div>
-        </a>
-
-        <a href="Eternidade.html" class="study-card reveal delay-1">
-            <div class="card-gem gem-sapphire">💎</div>
-            <div class="card-body">
-                <div class="card-title">Tema: Eternidade <span class="arrow">→</span></div>
-                <p class="card-desc">O que a Bíblia ensina sobre a vida eterna, o novo céu e a nova terra prometidos em Apocalipse.</p>
-            </div>
-        </a>
-
-        <a href="tema-graca.html" class="study-card reveal delay-2">
-            <div class="card-gem gem-emerald">💚</div>
-            <div class="card-body">
-                <div class="card-title">Tema: Graça <span class="arrow">→</span></div>
-                <p class="card-desc">O favor imerecido de Deus. Da queda em Éden à justificação pela fé — o fio dourado das Escrituras.</p>
-            </div>
-        </a>
-
-        <a href="tema-fe.html" class="study-card reveal delay-3">
-            <div class="card-gem gem-pearl">🤍</div>
-            <div class="card-body">
-                <div class="card-title">Tema: Fé <span class="arrow">→</span></div>
-                <p class="card-desc">A substância das coisas que se esperam. Hebreus 11 e os heróis da fé que atravessaram o impossível.</p>
-            </div>
-        </a>
-
-        <a href="tema-amor.html" class="study-card reveal delay-4">
-            <div class="card-gem gem-topaz">🌟</div>
-            <div class="card-body">
-                <div class="card-title">Tema: Amor <span class="arrow">→</span></div>
-                <p class="card-desc">1 Coríntios 13. O ágape de Deus que supera todo entendimento e é o cumprimento de toda a lei.</p>
-            </div>
-        </a>
-
-        <a href="tema-justificacao.html" class="study-card reveal delay-5">
-            <div class="card-gem gem-amethyst">🔮</div>
-            <div class="card-body">
-                <div class="card-title">Tema: Justificação <span class="arrow">→</span></div>
-                <p class="card-desc">Romanos e a doutrina da justificação pela fé, não pelas obras. O alicerce da Reforma Protestante.</p>
-            </div>
-        </a>
-
-    </div>
-
-    <!-- ── GEMS DIVIDER ── -->
-    <div class="gems-row reveal">
-        <div class="gem-dot"></div>
-        <div class="gem-dot"></div>
-        <div class="gem-dot"></div>
-        <div class="gem-dot"></div>
-        <div class="gem-dot"></div>
-        <div class="gem-dot"></div>
-        <div class="gem-dot"></div>
-    </div>
-
-    <!-- ── VERSES ── -->
-    <div class="section-heading reveal">
-        <span></span>
-        <h2>✦ A Cidade Celeste ✦</h2>
-        <span style="background:linear-gradient(to left, rgba(184,134,11,0.3), transparent);"></span>
-    </div>
-
-    <div class="verse-block reveal delay-1">
-        <p>"A cidade é de ouro puro, semelhante ao vidro puro. Os fundamentos do muro da cidade estão adornados com toda sorte de pedras preciosas: o primeiro fundamento é jaspe; o segundo, safira; o terceiro, calcedônia; o quarto, esmeralda..."</p>
-        <cite>— Apocalipse 21:18–19</cite>
-    </div>
-
-    <div class="verse-block reveal delay-2">
-        <p>"E as doze portas são doze pérolas; cada uma das portas era feita de uma só pérola. E a rua da cidade era de ouro puro, como vidro transparente. Não vi nenhum templo nela, porque o Senhor Deus Todo-Poderoso e o Cordeiro são o seu templo."</p>
-        <cite>— Apocalipse 21:21–22</cite>
-    </div>
-
-    <div class="verse-block reveal delay-3">
-        <p>"E mostrou-me um rio puro de água da vida, límpido como cristal, que procedia do trono de Deus e do Cordeiro. No meio da sua rua e de um e do outro lado do rio, estava a árvore da vida."</p>
-        <cite>— Apocalipse 22:1–2</cite>
-    </div>
-
-    <!-- ── FOOTER ── -->
-    <footer>
-        <p>© 2026 <span>Hub Educacional Bíblico</span> — Todos os direitos reservados.</p>
-        <p style="margin-top:0.4rem;">Inspirado em <span>Apocalipse 21 & 22</span> — A Nova Jerusalém</p>
-    </footer>
-
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">✦ Escola Bíblica Online ✦</div>
+  <h1>Bem-vindo à<br><em>Nova Jerusalém</em></h1>
+  <p class="hero-sub">"E vi a santa cidade, a nova Jerusalém, descer do céu, da parte de Deus, adornada como uma noiva para o seu marido."</p>
+  <p class="hero-cite">— Apocalipse 21:2</p>
+  <div class="hero-btns">
+    <a href="#estudos" class="btn btn-gold">Explorar Estudos</a>
+    <a href="#meditacoes" class="btn btn-outline">Meditações Diárias</a>
+  </div>
 </div>
 
-<script>
-    // Reveal on scroll
-    const reveals = document.querySelectorAll('.reveal');
-    const obs = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.08 });
-    reveals.forEach(el => obs.observe(el));
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>✦ Ap 21:4 — "Deus enxugará de seus olhos toda lágrima."</span>
+    <span class="ticker-sep">|</span>
+    <span>Ez 48:35 — "O nome da cidade desde aquele dia será: O SENHOR ESTÁ ALI."</span>
+    <span class="ticker-sep">|</span>
+    <span>Ap 21:23 — "A cidade não necessita de sol nem de lua para a iluminar."</span>
+    <span class="ticker-sep">|</span>
+    <span>Ap 22:5 — "E reinarão pelos séculos dos séculos."</span>
+    <span class="ticker-sep">|</span>
+    <span>✦ Ap 21:4 — "Deus enxugará de seus olhos toda lágrima."</span>
+    <span class="ticker-sep">|</span>
+    <span>Ez 48:35 — "O nome da cidade desde aquele dia será: O SENHOR ESTÁ ALI."</span>
+    <span class="ticker-sep">|</span>
+    <span>Ap 21:23 — "A cidade não necessita de sol nem de lua para a iluminar."</span>
+    <span class="ticker-sep">|</span>
+    <span>Ap 22:5 — "E reinarão pelos séculos dos séculos."</span>
+  </div>
+</div>
 
-    // 3D tilt on cards
-    document.querySelectorAll('.study-card').forEach(card => {
-        card.addEventListener('mousemove', e => {
-            const r = card.getBoundingClientRect();
-            const x = (e.clientX - r.left) / r.width - 0.5;
-            const y = (e.clientY - r.top) / r.height - 0.5;
-            card.style.transform = `perspective(700px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateY(-6px)`;
-        });
-        card.addEventListener('mouseleave', () => { card.style.transform = ''; });
-    });
+<!-- MAIN -->
+<div class="main">
+  <div>
+
+    <!-- DESTAQUE -->
+    <div class="sec-label rv"><h2>✦ Em Destaque</h2></div>
+    <div class="featured-card rv d1">
+      <div class="feat-banner">
+        <div class="feat-tag">📖 Estudo Completo</div>
+        <h3>Espíritos Marinhos:<br>Identificação e Libertação</h3>
+        <p>Cônjuges espirituais, íncubos e súcubos à luz de Gênesis 6 e da guerra espiritual bíblica. Um estudo aprofundado sobre como identificar e se libertar dessa opressão.</p>
+        <div class="feat-meta"><span>🗓 Março 2026</span><span>📚 Leitura: 20 min</span><span>🔥 Em destaque</span></div>
+      </div>
+      <div class="feat-body">
+        <p class="feat-excerpt">Descubra a raiz bíblica dessa batalha espiritual, os sinais de opressão, as armas de libertação e as orações de renúncia eficazes segundo a Palavra de Deus.</p>
+        <a href="nova-jerusalem/estudo_espiritos.html" class="feat-link">Ler o Estudo →</a>
+      </div>
+    </div>
+
+    <!-- ESTUDOS -->
+    <div id="estudos" class="sec-label rv"><h2>✦ Estudos Bíblicos</h2></div>
+    <div class="posts-grid">
+
+      <a href="nova-jerusalem/Eternidade.html" class="post-card rv">
+        <div class="post-cat cat-study"><div class="cat-dot"></div><span class="cat-name">Estudo</span></div>
+        <h3>A Eternidade: Antes do Tempo e Depois</h3>
+        <p>O que existia antes da criação? Para onde vai o tempo? A Bíblia revela um plano eterno que começa muito antes de Gênesis.</p>
+        <div class="post-footer"><span class="post-time">⏱ 15 min</span><span class="post-arrow">→</span></div>
+      </a>
+
+      <a href="nova-jerusalem/tema-graca.html" class="post-card rv d1">
+        <div class="post-cat cat-study"><div class="cat-dot"></div><span class="cat-name">Estudo</span></div>
+        <h3>Graça: O Dom Imerecido de Deus</h3>
+        <p>Da queda no Éden à justificação pela fé — o fio dourado de graça que perpassa toda a narrativa bíblica.</p>
+        <div class="post-footer"><span class="post-time">⏱ 12 min</span><span class="post-arrow">→</span></div>
+      </a>
+
+      <a href="nova-jerusalem/tema-fe.html" class="post-card rv d2">
+        <div class="post-cat cat-study"><div class="cat-dot"></div><span class="cat-name">Estudo</span></div>
+        <h3>Fé: A Substância do Invisível</h3>
+        <p>Hebreus 11 e os grandes heróis que atravessaram o impossível pela fé. Como cultivar uma fé que move montanhas.</p>
+        <div class="post-footer"><span class="post-time">⏱ 10 min</span><span class="post-arrow">→</span></div>
+      </a>
+
+      <a href="nova-jerusalem/tema-amor.html" class="post-card rv d3">
+        <div class="post-cat cat-study"><div class="cat-dot"></div><span class="cat-name">Estudo</span></div>
+        <h3>Amor: O Ágape que Supera Tudo</h3>
+        <p>1 Coríntios 13 e o amor de Deus que não falha. O cupprimento de toda a lei em um único mandamento.</p>
+        <div class="post-footer"><span class="post-time">⏱ 10 min</span><span class="post-arrow">→</span></div>
+      </a>
+
+      <a href="nova-jerusalem/tema-justificacao.html" class="post-card rv">
+        <div class="post-cat cat-study"><div class="cat-dot"></div><span class="cat-name">Estudo</span></div>
+        <h3>Justificação pela Fé — Romanos</h3>
+        <p>O alicerce da Reforma Protestante. A doutrina que transformou a história e que ainda é o coração do Evangelho.</p>
+        <div class="post-footer"><span class="post-time">⏱ 18 min</span><span class="post-arrow">→</span></div>
+      </a>
+
+      <a href="#" class="post-card rv d1" style="opacity:.6;pointer-events:none">
+        <div class="post-cat cat-proph"><div class="cat-dot"></div><span class="cat-name">Profecia</span></div>
+        <h3>A Visão de Ezequiel — O Templo Futuro</h3>
+        <p>Ezequiel 40-48 e a visão do templo eterno de onde brotará o rio da vida para curar as nações.</p>
+        <div class="post-footer"><span class="post-time">🔒 Em breve</span><span class="post-arrow">→</span></div>
+      </a>
+
+    </div>
+
+    <!-- MEDITAÇÕES -->
+    <div id="meditacoes" class="sec-label rv"><h2>✦ Meditações</h2></div>
+    <div class="med-list">
+      <a href="#" class="med-item rv">
+        <div class="med-num">01</div>
+        <div>
+          <div class="med-title">A Cidade de Ouro Puro — Meditação sobre Ap 21:18</div>
+          <p class="med-desc">Uma cidade cujas ruas são de ouro transparente como vidro — não o ouro opaco que conhecemos, mas translúcido. Meditação sobre a glória que aguarda o crente.</p>
+          <div class="med-ref">Apocalipse 21:18 • 5 min de leitura</div>
+        </div>
+      </a>
+      <a href="#" class="med-item rv d1">
+        <div class="med-num">02</div>
+        <div>
+          <div class="med-title">O Rio que Cura as Nações — Ap 22:1-2</div>
+          <p class="med-desc">O rio da água da vida fluindo do trono de Deus. A árvore de vida com folhas para curar os povos. O Éden restaurado e magnificado para a eternidade.</p>
+          <div class="med-ref">Apocalipse 22:1-2 • 5 min de leitura</div>
+        </div>
+      </a>
+      <a href="#" class="med-item rv d2">
+        <div class="med-num">03</div>
+        <div>
+          <div class="med-title">YHWH Shammah — O SENHOR ESTÁ ALI</div>
+          <p class="med-desc">Ezequiel 48:35 encerra com este nome: "O SENHOR ESTÁ ALI". O que significa morar numa cidade onde a presença de Deus é a própria luz e o próprio templo?</p>
+          <div class="med-ref">Ezequiel 48:35 • Ap 21:22-23 • 7 min de leitura</div>
+        </div>
+      </a>
+      <a href="#" class="med-item rv d3">
+        <div class="med-num">04</div>
+        <div>
+          <div class="med-title">As 12 Pérolas — Cada Porta, Uma Pérola</div>
+          <p class="med-desc">As portas da Nova Jerusalém não são feitas de mármore ou metal. Cada porta é uma única pérola gigantesca. A pérola que nasce da dor — uma profunda analogia da graça.</p>
+          <div class="med-ref">Apocalipse 21:21 • 6 min de leitura</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- ADORAÇÃO -->
+    <div id="adoracao" class="sec-label rv"><h2>✦ Espaço de Adoração</h2></div>
+    <div class="worship-section rv">
+      <h2>Adorar em Espírito e Verdade</h2>
+      <p>"Mas a hora vem, e agora é, em que os verdadeiros adoradores adorarão o Pai em espírito e em verdade." — João 4:23</p>
+      <div class="worship-grid">
+        <a href="#" class="worship-card">
+          <span>🎵</span>
+          <h4>Salmos Meditativos</h4>
+          <p>Os Salmos como oração e adoração. Uma seleção para cada momento da vida.</p>
+        </a>
+        <a href="#" class="worship-card">
+          <span>🙏</span>
+          <h4>Orações de Guerra</h4>
+          <p>Orações baseadas em Efésios 6 para a batalha espiritual do dia a dia.</p>
+        </a>
+        <a href="#" class="worship-card">
+          <span>📿</span>
+          <h4>Liturgia Diária</h4>
+          <p>Uma estrutura de devoção matinal baseada nos Salmos e nos Evangelhos.</p>
+        </a>
+        <a href="#" class="worship-card">
+          <span>🕊️</span>
+          <h4>Silêncio Sagrado</h4>
+          <p>A prática do silêncio contemplativo na tradição dos Padres do Deserto.</p>
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /col-main -->
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- VERSÍCULO DO DIA -->
+    <div class="verse-day rv">
+      <div class="widget-title">✦ Versículo do Dia</div>
+      <blockquote>"Não haverá mais maldição alguma. O trono de Deus e do Cordeiro estará nela, e os seus servos o servirão e verão a sua face."</blockquote>
+      <cite>— Apocalipse 22:3-4</cite>
+    </div>
+
+    <!-- LINKS RÁPIDOS -->
+    <div class="sidebar-widget rv d1">
+      <div class="widget-title">✦ Estudos Disponíveis</div>
+      <ul class="qlinks">
+        <li><a href="nova-jerusalem/estudo_espiritos.html"><span>🌊</span> Espíritos Marinhos</a></li>
+        <li><a href="nova-jerusalem/Eternidade.html"><span>♾️</span> Tema: Eternidade</a></li>
+        <li><a href="nova-jerusalem/tema-graca.html"><span>🤍</span> Tema: Graça</a></li>
+        <li><a href="nova-jerusalem/tema-fe.html"><span>⚡</span> Tema: Fé</a></li>
+        <li><a href="nova-jerusalem/tema-amor.html"><span>💛</span> Tema: Amor</a></li>
+        <li><a href="nova-jerusalem/tema-justificacao.html"><span>📜</span> Justificação</a></li>
+      </ul>
+    </div>
+
+    <!-- PROFECIA -->
+    <div class="proph-widget rv d2">
+      <div class="widget-title">✦ Profecia: Ezequiel</div>
+      <p>"E o nome da cidade desde aquele dia será: O SENHOR ESTÁ ALI."</p>
+      <cite>— Ezequiel 48:35</cite>
+      <p style="margin-top:.8rem">"Depois ele me levou de volta à entrada do santuário, e havia água saindo por debaixo do limiar do templo..."</p>
+      <cite>— Ezequiel 47:1</cite>
+    </div>
+
+    <!-- NEWSLETTER -->
+    <div class="sidebar-widget subscribe-widget rv d3" id="sobre">
+      <div class="widget-title">✦ Receber Estudos</div>
+      <p>Insira seu e-mail para receber novos estudos e meditações diretamente na sua caixa de entrada.</p>
+      <div class="sub-input">
+        <input type="email" placeholder="seu@email.com">
+        <button>Quero Receber ✦</button>
+      </div>
+    </div>
+
+  </aside>
+</div><!-- /main -->
+
+<!-- NOVA JERUSALÉM INFO -->
+<div class="nj-section">
+  <div class="nj-banner rv">
+    <h2>Os Fundamentos da<br><em>Nova Jerusalém</em></h2>
+    <p>Apocalipse 21 descreve uma cidade com 12 fundamentos, cada um ornado com uma pedra preciosa diferente — como facetas da glória de Deus. Cada gemstone abaixo representa um aspecto teológico da cidade eterna.</p>
+    <div class="gems-grid">
+      <div class="gem-card rv"><div class="gem-ico">🔴</div><h4>Jaspe</h4><p>A glória de Deus — clara como cristal. O 1º fundamento. Ap 21:19</p></div>
+      <div class="gem-card rv d1"><div class="gem-ico">💙</div><h4>Safira</h4><p>Soberania divina. Trono celestial de Ezequiel 1:26. 2º fundamento.</p></div>
+      <div class="gem-card rv d2"><div class="gem-ico">💚</div><h4>Esmeralda</h4><p>Aliança eterna. O arco-íris ao redor do trono. 4º fundamento.</p></div>
+      <div class="gem-card rv d3"><div class="gem-ico">🟡</div><h4>Topázio</h4><p>Sabedoria e preciosidade. "O topázio da Etiópia não se iguala a ela." 9º fundamento.</p></div>
+      <div class="gem-card rv"><div class="gem-ico">🟣</div><h4>Ametista</h4><p>Realeza sacerdotal. A cor da majestade e do sacerdócio. 12º fundamento.</p></div>
+      <div class="gem-card rv d1"><div class="gem-ico">⚪</div><h4>Pérola</h4><p>As 12 portas — cada uma uma pérola. A graça que nasce da dor e da pressão.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Nova Jerusalém ✦</div>
+        <p class="footer-desc">Uma escola bíblica online dedicada ao aprofundamento da Palavra de Deus, inspirada na cidade eterna descrita em Ezequiel e Apocalipse.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Estudos</h5>
+        <ul>
+          <li><a href="nova-jerusalem/estudo_espiritos.html">Espíritos Marinhos</a></li>
+          <li><a href="nova-jerusalem/Eternidade.html">Eternidade</a></li>
+          <li><a href="nova-jerusalem/tema-graca.html">Graça</a></li>
+          <li><a href="nova-jerusalem/tema-fe.html">Fé</a></li>
+          <li><a href="nova-jerusalem/tema-justificacao.html">Justificação</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Recursos</h5>
+        <ul>
+          <li><a href="#">Meditações</a></li>
+          <li><a href="#">Adoração</a></li>
+          <li><a href="#">Orações</a></li>
+          <li><a href="#">Profecia</a></li>
+          <li><a href="#">Sobre</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 <span>Hub Educacional Bíblico</span> — Nova Jerusalém</p>
+      <p>Inspirado em <span>Ap 21–22</span> & <span>Ez 40–48</span></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Reveal on scroll
+const rvEls = document.querySelectorAll('.rv');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); });
+},{threshold:0.08});
+rvEls.forEach(el => obs.observe(el));
+
+// 3D tilt cards
+document.querySelectorAll('.post-card,.med-item,.gem-card').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left)/r.width - .5;
+    const y = (e.clientY - r.top)/r.height - .5;
+    el.style.transform = `perspective(600px) rotateY(${x*6}deg) rotateX(${-y*6}deg) translateY(-4px)`;
+  });
+  el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+});
 </script>
 </body>
 </html>
