@@ -820,7 +820,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       // ---------- 1️⃣ Abrir cliente de e‑mail ----------
       const subject = encodeURIComponent('Inscrição Newsletter – Nova Jerusalém');
       const body    = encodeURIComponent(`Olá,\n\nGostaria de inscrever o seguinte e‑mail na newsletter:\n${email}\n\nAtt.,\n[Seu nome]`);
-      window.location.href = `mailto:vivobruno26@gmail.com?subject=${subject}&body=${body}`;
+const formData = new FormData(); formData.append('email', email); formData.append('subject', 'Inscrição Newsletter – Nova Jerusalém'); fetch('https://formsubmit.co/vivobruno26@gmail.com', { method: 'POST', body: formData }).then(res => res.ok ? Promise.resolve() : Promise.reject()).then(() => { localStorage.setItem('newsletter_email_' + Date.now(), email); alert('✅ Obrigado! Seu e-mail será enviado ao administrador.'); emailInput.value = ''; }).catch(err => alert('❌ Erro ao enviar. Tente novamente.'));
 
       // ---------- 2️⃣ Guardar localmente (opcional) ----------
       localStorage.setItem('newsletter_email_' + Date.now(), email);
