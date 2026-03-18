@@ -1,0 +1,16 @@
+#gemini-chat {
+    width: 100%;
+    min-height: 400px;
+    margin-top: 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+@media (min-width: 768px) {
+    #gemini-chat {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
