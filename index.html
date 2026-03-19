@@ -730,31 +730,7 @@ const observer = new IntersectionObserver(entries=>{
 }, {threshold:.1});
 document.querySelectorAll('.rv').forEach(el=>observer.observe(el));
 
-/* =========================================================
-   5️⃣  EFEITO 3D “TILT”
-   ========================================================= */
-function initTilt(){
-  if(window.innerWidth < 1024) return;
-  // HERO
-  const hero = document.querySelector('.hero');
-  const h1 = hero.querySelector('h1');
-  hero.addEventListener('mousemove', e=>{
-    const x = (e.clientX/window.innerWidth-0.5)*20;
-    const y = (e.clientY/window.innerHeight-0.5)*20;
-    h1.style.transform = `translate3d(${x}px,${y}px,0)`;
-  });
-  // TODOS OS CARDS DINÂMICOS
-  document.querySelectorAll('.tilt-book').forEach(b=>{
-    b.addEventListener('mousemove', e=>{
-      const r = b.getBoundingClientRect();
-      const x = (e.clientX - r.left)/r.width - 0.5;
-      const y = (e.clientY - r.top)/r.height - 0.5;
-      b.style.transform = `perspective(1000px) rotateY(${x*10}deg) rotateX(${-y*10}deg) translateY(-5px)`;
-    });
-    b.addEventListener('mouseleave', () => b.style.transform = '');
-  });
-}
-window.addEventListener('load',()=>setTimeout(initTilt,100));
+/* O efeito Tilt foi movido para o main.js global */
 
 /* =========================================================
    6️⃣  GEMINI CHATBOT
