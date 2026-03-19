@@ -1,303 +1,197 @@
 <!DOCTYPE html>
-<html lang="pt-PT" class="scroll-smooth">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eternidade, Tempo e a Cruz | Estudo Bíblico</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Cinzel:wght@400;600;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/chatbot.css">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3518556229546726" crossorigin="anonymous"></script>
-    <style>
-        :root {
-            --ink: #0a0612;
-            --parchment: #f5f0e8;
-            --gold: #c9a84c;
-            --gold-light: #e8cb7a;
-            --wine: #6b1425;
-            --wine-light: #8b1a30;
-            --mist: #d4cfc8;
-            --smoke: #1a1225;
-        }
+  <!-- ==== META ==== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Eternidade, Tempo e a Cruz – Estudo Bíblico Profundo</title>
+  <meta name="description" content="Onde o eterno e o temporal se cruzam — e Cristo é o ponto de encontro. Estudo sobre Apocalipse 1:8.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Eternidade, Tempo e a Cruz">
+  <meta property="og:description" content="Onde o eterno e o temporal se cruzam.">
+  <meta property="og:image" content="https://primeiromilhao.github.io/blogger_Estudos/img/eternidade-og.jpg">
+  <meta property="og:url" content="https://primeiromilhao.github.io/blogger_Estudos/Eternidade.html">
+  <meta property="og:type" content="article">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
+  <!-- ==== FONTS & ICONS ==== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-        body {
-            background: var(--ink);
-            background-image: radial-gradient(circle at 50% 50%, rgba(107, 20, 37, 0.1) 0%, transparent 80%);
-            background-attachment: fixed;
-            color: var(--parchment);
-            font-family: 'Lato', sans-serif;
-            font-weight: 300;
-            line-height: 1.8;
-            overflow-x: hidden;
-        }
-
-        /* ─── NAV ─── */
-        nav {
-            position: fixed;
-            top: 0; width: 100%;
-            z-index: 100;
-            padding: 0 2rem;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(to bottom, rgba(10,6,18,0.95), transparent);
-            border-bottom: 1px solid rgba(201,168,76,0.15);
-            transition: background 0.3s;
-        }
-
-        .nav-brand {
-            font-family: 'Cinzel', serif;
-            font-size: 0.85rem;
-            letter-spacing: 0.2em;
-            color: var(--gold);
-            text-decoration: none;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            font-family: 'Cinzel', serif;
-            font-size: 0.65rem;
-            letter-spacing: 0.15em;
-            color: rgba(212,207,200,0.6);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        .nav-links a:hover { color: var(--gold); }
-
-        /* ─── HERO ─── */
-        #hero {
-            position: relative;
-            z-index: 1;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .hero-eyebrow {
-            font-family: 'Cinzel', serif;
-            font-size: 0.65rem;
-            letter-spacing: 0.4em;
-            color: var(--gold);
-            margin-bottom: 2rem;
-            opacity: 0;
-            animation: fadeUp 1s ease 0.3s forwards;
-        }
-
-        .hero-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(3rem, 8vw, 7rem);
-            font-weight: 300;
-            line-height: 1.05;
-            letter-spacing: -0.02em;
-            margin-bottom: 1.5rem;
-            opacity: 0;
-            animation: fadeUp 1s ease 0.6s forwards;
-        }
-        .hero-title em { font-style: italic; color: var(--gold); }
-
-        .hero-subtitle {
-            font-size: 0.95rem;
-            color: var(--mist);
-            max-width: 480px;
-            margin: 0 auto 3rem;
-            opacity: 0;
-            animation: fadeUp 1s ease 0.9s forwards;
-        }
-
-        .hero-verse {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 1.1rem;
-            color: rgba(201,168,76,0.7);
-            max-width: 500px;
-            margin: 0 auto 3rem;
-            border-left: 2px solid rgba(201,168,76,0.3);
-            padding-left: 1.2rem;
-            text-align: left;
-            opacity: 0;
-            animation: fadeUp 1s ease 1.1s forwards;
-        }
-
-        .hero-cta {
-            display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
-            opacity: 0;
-            animation: fadeUp 1s ease 1.3s forwards;
-        }
-
-        .btn-primary, .btn-ghost {
-            font-family: 'Cinzel', serif;
-            font-size: 0.7rem;
-            letter-spacing: 0.2em;
-            padding: 0.85rem 2.2rem;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: var(--wine);
-            color: var(--parchment);
-            border: 1px solid var(--wine-light);
-        }
-        .btn-primary:hover { border-color: var(--gold); background: var(--wine-light); }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--mist);
-            border: 1px solid rgba(212,207,200,0.25);
-        }
-        .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
-
-        /* ─── DIVIDER ─── */
-        .section-divider {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            padding: 0 2rem;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        .divider-line {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(to right, transparent, rgba(201,168,76,0.3), transparent);
-        }
-        .divider-symbol { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: rgba(201,168,76,0.4); }
-
-        /* ─── SECTIONS ─── */
-        .section-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 6rem 2rem;
-        }
-        .section-label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.35em; color: var(--gold); margin-bottom: 1rem; display: block; }
-        .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300; line-height: 1.15; margin-bottom: 1.5rem; }
-
-        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
-
-        /* ─── FOOTER ─── */
-        footer { border-top: 1px solid rgba(201,168,76,0.1); padding: 3rem 2rem; text-align: center; }
-        .footer-brand { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--gold); margin-bottom: 0.5rem; }
-
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        @media (max-width: 900px) {
-            .nav-links { display: none; }
-        }
-    </style>
+  <!-- ==== CSS ==== -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/tocbot@4.13.0/dist/tocbot.css">
+  <link rel="stylesheet" href="assets/css/chatbot.css">
+  
+  <style>
+    /* Eternidade-specific overrides */
+    :root {
+      --color-primary: #6b1425; /* Wine color for Eternity */
+      --color-primary-dark: #4a0e1a;
+    }
+    [data-theme="dark"] {
+      --color-bg: #0a0612;
+      --color-primary: #8b1a30;
+    }
+  </style>
 </head>
+
 <body>
-    <nav>
-        <a href="index.html" class="nav-brand">BRUNO NOVAES</a>
-        <ul class="nav-links">
-            <li><a href="#hero">Início</a></li>
-            <li><a href="#visao-geral">Estudo</a></li>
-            <li><a href="#downloads">Downloads</a></li>
-        </ul>
-    </nav>
+  <!-- ==== HEADER ==== -->
+  <header class="site-header" role="banner">
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 class="site-title"><a href="index.html">Biblioteca Profética</a></h1>
+        <nav class="site-nav" aria-label="Navegação principal">
+          <ul>
+            <li><a href="index.html">Início</a></li>
+            <li><a href="Eternidade.html" class="active">Eternidade</a></li>
+            <li><a href="O%20Chamado%20Para%20Restaurar.html">Restaurar</a></li>
+          </ul>
+          <button id="themeToggle" aria-label="Alternar modo escuro" title="Modo escuro/claro">🌙</button>
+        </nav>
+      </div>
+    </div>
+  </header>
 
-    <section id="hero">
-        <span class="hero-eyebrow">Estudo Bíblico Profundo</span>
-        <h1 class="hero-title">
-            Eternidade,<br>
-            <em>Tempo</em><br>
-            e a Cruz
-        </h1>
-        <p class="hero-subtitle">Onde o eterno e o temporal se cruzam — e Cristo é o ponto de encontro.</p>
-        <blockquote class="hero-verse">
-            "Eu sou o Alfa e o Ômega, o princípio e o fim,<br>
-            diz o Senhor, que é, que era e que há de vir."<br>
-            <small>— Apocalipse 1.8</small>
-        </blockquote>
-        <div class="hero-cta">
-            <a href="#visao-geral" class="btn-primary">Ler Estudo</a>
-            <a href="#downloads" class="btn-ghost">Materiais</a>
+  <!-- ==== PROGRESS BAR ==== -->
+  <div id="readingProgress" aria-hidden="true"></div>
+
+  <!-- ==== MAIN CONTENT ==== -->
+  <main class="site-content container" role="main">
+    <article class="post">
+
+      <!-- HERO IMAGE -->
+      <figure class="post-hero">
+        <picture>
+          <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=1200"
+               alt="Céu estrelado representando a eternidade"
+               loading="lazy">
+        </picture>
+        <figcaption>O tempo é apenas uma pequena ilha no oceano da eternidade</figcaption>
+      </figure>
+
+      <!-- POST HEADER -->
+      <header class="post-header">
+        <h1 class="post-title">Eternidade, Tempo e a Cruz</h1>
+        <p class="post-meta">
+          <time datetime="2024-03-15">15 de Março de 2024</time> •
+          <span class="post-category">Estudo Profético</span>
+        </p>
+      </header>
+
+      <!-- TABLE OF CONTENTS -->
+      <nav class="toc" id="toc"></nav>
+
+      <!-- INTRODUÇÃO -->
+      <section class="post-intro">
+        <p>Entender a natureza de Deus exige compreendermos como Ele se relaciona com o tempo. Em Apocalipse 1:8, encontramos a definição definitiva: "Eu sou o Alfa e o Ômega... que é, que era, e que há de vir."</p>
+      </section>
+
+      <!-- PRINCIPAL BODY -->
+      <section class="post-body">
+
+        <h2 id="intersecao">1. A Interseção do Eterno e do Temporal</h2>
+        <p>Existem duas esferas na existência de Deus que se tocam em Cristo:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+          <div style="padding: 1.5rem; background: rgba(107, 20, 37, 0.05); border-radius: 8px; border-left: 3px solid var(--color-primary);">
+            <strong style="display:block; margin-bottom: 0.5rem;">O Tempo (Cronos)</strong>
+            "Alfa e Ômega, princípio e fim." Representa a história linear, com começo, meio e término.
+          </div>
+          <div style="padding: 1.5rem; background: rgba(107, 20, 37, 0.05); border-radius: 8px; border-left: 3px solid var(--color-primary);">
+            <strong style="display:block; margin-bottom: 0.5rem;">A Eternidade (Kairos)</strong>
+            "Que é, que era, e que há de vir." Representa o eterno presente de Deus, fora das limitações do relógio.
+          </div>
         </div>
-    </section>
 
-    <main>
-        <section id="visao-geral">
-            <div class="section-inner">
-                <div class="reveal">
-                    <span class="section-label">I — Fundamento</span>
-                    <h2 class="section-title">Visão Geral</h2>
-                    <p>Partimos de Apocalipse 1.8 para compreender a interseção entre o tempo e a eternidade. Existem duas ideias fundamentais: "Alfa e Ômega, princípio e fim" falam do tempo, da história com começo e fim.</p>
-                    <p>Por outro lado, "que é, que era e que há de vir" falam da eternidade — a existência de Deus sem início nem término, num eterno "é". É exatamente em Cristo que o tempo e a eternidade se cruzam de forma perfeita.</p>
-                </div>
-            </div>
-        </section>
+        <blockquote>
+          "Eu sou o Alfa e o Ômega, o princípio e o fim, diz o Senhor, que é, que era e que há de vir, o Todo-Poderoso."
+          <footer>— <cite>Apocalipse 1:8</cite></footer>
+        </blockquote>
 
-        <div class="section-divider"><div class="divider-line"></div><div class="divider-symbol">✦</div><div class="divider-line"></div></div>
+        <h2 id="ponto-encontro">2. O Ponto de Encontro: A Cruz</h2>
+        <p>A Cruz de Cristo é o local onde o Kairos (o tempo de Deus) invade o Cronos (o nosso tempo). Foi um evento histórico linear, mas com impacto eterno e retroativo.</p>
 
-        <section id="downloads">
-            <div class="section-inner">
-                <div class="reveal" style="text-align:center;">
-                    <span class="section-label">Materiais</span>
-                    <h2 class="section-title">Guias de Estudo PDF</h2>
-                    <p>Aprofunde-se em cada tema com materiais estruturados.</p>
-                    <div style="margin-top:2rem; display:flex; flex-direction:column; gap:1rem; align-items:center;">
-                        <a href="/api/redirect?book=eternidade_pdf1" class="btn-primary">Visão Geral & Apocalipse</a>
-                        <a href="/api/redirect?book=eternidade_pdf2" class="btn-primary">Chronos × Kairos</a>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <h2 id="downloads">3. Materiais de Estudo (PDF)</h2>
+        <p>Aprofunde-se nesta revelação com os nossos guias estruturados:</p>
+        
+        <div style="background: rgba(107, 20, 37, 0.05); padding: 2rem; border-radius: 12px; text-align: center; margin: 2rem 0; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
+          <a href="/api/redirect?book=eternidade_pdf1" class="btn-primary">Baixar PDF 1: Visão Geral</a>
+          <a href="/api/redirect?book=eternidade_pdf2" class="btn-primary" style="opacity: 0.8;">Baixar PDF 2: Cronos × Kairos</a>
+        </div>
 
-        <section id="livro-recomendado" style="background:rgba(20,10,15,0.4); padding: 6rem 0; border-top:1px solid rgba(201,168,76,0.1);">
-            <div class="section-inner" style="text-align:center;">
-                <div class="reveal">
-                    <span class="section-label">Fundamento Profético</span>
-                    <h2 class="section-title">O Altar da Eternidade</h2>
-                    <p style="color:var(--mist); max-width:600px; margin:0 auto 2.5rem;">Deus é o Alfa e o Ômega, Ele não deixa obras inacabadas. Entenda como o seu destino é selado no altar de Deus através desta leitura essencial.</p>
-                    <a href="/api/redirect?book=deus_terminar" class="btn-primary" style="display:inline-block;">
-                        Adquirir Livro na Amazon
-                    </a>
-                </div>
-            </div>
-        </section>
-    </main>
+      </section>
 
-    <footer>
-        <div class="footer-brand">Bruno Novaes</div>
-        <p>© 2026 Hubbard Educacional Bíblico</p>
-    </footer>
+      <!-- CONCLUSÃO -->
+      <section class="post-conclusion">
+        <p>Somos seres temporais chamados a habitar na eternidade com Aquele que é o Princípio e o Fim.</p>
+      </section>
 
-    <script>
-        // Intersection Observer for Reveal
-        const revealEls = document.querySelectorAll('.reveal');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.1 });
-        revealEls.forEach(el => observer.observe(el));
+      <!-- SHARE BUTTONS -->
+      <section class="post-share">
+        <p>Partilhe este Estudo:</p>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=https://primeiromilhao.github.io/blogger_Estudos/Eternidade.html"
+           target="_blank" rel="noopener" aria-label="Compartilhar no Facebook" class="share-btn fb">Facebook</a>
+        <a href="https://twitter.com/intent/tweet?url=https://primeiromilhao.github.io/blogger_Estudos/Eternidade.html&text=Eternidade, Tempo e a Cruz"
+           target="_blank" rel="noopener" aria-label="Compartilhar no Twitter" class="share-btn tw">Twitter</a>
+        <a href="whatsapp://send?text=Eternidade, Tempo e a Cruz https://primeiromilhao.github.io/blogger_Estudos/Eternidade.html"
+           target="_blank" rel="noopener" aria-label="Compartilhar no WhatsApp" class="share-btn wa">WhatsApp</a>
+      </section>
 
-        // Nav Scroll Effect
-        const nav = document.querySelector('nav');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                nav.style.background = 'rgba(10,6,18,0.98)';
-                nav.style.borderBottom = '1px solid rgba(201,168,76,0.2)';
-            } else {
-                nav.style.background = 'transparent';
-                nav.style.borderBottom = '1px solid rgba(201,168,76,0.15)';
-            }
-        });
-    </script>
+      <!-- COMMENTS -->
+      <section id="comments" class="post-comments">
+        <script src="https://utteranc.es/client.js"
+                repo="primeiromilhao/blogger_Estudos"
+                issue-term="pathname"
+                label="comment"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+        </script>
+      </section>
+
+    </article>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar related-posts" aria-label="Posts relacionados">
+      <h2>Estudos Relacionados</h2>
+      <ul>
+        <li><a href="O%20Chamado%20Para%20Restaurar.html">O Chamado Para Restaurar</a></li>
+        <li><a href="Espirito_Marinho.html">Os Espíritos Marinhos e a Libertação</a></li>
+      </ul>
+    </aside>
+  </main>
+
+  <section id="livro-recomendado" style="background:rgba(107, 20, 37, 0.05); padding: 5rem 0; border-top:1px solid rgba(0,0,0,0.05);">
+    <div class="container" style="text-align:center;">
+        <h2 style="font-family: var(--font-serif); margin-bottom: 1.5rem;">O Altar da Eternidade</h2>
+        <p style="max-width:600px; margin:0 auto 2.5rem; opacity: 0.8;">Entenda como o seu destino é selado no altar de Deus através desta leitura essencial.</p>
+        <a href="/api/redirect?book=deus_terminar" class="btn-primary">Adquirir Livro na Amazon</a>
+    </div>
+  </section>
+
+  <!-- ==== FOOTER ==== -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <p>© 2026 Biblioteca Profética • Desenvolvido por <a href="https://github.com/Primeiromilhao" style="color:#fff;">primeiromilhao</a></p>
+    </div>
+  </footer>
+
+  <div id="gemini-chat"></div>
+
+  <!-- ==== JAVASCRIPT ==== -->
+  <script src="https://unpkg.com/tocbot@4.13.0/dist/tocbot.min.js"></script>
+  <script src="main.js"></script>
+  <script>
+    loadGeminiChatbot({
+        containerId: 'gemini-chat',
+        model: 'gemini-1.5-pro',
+        systemPrompt: "Você é o assistente sábio focado no estudo: Eternidade, Tempo e a Cruz.",
+        jsonConfigUrl: "https://storage.googleapis.com/blogger_estudos_assets/faq_eternidade.json"
+    });
+  </script>
 </body>
 </html>
