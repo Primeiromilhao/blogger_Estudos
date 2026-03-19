@@ -134,12 +134,28 @@
                     <figcaption>Mosaico de esperança</figcaption>
                 </figure>
 
-                <h2 id="recursos">3. Materiais de Estudo</h2>
-                <p>Aprofunde-se nesta temática com os nossos recursos:</p>
-                <ul>
-                    <li><a href="/api/redirect?book=eternidade_pdf1">Baixar PDF: Visão Geral</a></li>
-                    <li><a href="/api/redirect?book=deus_terminar">Livro: O Altar da Eternidade</a></li>
-                </ul>
+                <div style="background: rgba(13, 110, 253, 0.05); padding: 2.5rem; border-radius: 12px; text-align: center; border: 1px solid rgba(212,160,23,0.3);">
+                    <h3>Biblioteca de Recursos Eternos</h3>
+                    <p>Receba guias exclusivos e materiais de apoio para aprofundar sua caminhada.</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                        <div class="glass-card" style="margin-bottom:0; background:rgba(255,255,255,0.03);">
+                            <h4>Guia: Visão Geral</h4>
+                            <form action="/api/redirect?book=eternidade_pdf1&study=1" method="POST" target="_blank">
+                                <input type="email" name="EMAIL" placeholder="Seu e-mail" required style="padding: 0.6rem; border-radius: 8px; border: 1px solid #444; width: 100%; margin-bottom: 0.8rem; background: #111; color: #fff;">
+                                <button type="submit" class="btn-primary" style="width: 100%;">Baixar PDF 1</button>
+                            </form>
+                        </div>
+                        <div class="glass-card" style="margin-bottom:0; background:rgba(255,255,255,0.03);">
+                            <h4>Aprofundamento: Eternidade</h4>
+                            <form action="/api/redirect?book=eternidade_pdf2&study=1" method="POST" target="_blank">
+                                <input type="email" name="EMAIL" placeholder="Seu e-mail" required style="padding: 0.6rem; border-radius: 8px; border: 1px solid #444; width: 100%; margin-bottom: 0.8rem; background: #111; color: #fff;">
+                                <button type="submit" class="btn-primary" style="width: 100%;">Baixar PDF 2</button>
+                            </form>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 1.5rem; color: var(--color-gold);">Livro Recomendado: <a href="/api/redirect?book=deus_terminar" style="color: #fff; text-decoration: underline;">O Altar da Eternidade na Amazon</a></p>
+                </div>
             </section>
 
             <section class="post-conclusion">

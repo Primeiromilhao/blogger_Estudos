@@ -34,6 +34,7 @@ AFFILIATE_LINKS = {
 STUDY_LINKS = {
     "restaurar_pdf": "https://drive.google.com/file/d/1xqA_jX1mKArbWgSCcxv_H3-KF29ambSC/view?usp=drive_link",
     "eternidade_pdf1": "https://drive.google.com/file/d/1SLAaLZ5e_5T3r95uC1I1qm2Cz9JZUrwp/view?usp=drive_link",
+    "eternidade_pdf2": "https://drive.google.com/file/d/1yEenSDCkR_J8zWqc6TcLGmxJFoV__23i/view?usp=drive_link",
     "marinho_pdf": "https://drive.google.com/file/d/13qkhZumCwSRlUbYBvvgrZbOA_tselT6S/view?usp=drive_link",
     "marine_spirits": "https://drive.google.com/file/d/13qkhZumCwSRlUbYBvvgrZbOA_tselT6S/view?usp=drive_link",
     "restoration_call": "https://drive.google.com/file/d/1xqA_jX1mKArbWgSCcxv_H3-KF29ambSC/view?usp=drive_link",
