@@ -177,8 +177,52 @@ blockquote footer { text-align:right; font-size:.85rem; margin-top: 0.5rem; font
 .study-eternidade { --color-primary: #6b1425; }
 .study-marinho { --color-primary: #0a4d68; }
 
+
+/* ==== SOCIAL & FLOATING ==== */
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.social-icon {
+  color: rgba(255,255,255,0.7);
+  transition: color 0.3s, transform 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.social-icon:hover {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.floating-wa {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: #25d366;
+  color: #fff;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
+  z-index: 1000;
+  transition: transform 0.3s;
+  text-decoration: none;
+}
+.floating-wa:hover {
+  transform: scale(1.1) rotate(10deg);
+}
+
 @media (max-width: 600px) {
   #readingProgress { display:none; }
   .post-title { font-size: 1.8rem; }
   .container { padding: 0 1.2rem; }
+  .floating-wa { bottom: 1rem; right: 1rem; width: 50px; height: 50px; }
 }
