@@ -359,7 +359,9 @@
             line.className = type;
             line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
             con.prepend(line);
-            console[type](msg);
+            
+            const consoleMethod = type === 'err' ? 'error' : 'log';
+            console[consoleMethod](msg);
         }
 
         function setPlatform(p, el) {

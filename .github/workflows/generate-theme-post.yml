@@ -1,0 +1,52 @@
+name: Gerar post a partir de tema
+
+on:
+  workflow_dispatch:
+    inputs:
+      theme:
+        description: 'Tema que será pesquisado'
+        required: true
+        type: string
+  repository_dispatch:
+    types: [generate_post]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm install
+
+      - name: Run generator
+        id: generate
+        run: |
+          THEME="${{ github.event.inputs.theme || github.event.client_payload.theme }}"
+          echo "Tema recebido: $THEME"
+          node generatePostFromTheme.js "$THEME" > result.json
+
+      - name: Render HTML
+        run: |
+          node renderFromResult.js
+
+      - name: Commit generated page
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🤖 Post gerado para o tema: '${{ github.event.inputs.theme }}'"
+          branch: main
+          file_pattern: "*.html"
+          commit_user_name: github-actions
+          commit_user_email: github-actions@github.com
