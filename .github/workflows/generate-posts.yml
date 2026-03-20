@@ -1,0 +1,43 @@
+# .github/workflows/generate-posts.yml
+name: Gerar posts a partir da biblioteca
+
+on:
+  push:
+    paths:
+      - 'data/library.json'
+      - 'src/templates/**'
+      - 'generate.js'
+  workflow_dispatch: # Permite rodar manualmente
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm install
+
+      - name: Generate HTML posts
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node generate.js
+
+      - name: Commit generated pages
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🤖 Atualiza posts a partir da biblioteca"
+          branch: gh-pages
+          file_pattern: "*.html"
+          commit_user_name: github-actions
+          commit_user_email: github-actions@github.com

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}} — Estudo Bíblico Nova Jerusalém</title>
+    <meta name="description" content="{{META_DESC}}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{TITLE}}">
+    <meta property="og:description" content="{{META_DESC}}">
+    <meta property="og:image" content="{{COVER_URL}}">
+    <meta property="og:url" content="{{PAGE_URL}}">
+    <meta property="og:type" content="article">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="theme-neon.css">
+</head>
+<body>
+    <div id="progress-bar"></div>
+
+    <div class="container">
+        <header>
+            <a href="index.html" style="text-decoration:none;">
+                <img src="{{LOGO_URL}}" alt="Logo" style="width:60px; display:block; margin:0 auto 20px;">
+            </a>
+            <h1>{{TITLE}}</h1>
+            <div class="cover-container">
+                <picture>
+                    <source srcset="{{COVER_URL_AVIF}}" type="image/avif">
+                    <source srcset="{{COVER_URL_WEBP}}" type="image/webp">
+                    <img src="{{COVER_URL}}" alt="{{COVER_ALT}}" class="cover-image">
+                </picture>
+            </div>
+            <div style="text-align:center; color:var(--gold); font-size:0.9rem; margin-bottom:40px;">
+                Publicado em <time datetime="{{DATE}}">{{FORMATTED_DATE}}</time>
+            </div>
+        </header>
+
+        <section class="intro-box">
+            {{INTRO}}
+        </section>
+
+        <article class="content">
+            {{SECTIONS_HTML}}
+        </article>
+
+        <section class="map-section" id="map-container">
+            <div class="map-center">{{TITLE}}</div>
+        </section>
+
+        <section class="conclusion">
+            <h2>Conclusão</h2>
+            <p>{{CONCLUSION}}</p>
+        </section>
+
+        <nav class="nav-posts">
+            <a href="{{PREV_URL}}" class="nav-link">
+                <span>← Anterior</span>
+            </a>
+            <a href="{{NEXT_URL}}" class="nav-link">
+                <span>Próximo →</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Progress Bar logic
+        window.onscroll = function() {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrolled = (winScroll / height) * 100;
+            document.getElementById("progress-bar").style.width = scrolled + "%";
+        };
+
+        // Mind Map Logic
+        const mapContainer = document.getElementById('map-container');
+        const mapData = {{MAP_DATA_JSON}};
+
+        function renderMap() {
+            const branches = mapData.branches || [];
+            branches.forEach((b, i) => {
+                const node = document.createElement('div');
+                node.className = 'map-node';
+                node.innerHTML = `<div style="font-weight:bold">${b.label}</div><small>${b.ref || ''}</small>`;
+                
+                const angle = (i * (360 / branches.length)) * (Math.PI / 180);
+                const radius = window.innerWidth < 600 ? 120 : 180;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                
+                node.style.left = `calc(50% + ${x}px - 60px)`;
+                node.style.top = `calc(50% + ${y}px - 30px)`;
+                mapContainer.appendChild(node);
+            });
+        }
+        renderMap();
+    </script>
+</body>
+</html>

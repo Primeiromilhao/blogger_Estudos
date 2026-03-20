@@ -1,0 +1,64 @@
+{
+  "books": [
+    {
+      "id": "amor-de-deus",
+      "title": "O Amor de Deus",
+      "cover": "amor-de-deus.jpg",
+      "coverAlt": "Capa do livro O Amor de Deus",
+      "intro": "O amor de Deus é a base da vida cristã. Neste estudo vamos percorrer as Escrituras que revelam sua profundidade.",
+      "passages": [
+        {
+          "ref": "João 3:16",
+          "text": "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna."
+        },
+        {
+          "ref": "Romanos 8:38-39",
+          "text": "Nem a altura, nem a profundidade, nem outra criatura será capaz de nos separar do amor de Deus que está em Cristo Jesus, nosso Senhor."
+        },
+        {
+          "ref": "1 João 4:8",
+          "text": "Aquele que não ama não conhece a Deus, porque Deus é amor."
+        }
+      ]
+    },
+    {
+      "id": "graca-salvadora",
+      "title": "Graça Salvadora",
+      "cover": "graca-salvadora.jpg",
+      "coverAlt": "Capa do livro Graça Salvadora",
+      "intro": "A graça de Deus é o dom que nos salva sem mérito. O estudo traz as principais passagens que explicam esse tema.",
+      "passages": [
+        {
+          "ref": "Efésios 2:8-9",
+          "text": "Porque pela graça sois salvos, por meio da fé, e isto não vem de vós, é dom de Deus; não vem das obras, para que ninguém se glorie."
+        },
+        {
+          "ref": "Tito 3:5-7",
+          "text": "Ele nos salvou, não por obras de justiça que nós mesmos praticássemos, mas, segundo a sua misericórdia, nos regenerou e nos lavou..."
+        }
+      ]
+    },
+    {
+      "id": "uma-caminhada-com-os-anjos",
+      "title": "Uma Caminhada Com Os Anjos",
+      "cover": "https://m.media-amazon.com/images/I/61Xn2OS9TAL._SY425_.jpg",
+      "coverAlt": "Capa do livro Uma Caminhada Com Os Anjos",
+      "intro": "Muitas vezes o cansaço e a sensação de solidão na madrugada são ataques espirituais. Deus usa anjos para renovar sua força enquanto você descansa.",
+      "passages": [
+        { "ref": "Salmos 34:7", "text": "O anjo do Senhor acampa-se ao redor dos que o temem, e os livra." },
+        { "ref": "Hebreus 1:14", "text": "Não são todos eles espíritos ministradores, enviados para servir a favor dos que hão de herdar a salvação?" }
+      ]
+    },
+    {
+      "id": "o-poder-de-um-altar",
+      "title": "O Poder de Um Altar",
+      "cover": "https://m.media-amazon.com/images/I/61KGKLCUt2L._SY425_.jpg",
+      "coverAlt": "Capa do livro O Poder de Um Altar",
+      "intro": "Seus projetos financeiros e familiares precisam de um fundamento. O Altar não é apenas religioso, é onde você estabelece o domínio de Deus sobre o seu sustento.",
+      "passages": [
+        { "ref": "Levítico 6:13", "text": "O fogo arderá continuamente sobre o altar; não se apagará." },
+        { "ref": "Gênesis 22:9", "text": "E chegaram ao lugar que Deus lhe dissera, e edificou Abraão ali um altar e pôs em ordem a lenha..." }
+      ]
+    }
+  ]
+}

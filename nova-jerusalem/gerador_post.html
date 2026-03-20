@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Posts — Nova Jerusalém (Interno)</title>
+    <title>Gerador de Posts — Nova Jerusalém (Refinado)</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -35,10 +35,6 @@
             color: var(--gold);
             margin: 0;
         }
-        .header p {
-            font-size: 0.8rem;
-            opacity: 0.6;
-        }
         .tabs {
             display: flex;
             gap: 10px;
@@ -67,22 +63,43 @@
             border: 1px solid rgba(255,255,255,0.1);
             margin-bottom: 20px;
         }
+        .book-preview-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .book-preview-img {
+            width: 80px;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            border: 1px solid var(--gold);
+        }
         .caption-area {
             width: 100%;
-            height: 150px;
+            height: 180px;
             background: rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.1);
             color: #ddd;
-            padding: 10px;
+            padding: 15px;
             border-radius: 8px;
             font-size: 0.9rem;
             font-family: inherit;
             resize: none;
             box-sizing: border-box;
+            line-height: 1.6;
             margin-bottom: 15px;
         }
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
         .btn-action {
-            width: 100%;
             padding: 15px;
             background: var(--gold);
             color: var(--dark);
@@ -90,18 +107,19 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            transition: transform 0.2s;
         }
-        .btn-action:hover { opacity: 0.9; }
+        .btn-action:active { transform: scale(0.98); }
+        .btn-action.share { background: var(--purple); color: white; }
 
         /* ---------- MAPA MENTAL ---------- */
         .map-preview {
             width: 100%;
-            aspect-ratio: 1/1; /* Quadrado para Instagram */
+            aspect-ratio: 1/1;
             background: #000;
             border-radius: 12px;
             position: relative;
@@ -110,49 +128,50 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
+            margin-bottom: 20px;
         }
         .map-node {
             position: absolute;
-            padding: 10px 15px;
+            padding: 12px 18px;
             border-radius: 50px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: bold;
             text-align: center;
-            border: 2px solid white;
-            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+            border: 2px solid var(--gold);
+            background: rgba(10, 16, 40, 0.9);
+            color: var(--gold);
+            box-shadow: 0 0 15px rgba(201, 168, 76, 0.2);
+            z-index: 2;
         }
         .center-node {
             background: var(--purple);
             color: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 50%;
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 2;
-            box-shadow: 0 0 30px var(--purple);
+            z-index: 3;
+            box-shadow: 0 0 40px var(--purple);
             font-family: 'Cinzel';
+            text-align: center;
+            border: 2px solid white;
         }
-        .branch-node {
-            background: var(--dark);
-            border-color: var(--gold);
-            color: var(--gold);
-        }
-        .line {
+        .map-bg-grid {
             position: absolute;
-            background: rgba(255,255,255,0.2);
-            height: 2px;
-            transform-origin: left center;
+            inset: 0;
+            background-image: radial-gradient(circle at center, var(--purple) 0%, transparent 70%);
+            opacity: 0.15;
+            z-index: 1;
         }
         .info-msg {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--gold);
             text-align: center;
             margin-top: 10px;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -160,24 +179,37 @@
 
     <div class="container">
         <div class="header">
-            <i data-lucide="sparkles" style="color:var(--gold); margin-bottom:10px;"></i>
-            <h1>Gerador de Posts</h1>
-            <p>Conteúdo renovado a cada 4 horas para suas redes.</p>
+            <i data-lucide="shield-check" style="color:var(--gold); margin-bottom:10px;"></i>
+            <h1>Minha Bíblia & Livros</h1>
+            <p>Conteúdo biblicamente embasado para o seu dia a dia.</p>
         </div>
 
         <div class="tabs">
-            <div class="tab active" onclick="showTab('face')">Facebook / WA</div>
-            <div class="tab" onclick="showTab('ig')">Instagram</div>
+            <div class="tab active" onclick="showTab('face')">Post Facebook / WA</div>
+            <div class="tab" onclick="showTab('ig')">Estudo Visual (IG)</div>
+        </div>
+
+        <div class="book-preview-container">
+            <img id="book-cover" src="" class="book-preview-img" alt="Capa do Livro">
+            <div>
+                <div style="font-weight:bold; color:var(--gold);" id="book-name"></div>
+                <div style="font-size:0.8rem; opacity:0.7;">Pronto para compartilhar!</div>
+            </div>
         </div>
 
         <!-- TAB FACEBOOK -->
         <div id="tab-face" class="tab-content">
             <div class="content-card">
                 <textarea id="caption-text" class="caption-area" readonly></textarea>
-                <button class="btn-action" onclick="copyCaption()">
-                    <i data-lucide="copy"></i> Copiar Post Completo
-                </button>
-                <div class="info-msg">O link da Amazon e do livro já estão incluídos!</div>
+                <div class="btn-group">
+                    <button class="btn-action" onclick="copyCaption()">
+                        <i data-lucide="copy"></i> Copiar Texto
+                    </button>
+                    <button class="btn-action share" onclick="sharePost()">
+                        <i data-lucide="share-2"></i> Compartilhar
+                    </button>
+                </div>
+                <p class="info-msg">O link da Amazon já trará a imagem do livro automaticamente.</p>
             </div>
         </div>
 
@@ -185,16 +217,20 @@
         <div id="tab-ig" class="tab-content" style="display:none;">
             <div class="content-card">
                 <div class="map-preview" id="map-container">
-                    <div class="center-node" id="map-center">MISTÉRIOS</div>
-                    <!-- Nodes will be added by JS -->
+                    <div class="map-bg-grid"></div>
+                    <div class="center-node" id="map-center"></div>
                 </div>
-                <div class="info-msg" style="margin: 15px 0;">📸 Tire um print desta imagem para o Instagram!</div>
-                <button class="btn-action" style="background:var(--purple); color:white;" onclick="copyCaption()">
-                    <i data-lucide="clipboard-list"></i> Copiar Legenda do IG
-                </button>
+                <div class="btn-group">
+                    <button class="btn-action" onclick="copyCaption()">
+                        <i data-lucide="copy"></i> Copiar Legenda
+                    </button>
+                    <button class="btn-action share" onclick="downloadCover()">
+                        <i data-lucide="download"></i> Baixar Capa
+                    </button>
+                </div>
+                <p class="info-msg">📸 Dica: Tire um print do mapa visual para o seu Instagram!</p>
             </div>
         </div>
-
     </div>
 
     <script src="../assets/js/post-generator.js"></script>
@@ -217,29 +253,27 @@
         function updateGenerator() {
             const post = window.PostGenerator.getDailyPost();
             document.getElementById('caption-text').value = post.caption;
+            document.getElementById('book-cover').src = post.bookCover;
+            document.getElementById('book-name').innerText = post.bookTitle;
             
-            // Render Mapa Mental
-            const container = document.getElementById('map-container');
             const center = document.getElementById('map-center');
             center.innerText = post.mapData.center;
             
-            // Clean previous branches
             document.querySelectorAll('.branch-node').forEach(b => b.remove());
             
-            // Add new branches
+            const container = document.getElementById('map-container');
             post.mapData.branches.forEach((b, i) => {
                 const node = document.createElement('div');
                 node.className = 'map-node branch-node';
-                node.innerHTML = `<div>${b.label}</div><div style="font-size:0.6rem; opacity:0.8;">${b.ref}</div>`;
+                node.innerHTML = `<div style="margin-bottom:4px">${b.label}</div><div style="font-size:0.65rem; color:#fff; opacity:0.7;">${b.ref}</div>`;
                 
-                // Position logic (circular)
                 const angle = (i * (360 / post.mapData.branches.length)) * (Math.PI / 180);
-                const radius = 150;
+                const radius = 160;
                 const x = Math.cos(angle) * radius;
                 const y = Math.sin(angle) * radius;
                 
-                node.style.left = `calc(50% + ${x}px - 50px)`;
-                node.style.top = `calc(50% + ${y}px - 25px)`;
+                node.style.left = `calc(50% + ${x}px - 60px)`;
+                node.style.top = `calc(50% + ${y}px - 30px)`;
                 
                 container.appendChild(node);
             });
@@ -248,11 +282,34 @@
         function copyCaption() {
             const post = window.PostGenerator.getDailyPost();
             navigator.clipboard.writeText(post.caption).then(() => {
-                alert('Legenda copiada para o clipboard! 🔥');
+                alert('Legenda copiada com sucesso! 🛡️');
             });
         }
 
-        // Initialize
+        function sharePost() {
+            const post = window.PostGenerator.getDailyPost();
+            if (navigator.share) {
+                navigator.share({
+                    title: post.bookTitle,
+                    text: post.caption,
+                    url: post.siteLink
+                }).catch(err => console.log('Erro ao compartilhar:', err));
+            } else {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(post.siteLink)}`, '_blank');
+            }
+        }
+
+        function downloadCover() {
+            const post = window.PostGenerator.getDailyPost();
+            const link = document.createElement('a');
+            link.href = post.bookCover;
+            link.download = post.bookTitle + "-capa.jpg";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert('A imagem da capa foi aberta. Você pode salvá-la para o Instagram! 📸');
+        }
+
         updateGenerator();
     </script>
 </body>
