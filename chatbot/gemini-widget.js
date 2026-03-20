@@ -10,16 +10,21 @@ window.initializeGeminiChatbot = function(config) {
     // Load FAQ data
     let faqData = [];
     if (config.jsonConfigUrl) {
-        fetch(config.jsonConfigUrl)
+        const cacheBuster = "?v=" + new Date().getTime();
+        fetch(config.jsonConfigUrl + cacheBuster)
             .then(res => res.json())
             .then(data => {
-                faqData = data.questions || [];
-                // If it's a simple list (books), we treat it as FAQ
-                if (data.books) {
-                    faqData = data.books.map(b => ({
-                        question: b.title,
-                        answer: b.description + " Autor: " + b.author + ". Compre aqui: " + b.affiliate_link
-                    }));
+                if (Array.isArray(data)) {
+                    faqData = data;
+                } else {
+                    faqData = data.questions || [];
+                    // If it's a simple list (books), we treat it as FAQ
+                    if (data.books) {
+                        faqData = data.books.map(b => ({
+                            question: b.title,
+                            answer: b.description + " Autor: " + b.author + ". Compre aqui: " + b.affiliate_link
+                        }));
+                    }
                 }
             })
             .catch(err => console.error("Erro ao carregar FAQ do Robô:", err));
@@ -66,6 +71,14 @@ window.initializeGeminiChatbot = function(config) {
             flex-direction: column;
             overflow: hidden;
             animation: njSlideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        @media (max-width: 480px) {
+            #nj-chat-window {
+                width: calc(100vw - 40px);
+                height: 70vh;
+                right: 20px;
+                bottom: 85px;
+            }
         }
         @keyframes njSlideUp { from { opacity: 0; transform: translateY(30px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .nj-chat-header {
@@ -223,16 +236,19 @@ window.initializeGeminiChatbot = function(config) {
 
         // Simple Keyword Match
         // Melhorado: Busca por palavras-chave mais flexível
+        const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        const textNorm = normalize(text);
+
         const match = faqData.find(q => {
-            const qClean = q.question.toLowerCase();
-            const textClean = text.toLowerCase();
+            const qTitleNorm = normalize(q.question);
+            const qAnswerNorm = normalize(q.answer);
             
             // 1. Match exato ou inclusão total
-            if (qClean.includes(textClean) || textClean.includes(qClean)) return true;
+            if (qTitleNorm.includes(textNorm) || textNorm.includes(qTitleNorm)) return true;
             
             // 2. Match por palavras-chave (ignora palavras curtas)
-            const keywords = textClean.split(/\s+/).filter(w => w.length > 3);
-            if (keywords.length > 0 && keywords.every(kw => qClean.includes(kw) || q.answer.toLowerCase().includes(kw))) {
+            const keywords = textNorm.split(/\s+/).filter(w => w.length > 3);
+            if (keywords.length > 0 && keywords.every(kw => qTitleNorm.includes(kw) || qAnswerNorm.includes(kw))) {
                 return true;
             }
             

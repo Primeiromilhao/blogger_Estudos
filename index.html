@@ -737,7 +737,7 @@ document.querySelectorAll('.rv').forEach(el=>observer.observe(el));
    ========================================================= */
 (function() {
     const script = document.createElement('script');
-    script.src = "chatbot/gemini-widget.js"; // Substituir pelo seu URL final se necessário
+    script.src = "chatbot/gemini-widget.js?v=" + new Date().getTime(); // Substituir pelo seu URL final se necessário
     script.onload = function() {
         initializeGeminiChatbot({
             containerId: 'gemini-chat',
