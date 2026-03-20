@@ -148,9 +148,9 @@ window.initializeGeminiChatbot = function(config) {
         <div id="nj-chat-widget">
             <div id="nj-chat-window">
                 <div class="nj-chat-header">
-                    <div style="width:35px;height:35px;background:#B8860B;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 10px rgba(255,229,102,0.3)">🤖</div>
+                    <div style="width:35px;height:35px;background:#B8860B;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 10px rgba(255,229,102,0.3)">😇</div>
                     <div>
-                        <h4>Robô Nova Jerusalém</h4>
+                        <h4>Sábio Nova Jerusalém</h4>
                         <span>Assistente Sábio • Ativo</span>
                     </div>
                 </div>
@@ -162,7 +162,7 @@ window.initializeGeminiChatbot = function(config) {
                     <button id="nj-send">Enviar</button>
                 </div>
             </div>
-            <div id="nj-chat-bubble">🤖</div>
+            <div id="nj-chat-bubble">😇</div>
         </div>
     `;
     container.innerHTML = widgetHtml;
