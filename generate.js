@@ -32,7 +32,7 @@ if (!GEMINI_API_KEY) {
 }
 
 const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
-const model = genAI ? genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }) : null;
+const model = genAI ? genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' }) : null;
 
 /* Paths */
 const LIBRARY_PATH = path.join(__dirname, 'data', 'library.json');
