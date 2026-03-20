@@ -205,8 +205,8 @@
             <!-- API Key Row -->
             <div class="apikey-row">
                 <span class="key-icon">🔑</span>
-                <input type="password" id="api-key-input" placeholder="Cole sua API Key do Gemini aqui..." value="AIzaSyDouYjeRyr4FA8A1ITwe4pmEqcqeSsr-wE">
-                <a href="https://aistudio.google.com/app/apikey" target="_blank">Obter chave grátis ↗</a>
+                <input type="password" id="api-key-input" placeholder="Cole sua API Key do OpenRouter aqui..." value="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">
+                <a href="https://openrouter.ai/keys" target="_blank">Obter chave OpenRouter ↗</a>
             </div>
 
             <div class="platform-row">
@@ -265,15 +265,17 @@
 
     <script>
         /* ───────────── config ───────────── */
+        const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+        
         function getApiKey() {
             const input = document.getElementById('api-key-input');
             const key = input ? input.value.trim() : '';
-            if (key) { localStorage.setItem('gemini_api_key', key); return key; }
-            return localStorage.getItem('gemini_api_key') || '';
+            if (key) { localStorage.setItem('openrouter_api_key', key); return key; }
+            return localStorage.getItem('openrouter_api_key') || '';
         }
 
         // Restore saved key
-        const savedKey = localStorage.getItem('gemini_api_key');
+        const savedKey = localStorage.getItem('openrouter_api_key');
         if (savedKey) {
             const inp = document.getElementById('api-key-input');
             if (inp && !inp.value) inp.value = savedKey;
@@ -324,14 +326,12 @@
             return text;
         }
 
-        /* ───────────── Gemini REST ───────────── */
+         /* ───────────── OpenRouter REST ───────────── */
         async function callGemini(userPrompt, platform, apiKey) {
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             const platformInstructions = {
                 facebook: 'Tom engajador para Facebook/WhatsApp, emojis e CTA.',
                 instagram: 'Tom inspirador para Instagram, com hashtags.',
                 tiktok: 'Gancho rápido para TikTok, viral, hashtags.'
-            };
             };
 
             const promptText = `Você é especialista em redes sociais cristão.
@@ -343,9 +343,9 @@ Baseie-se em:
 2. PASSAGENS BÍBLICAS relevantes (mencione dentro da legenda)
 3. Um conselho PRÁTICO para o dia a dia
 
-Tema: ${userPrompt}
+Tema de hoje: ${userPrompt}
 
-Retorne SOMENTE um JSON (sem markdown, sem explicações):
+IMPORTANTE: Retorne APENAS o JSON no formato:
 {
   "bookTitle": "...",
   "caption": "...",
@@ -354,28 +354,34 @@ Retorne SOMENTE um JSON (sem markdown, sem explicações):
   "mapData": {
     "center": "TEMA CENTRAL",
     "categories": [
-      { "label": "CATEGORIA 1", "items": ["item","item"] },
-      { "label": "CATEGORIA 2", "items": ["item","item"] }
+      { "label": "CATEGORIA 1", "items": ["item1","item2"] },
+      { "label": "CATEGORIA 2", "items": ["item1","item2"] }
     ]
   }
 }`;
 
-            const res = await fetch(API_URL, {
+            const res = await fetch(OPENROUTER_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'HTTP-Referer': window.location.href, // Requisito do OpenRouter
+                    'X-Title': 'Gerador Social Nova Jerusalém'
+                },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptText }] }],
-                    generationConfig: { temperature: 0.85, maxOutputTokens: 1500 }
+                    model: "google/gemini-2.0-flash-lite-preview-02-05:free",
+                    messages: [{ role: 'user', content: promptText }],
+                    temperature: 0.8
                 })
             });
 
             if (!res.ok) {
-                const err = await res.text();
-                throw new Error(`Gemini ${res.status}: ${err.slice(0, 200)}`);
+                const err = await res.json();
+                throw new Error(`OpenRouter Error: ${err.error?.message || res.statusText}`);
             }
 
             const json = await res.json();
-            const raw  = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            const raw  = json.choices?.[0]?.message?.content || '';
             const s = raw.indexOf('{'), e = raw.lastIndexOf('}') + 1;
             if (s < 0) throw new Error('Resposta inválida da IA. Tente novamente.');
             return JSON.parse(raw.slice(s, e));
