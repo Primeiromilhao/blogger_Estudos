@@ -282,11 +282,7 @@ window.initializeGeminiChatbot = function(config) {
             return data.text || null;
         } catch { return null; }
     };
-    const API_KEY = config.apiKey || "";
-
     const callGemini = async (userText) => {
-        if (!API_KEY) return "Desculpe, a chave de API não foi configurada.";
-
         const systemPrompt = `Você é o "Sábio da Nova Jerusalém", um assistente cristão de elite.
 REGRAS:
 1. Seja humano, acolhedor e profundo.
@@ -297,34 +293,31 @@ ${libraryData.map(b => `- ${b.title}: ${b.intro}`).join('\n')}
 5. Se recomendar um livro, escreva [BOOK:${libraryData[0] ? libraryData[0].title : ''}] substituindo pelo nome exato do livro recomendado.`;
 
         const model = config.model || 'gemini-1.5-flash';
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`;
+        // Use Netlify Function Proxy instead of direct API
+        const proxyUrl = "/.netlify/functions/gemini-proxy";
         
         try {
-            const body = {
-                contents: [{ role: "user", parts: [{ text: userText }] }]
-            };
-            
-            if (systemPrompt) {
-                body.system_instruction = { parts: [{ text: systemPrompt }] };
-            }
-
-            const response = await fetch(url, {
+            const response = await fetch(proxyUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
+                body: JSON.stringify({
+                    message: userText,
+                    model: model,
+                    systemInstruction: systemPrompt
+                })
             });
             const data = await response.json();
-            console.log("Gemini Response Data:", data);
+            console.log("Gemini Proxy Response:", data);
             
             if (data.error) {
                 console.error("Gemini API Error:", data.error);
-                return `Erro na API: ${data.error.message || "Erro desconhecido"}`;
+                return `Erro: ${data.error.message || data.error || "Acesso negado."}`;
             }
 
             return data.candidates?.[0]?.content?.parts?.[0]?.text || "Desculpe, não consegui formular uma resposta. Tente reformular sua pergunta.";
         } catch (e) {
             console.error("Gemini Fetch Error:", e);
-            return "Erro de conexão com a sabedoria IA.";
+            return "Erro de conexão com o servidor de sabedoria.";
         }
     };
 
