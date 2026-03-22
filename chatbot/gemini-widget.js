@@ -39,193 +39,233 @@ window.initializeGeminiChatbot = function(config) {
     };
     loadData();
 
-    // --- CSS ---
-    const styles = `
+    // --- CSS ---    const styles = `
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Cinzel:wght@700&display=swap');
+
         #nj-chat-widget {
             position: fixed;
-            bottom: 25px;
-            right: 25px;
+            bottom: 30px;
+            right: 30px;
             z-index: 10000;
-            font-family: 'Inter', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
+            font-family: 'Outfit', sans-serif;
         }
         #nj-chat-bubble {
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #1A2A6C, #B8860B);
-            box-shadow: 0 5px 25px rgba(184, 134, 11, 0.4);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 80px;
+            height: 80px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
+            filter: drop-shadow(0 10px 30px rgba(184, 134, 11, 0.5));
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        #nj-chat-bubble img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         #nj-chat-bubble::after {
             content: "";
             position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            inset: -5px;
             border-radius: 50%;
-            border: 2px solid #D4A017;
-            opacity: 0;
-            animation: njPulse 2s infinite;
+            border: 2px solid rgba(184, 134, 11, 0.3);
+            animation: pulse-ring 2s infinite;
         }
-        @keyframes njPulse {
+        @keyframes pulse-ring {
             0% { transform: scale(1); opacity: 0.8; }
-            100% { transform: scale(1.4); opacity: 0; }
+            100% { transform: scale(1.3); opacity: 0; }
         }
-        #nj-chat-bubble:hover { transform: scale(1.1) rotate(5deg); }
-        #nj-chat-bubble svg { width: 35px; height: 35px; fill: #fff; }
+        #nj-chat-bubble:hover { transform: scale(1.15) translateY(-5px); }
 
         #nj-chat-window {
-            width: 380px;
-            height: 550px;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 15px 60px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
+            width: 420px;
+            height: 650px;
+            background: rgba(18, 33, 58, 0.7);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-radius: 35px;
+            box-shadow: 0 30px 100px rgba(0,0,0,0.6);
+            margin-bottom: 30px;
             display: none;
             flex-direction: column;
             overflow: hidden;
-            border: 1px solid #E8F7FF;
-            animation: njFadeIn 0.3s ease-out;
+            border: 1px solid rgba(255,255,255,0.15);
+            animation: slideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
-        @keyframes njFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateY(50px) scale(0.9); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
 
         .nj-chat-header {
-            padding: 20px;
-            background: #12213A;
+            padding: 30px;
+            background: rgba(255,255,255,0.05);
             color: #fff;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 18px;
+            position: relative;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         .nj-chat-header .bot-avatar {
-            width: 45px;
-            height: 45px;
-            background: #B8860B;
-            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, rgba(184,134,11,0.2), rgba(255,255,255,0.1));
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 15px rgba(184,134,11,0.5);
+            border: 1px solid rgba(184,134,11,0.4);
+            box-shadow: 0 0 20px rgba(184,134,11,0.2);
         }
-        .nj-chat-header .bot-avatar svg { width: 25px; height: 25px; fill: #fff; }
-        .nj-chat-header h4 { margin: 0; font-size: 1.1rem; color: #FFE566; font-family: 'Cinzel', serif; }
-        .nj-chat-header span { font-size: 0.75rem; color: #5BA8D0; }
+        .nj-chat-header .bot-avatar img { width: 45px; height: 45px; }
+        .nj-chat-header h4 { margin: 0; font-size: 1.3rem; color: #D4A017; font-family: 'Cinzel', serif; letter-spacing: 1.5px; text-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .nj-chat-header span { font-size: 0.85rem; color: rgba(255,255,255,0.5); font-weight: 300; }
 
         .nj-chat-messages {
             flex-grow: 1;
-            padding: 20px;
+            padding: 30px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            background: #fdfdfd;
+            gap: 25px;
+            background: transparent;
         }
+        .nj-chat-messages::-webkit-scrollbar { width: 4px; }
+        .nj-chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
         .msg {
-            padding: 12px 18px;
-            border-radius: 18px;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            max-width: 85%;
+            padding: 18px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 88%;
             word-wrap: break-word;
             position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
         .msg-bot {
-            background: #fff;
-            border: 1px solid #eef;
+            background: rgba(255, 255, 255, 0.95);
             align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.02);
-            color: #333;
+            border-bottom-left-radius: 5px;
+            color: #12213A;
+            border: 1px solid rgba(255,255,255,0.5);
         }
         .msg-user {
-            background: linear-gradient(135deg, #12213A, #3A5070);
+            background: linear-gradient(135deg, #B8860B, #8B6508);
             color: #fff;
             align-self: flex-end;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 15px 30px rgba(184,134,11,0.3);
         }
+        
         .msg-bot .book-card {
-            margin-top: 10px;
-            border: 1px solid #eee;
-            border-radius: 10px;
+            margin-top: 20px;
+            border-radius: 25px;
             overflow: hidden;
-            background: #fafafa;
+            background: #fff;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            border: 1px solid #f5f5f5;
+            transition: all 0.4s ease;
         }
+        .msg-bot .book-card:hover { transform: translateY(-8px) scale(1.02); }
         .msg-bot .book-card img {
             width: 100%;
             height: auto;
             display: block;
         }
         .msg-bot .book-card .card-content {
-            padding: 10px;
-            font-size: 0.8rem;
+            padding: 15px;
+            text-align: center;
         }
         .msg-bot .book-card a {
-            display: block;
-            margin-top: 5px;
-            background: #B8860B;
+            display: inline-block;
+            background: linear-gradient(135deg, #12213A, #1A2A6C);
             color: #fff;
             text-align: center;
-            padding: 8px;
+            padding: 10px 25px;
             text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(18,33,58,0.3);
         }
 
         .nj-chat-input {
-            padding: 15px;
-            background: #fff;
-            border-top: 1px solid #eef;
+            padding: 20px 25px;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0,0,0,0.05);
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
         .nj-chat-input input {
             flex-grow: 1;
-            border: 2px solid #f0f0f0;
-            border-radius: 10px;
-            padding: 10px 15px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 15px;
+            padding: 12px 18px;
             outline: none;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            background: #fff;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
         }
+        .nj-chat-input input:focus { border-color: #B8860B; box-shadow: 0 0 0 4px rgba(184,134,11,0.1); }
         .nj-chat-input button {
-            background: #B8860B;
+            background: linear-gradient(135deg, #B8860B, #8B6508);
             color: #fff;
             border: none;
-            border-radius: 10px;
-            padding: 0 20px;
+            border-radius: 15px;
+            padding: 0 25px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(184,134,11,0.3);
         }
+        .nj-chat-input button:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(184,134,11,0.4); }
+
         .affiliate-disclaimer {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             color: #999;
             text-align: center;
-            padding: 5px;
-            background: #fff;
+            padding: 8px;
+            background: rgba(255,255,255,0.5);
         }
         .typing {
             font-style: italic;
-            font-size: 0.75rem;
-            color: #999;
+            font-size: 0.8rem;
+            color: #B8860B;
             display: none;
+            padding: 5px 25px;
+            font-weight: 400;
         }
     `;
     const styleTag = document.createElement('style');
     styleTag.innerHTML = styles;
     document.head.appendChild(styleTag);
 
-    const robotIcon = `
-        <svg viewBox="0 0 24 24">
-            <path d="M12,2A3,3 0 0,1 15,5V7H18A2,2 0 0,1 20,9V19A2,2 0 0,1 18,21H6A2,2 0 0,1 4,19V9A2,2 0 0,1 6,7H9V5A3,3 0 0,1 12,2M12,4A1,1 0 0,0 11,5V7H13V5A1,1 0 0,0 12,4M6,9V19H18V9H6M8,11H10V13H8V11M14,11H16V13H14V11M9,15H15V17H9V15Z" />
-        </svg>
-    `;
+    // Dynamic path for the robot icon
+    const getBaseUrl = () => {
+        const scripts = document.getElementsByTagName('script');
+        for (let s of scripts) {
+            if (s.src.includes('gemini-widget.js')) {
+                return s.src.replace('gemini-widget.js', '');
+            }
+        }
+        return '';
+    };
+    const baseUrl = getBaseUrl();
+    const robotImgUrl = baseUrl + 'robot_elite.png';
+
+    const robotIcon = `<img src="${robotImgUrl}" alt="Bot">`;
 
     // --- HTML ---
     const widgetHtml = `
@@ -234,17 +274,17 @@ window.initializeGeminiChatbot = function(config) {
                 <div class="nj-chat-header">
                     <div class="bot-avatar">${robotIcon}</div>
                     <div>
-                        <h4>Sábio Nova Jerusalém</h4>
-                        <span>Inteligência Artificial Ativa</span>
+                        <h4>Sábio da Nova Jerusalém</h4>
+                        <span>Assistente de Elite Ativo</span>
                     </div>
                 </div>
                 <div class="nj-chat-messages" id="nj-msg-container">
                     <div class="msg msg-bot">Graça e Paz! Eu sou o assistente oficial da Escola Bíblica. Estou pronto para tirar suas dúvidas sobre a Bíblia e sugerir livros para seu crescimento espiritual. Como posso ajudar?</div>
                 </div>
-                <div id="nj-typing" class="typing" style="padding-left: 20px;">O Sábio está pensando...</div>
+                <div id="nj-typing" class="typing">O Sábio está consultando as escrituras...</div>
                 <div class="nj-chat-input">
                     <input type="text" id="nj-input" placeholder="Digite sua dúvida bíblica...">
-                    <button id="nj-send">OK</button>
+                    <button id="nj-send">Enviar</button>
                 </div>
                 <div class="affiliate-disclaimer">Como associado da Amazon, recebo por compras qualificadas.</div>
             </div>
