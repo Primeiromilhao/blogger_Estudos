@@ -4,16 +4,18 @@
 (function() {
     'use strict';
 
-    // Configurações
-    const CONFIG = {
-        faqPath: 'chatbot/faq_library.json',
-        booksPath: 'books.json',
-        libraryPath: 'data/library.json',
-        bibleApi: 'https://bible-api.com',
-        bibleTranslation: 'almeida',
-        affiliateTag: 'primeiromilhao-20',
-        maxResults: 5
-    };
+    // Função de inicialização compatível com a estrutura original
+    window.initializeGeminiChatbot = function(options) {
+        // Configurações unificadas
+        const CONFIG = {
+            faqPath: options.jsonConfigUrl || 'chatbot/faq_library.json',
+            booksPath: options.booksUrl || 'books.json',
+            libraryPath: options.libraryUrl || 'data/library.json',
+            bibleApi: 'https://bible-api.com',
+            bibleTranslation: 'almeida',
+            affiliateTag: 'primeiromilhao-20',
+            maxResults: 5
+        };
 
     const STOPWORDS = ['o', 'a', 'os', 'as', 'um', 'uma', 'de', 'da', 'do', 'das', 'dos', 'em', 'no', 'na', 'nos', 'nas', 'por', 'para', 'com', 'sem', 'sobre', 'sob', 'que', 'qual', 'quais', 'como', 'quando', 'onde', 'porque', 'porquê', 'é', 'são', 'foi', 'foram', 'ser', 'estar', 'eu', 'voce'];
 
@@ -450,4 +452,5 @@
     }
 
     new SabioWidget();
+};
 })();
