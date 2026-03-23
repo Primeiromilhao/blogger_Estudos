@@ -56,6 +56,23 @@ body {
   border-radius: 0 0 8px 8px;
 }
 
+.hero-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  color: #fff;
+  text-shadow: 0 0 80px rgba(201,168,76,0.15);
+  margin: 1.5rem 0;
+  line-height: 1.1;
+  text-align: center;
+}
+
+[data-theme="dark"] .hero-title {
+  background: linear-gradient(135deg, #F0D080, #C9A84C);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 /* ==== ARTICLE ==== */
 .post { margin-top:3rem; }
 .post-header { margin-bottom:2rem; text-align: center; }

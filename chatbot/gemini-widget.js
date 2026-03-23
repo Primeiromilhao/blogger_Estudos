@@ -5,7 +5,7 @@
     'use strict';
 
     // Função de inicialização compatível com a estrutura original
-    window.initializeGeminiChatbot = function(options) {
+    window.initializeGeminiChatbot = function(options = {}) {
         // Configurações unificadas
         const CONFIG = {
             faqPath: options.jsonConfigUrl || 'chatbot/faq_library.json',
@@ -282,12 +282,12 @@
                 </div>
             `;
             
-            this.toggleBtn = this.shadow.getElementById('toggleBtn');
-            this.window = this.shadow.getElementById('window');
-            this.input = this.shadow.getElementById('userInput');
-            this.sendBtn = this.shadow.getElementById('sendBtn');
-            this.msgContainer = this.shadow.getElementById('messages');
-            this.typing = this.shadow.getElementById('typing');
+            this.toggleBtn = this.shadow.querySelector('#toggleBtn');
+            this.window = this.shadow.querySelector('#window');
+            this.input = this.shadow.querySelector('#userInput');
+            this.sendBtn = this.shadow.querySelector('#sendBtn');
+            this.msgContainer = this.shadow.querySelector('#messages');
+            this.typing = this.shadow.querySelector('#typing');
             
             this.toggleBtn.onclick = () => {
                 isOpen = !isOpen;
@@ -322,13 +322,16 @@
                 ]);
                 knowledgeBase.faq = faqRes.questions || faqRes;
                 knowledgeBase.books = Array.isArray(booksRes) ? booksRes : (booksRes.books || []);
+                console.log("Chatbot Data Loaded:", { faqCount: knowledgeBase.faq.length, bookCount: knowledgeBase.books.length });
+                if (knowledgeBase.books.length > 0) console.log("First Book Sample:", knowledgeBase.books[0]);
             } catch (e) {
                 console.error("Erro ao carregar dados", e);
             }
         }
 
         populateStudies() {
-            const container = this.shadow.getElementById('list-estudos');
+            const container = this.shadow.querySelector('#list-estudos');
+            if (!container) return;
             container.innerHTML = knowledgeBase.faq.map(item => `
                 <div class="study-item" onclick="this.parentNode.dispatchEvent(new CustomEvent('ask', {detail: '${item.question.replace(/'/g, "\\'")}'}))">
                     <h4>${item.question}</h4>
@@ -344,10 +347,15 @@
         }
 
         populateLibrary() {
-            const container = this.shadow.getElementById('list-biblioteca');
+            const container = this.shadow.querySelector('#list-biblioteca');
+            if (!container) return;
+            if (!knowledgeBase.books || knowledgeBase.books.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#666; font-size:13px; margin-top:20px">Carregando biblioteca...</p>';
+                return;
+            }
             container.innerHTML = knowledgeBase.books.map(b => `
                 <div class="book-item">
-                    <img class="book-cover" src="${b.cover && b.cover.startsWith('http') ? b.cover : 'data/covers/' + (b.cover || 'default.jpg')}" onerror="this.src='https://primeiromilhao.github.io/blogger_Estudos/img/default-book.jpg'">
+                    <img class="book-cover" src="${b.cover && b.cover.startsWith('http') ? b.cover : 'assets/img/default-book.jpg'}" onerror="this.src='https://images-na.ssl-images-amazon.com/images/G/01/nav/images/nopoints.gif'">
                     <div class="book-info">
                         <div>
                             <h4>${b.title}</h4>

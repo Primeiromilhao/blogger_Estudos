@@ -648,9 +648,10 @@
       <div class="w rv" style="background:linear-gradient(135deg,rgba(180,230,255,.2),rgba(91,168,208,.1));justify-content:center;">
         <div style="font-family:'Cinzel';font-size:0.65rem;letter-spacing:0.15em;margin-bottom:1rem;color:var(--river-d);">✦ Newsletter & Estudos</div>
         <p style="font-size:.8rem;margin-bottom:1.5rem;color:var(--text-m);">Insira o seu e‑mail para receber os próximos estudos e o PDF grátis.</p>
-        <form action="https://YOUR_MAILCHIMP_URL" method="POST" style="display:flex;flex-direction:column;gap:.6rem;margin-top:auto;">
-          <input name="EMAIL" class="fi" type="email" placeholder="seu@email.com" required>
-          <input type="hidden" name="MMERGE3" value="home_hub">
+        <form action="https://formsubmit.co/leituradacuraportugal@gmail.com" method="POST" target="_blank" style="display:flex;flex-direction:column;gap:.6rem;margin-top:auto;">
+          <input name="email" class="fi" type="email" placeholder="seu@email.com" required>
+          <input type="hidden" name="_subject" value="Inscrição Newsletter – Hub Nova Jerusalém">
+          <input type="hidden" name="_next" value="https://novajerusalem.netlify.app/">
           <button type="submit" class="btn btn-river" style="padding:.7rem;">Inscrever & Receber PDF ✦</button>
         </form>
       </div>
@@ -700,13 +701,21 @@
         }
     </style>
     <div class="nj-share-bar">
-        <a href="https://api.whatsapp.com/send?text=Confira%20este%20estudo%20na%20Escola%20B%C3%ADblica%20Nova%20Jerusal%C3%A9m:%20https://novajerusalem.netlify.app/" target="_blank" class="nj-share-btn wa" title="Compartilhar no WhatsApp">
+        <a href="#" id="share-wa" target="_blank" class="nj-share-btn wa" title="Compartilhar no WhatsApp">
             <i data-lucide="message-circle"></i>
         </a>
-        <a href="https://www.facebook.com/sharer/sharer.php?u=https://novajerusalem.netlify.app/" target="_blank" class="nj-share-btn fb" title="Compartilhar no Facebook">
+        <a href="#" id="share-fb" target="_blank" class="nj-share-btn fb" title="Compartilhar no Facebook">
             <i data-lucide="facebook"></i>
         </a>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            document.getElementById('share-wa').href = `https://api.whatsapp.com/send?text=${title}: ${url}`;
+            document.getElementById('share-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+        });
+    </script>
 
     <div id="gemini-chat"></div>
 <footer style="background:#080E1C;color:rgba(255,255,255,.5);text-align:center;padding:4rem 1.5rem;border-top:1px solid rgba(255,255,255,.05);position:relative;z-index:1;">
@@ -841,7 +850,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       // ---------- 1️⃣ Abrir cliente de e‑mail ----------
       const subject = encodeURIComponent('Inscrição Newsletter – Nova Jerusalém');
       const body    = encodeURIComponent(`Olá,\n\nGostaria de inscrever o seguinte e‑mail na newsletter:\n${email}\n\nAtt.,\n[Seu nome]`);
-const formData = new FormData(); formData.append('email', email); formData.append('subject', 'Inscrição Newsletter – Nova Jerusalém'); fetch('https://formsubmit.co/vivobruno26@gmail.com', { method: 'POST', body: formData }).then(res => res.ok ? Promise.resolve() : Promise.reject()).then(() => { localStorage.setItem('newsletter_email_' + Date.now(), email); alert('✅ Obrigado! Seu e-mail será enviado ao administrador.'); emailInput.value = ''; }).catch(err => alert('❌ Erro ao enviar. Tente novamente.'));
+const formData = new FormData(); formData.append('email', email); formData.append('subject', 'Inscrição Newsletter – Nova Jerusalém'); fetch('https://formsubmit.co/leituradacuraportugal@gmail.com', { method: 'POST', body: formData }).then(res => res.ok ? Promise.resolve() : Promise.reject()).then(() => { localStorage.setItem('newsletter_email_' + Date.now(), email); alert('✅ Obrigado! Seu e-mail será enviado ao administrador.'); emailInput.value = ''; }).catch(err => alert('❌ Erro ao enviar. Tente novamente.'));
 
 
     });
@@ -872,7 +881,7 @@ const formData = new FormData(); formData.append('email', email); formData.appen
         `Data: ${new Date().toLocaleString('pt-BR')}`
       );
 
-const pedForm = new FormData(); pedForm.append('nome', nome); pedForm.append('assunto', assunto); pedForm.append('pedido', texto); fetch('https://formsubmit.co/vivobruno26@gmail.com', { method: 'POST', body: pedForm }).then(res => res.ok ? Promise.resolve() : Promise.reject()).then(() => { localStorage.setItem('pedido_' + Date.now(), JSON.stringify({nome, assunto, texto})); alert('✅ Obrigado! Seu pedído de oração foi enviado.'); formInputs.forEach(input => input.value = ''); }).catch(err => alert('❌ Erro ao enviar pedído. Tente novamente.'));
+const pedForm = new FormData(); pedForm.append('nome', nome); pedForm.append('assunto', assunto); pedForm.append('pedido', texto); fetch('https://formsubmit.co/leituradacuraportugal@gmail.com', { method: 'POST', body: pedForm }).then(res => res.ok ? Promise.resolve() : Promise.reject()).then(() => { localStorage.setItem('pedido_' + Date.now(), JSON.stringify({nome, assunto, texto})); alert('✅ Obrigado! Seu pedído de oração foi enviado.'); formInputs.forEach(input => input.value = ''); }).catch(err => alert('❌ Erro ao enviar pedído. Tente novamente.'));
 
       // guarda localmente (opcional)
       const registro = {nome, assunto, texto, data:new Date().toLocaleString('pt-BR')};

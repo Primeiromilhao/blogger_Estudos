@@ -90,6 +90,7 @@
                     <source srcset="img/eternidade-hero.webp" type="image/webp">
                     <img src="img/eternidade-hero.jpg" alt="Ilustração que simboliza a eternidade" loading="lazy">
                 </picture>
+                <h1 class="hero-title">Eternidade</h1>
                 <figcaption>Eternidade – a primavera que nunca acaba</figcaption>
             </figure>
 
@@ -141,15 +142,17 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
                         <div class="glass-card" style="margin-bottom:0; background:rgba(255,255,255,0.03);">
                             <h4>Guia: Visão Geral</h4>
-                            <form action="/api/redirect?book=eternidade_pdf1&study=1" method="POST" target="_blank">
-                                <input type="email" name="EMAIL" placeholder="Seu e-mail" required style="padding: 0.6rem; border-radius: 8px; border: 1px solid #444; width: 100%; margin-bottom: 0.8rem; background: #111; color: #fff;">
+                            <form action="https://drive.google.com/uc?export=download&id=1yEenSDCkR_J8zWqc6TcLGmxJFoV__23i" method="GET" target="_blank">
+                                <input type="email" name="email" placeholder="Seu e-mail" required style="padding: 0.6rem; border-radius: 8px; border: 1px solid #444; width: 100%; margin-bottom: 0.8rem; background: #111; color: #fff;">
+                                <input type="hidden" name="_subject" value="Download PDF: Eternidade - Guia 1">
                                 <button type="submit" class="btn-primary" style="width: 100%;">Baixar PDF 1</button>
                             </form>
                         </div>
                         <div class="glass-card" style="margin-bottom:0; background:rgba(255,255,255,0.03);">
                             <h4>Aprofundamento: Eternidade</h4>
-                            <form action="/api/redirect?book=eternidade_pdf2&study=1" method="POST" target="_blank">
-                                <input type="email" name="EMAIL" placeholder="Seu e-mail" required style="padding: 0.6rem; border-radius: 8px; border: 1px solid #444; width: 100%; margin-bottom: 0.8rem; background: #111; color: #fff;">
+                            <form action="https://drive.google.com/uc?export=download&id=1h6i8JZhoRkgUd8peNBc4J50jUZRRZCXI" method="GET" target="_blank">
+                                <input type="email" name="email" placeholder="Seu e-mail" required style="padding: 0.6rem; border-radius: 8px; border: 1px solid #444; width: 100%; margin-bottom: 0.8rem; background: #111; color: #fff;">
+                                <input type="hidden" name="_subject" value="Download PDF: Eternidade - Guia 2">
                                 <button type="submit" class="btn-primary" style="width: 100%;">Baixar PDF 2</button>
                             </form>
                         </div>
@@ -170,9 +173,8 @@
 
                 <div class="post-share">
                     <p>Compartilhe:</p>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://primeiromilhao.github.io/blogger_Estudos/Eternidade.html" target="_blank" rel="noopener" class="share-btn fb" aria-label="Compartilhar no Facebook">Facebook</a>
-                    <a href="https://twitter.com/intent/tweet?url=https://primeiromilhao.github.io/blogger_Estudos/Eternidade.html&text=Eternidade" target="_blank" rel="noopener" class="share-btn tw" aria-label="Compartilhar no Twitter">Twitter</a>
-                    <a href="whatsapp://send?text=Eternidade%20https://primeiromilhao.github.io/blogger_Estudos/Eternidade.html" target="_blank" rel="noopener" class="share-btn wa" aria-label="Compartilhar no WhatsApp">WhatsApp</a>
+                    <a href="#" class="share-btn fb" id="share-fb" target="_blank" rel="noopener">Facebook</a>
+                    <a href="#" class="share-btn wa" id="share-wa" target="_blank" rel="noopener">WhatsApp</a>
                 </div>
 
                 <div id="comments" class="post-comments">
@@ -202,8 +204,33 @@
         </div>
     </footer>
 
+    <div id="gemini-chat"></div>
+    <script src="chatbot/gemini-widget.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar Chatbot
+            if (window.initializeGeminiChatbot) {
+                window.initializeGeminiChatbot({
+                    jsonConfigUrl: "chatbot/faq_library.json",
+                    booksUrl: "books.json"
+                });
+            }
+
+            // Social Share Dinâmico
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            const shareWa = document.getElementById('share-wa');
+            const shareFb = document.getElementById('share-fb');
+            if (shareWa) shareWa.href = `https://api.whatsapp.com/send?text=${title}: ${url}`;
+            if (shareFb) shareFb.href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            
+            // Fix WhatsApp Floating Number
+            const floatWa = document.querySelector('.floating-wa');
+            if (floatWa) floatWa.href = "https://wa.me/351964264264";
+        });
+    </script>
     <!-- Botão Flutuante WhatsApp -->
-    <a href="https://wa.me/351XXXXXXXXX" class="floating-wa" target="_blank" aria-label="Fale conosco no WhatsApp">
+    <a href="https://wa.me/351964264264" class="floating-wa" target="_blank" aria-label="Fale conosco no WhatsApp">
         <i data-lucide="message-circle" style="width: 30px; height: 30px;"></i>
     </a>
 

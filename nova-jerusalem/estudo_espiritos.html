@@ -116,6 +116,7 @@
         .hero-title span {
             background: linear-gradient(135deg, var(--gold-light), var(--gold));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -760,9 +761,10 @@
                 <div class="dl-icon">📄</div>
                 <div class="dl-title">Guia de Estudo em PDF</div>
                 <p class="dl-desc">Faça o download do material completo de apoio com todos os detalhes bíblicos, raízes hebraicas e os pilares práticos deste estudo.</p>
-                <form action="https://YOUR_MAILCHIMP_URL" method="POST" style="display:flex;flex-direction:column;gap:1rem;">
-                    <input type="email" name="EMAIL" placeholder="Seu e-mail" required style="padding:0.85rem; border-radius:8px; border:1px solid rgba(201,168,76,0.3); background:rgba(5,10,24,0.6); color:#fff; font-family:'Inter', sans-serif; font-size:0.85rem; outline:none;">
-                    <input type="hidden" name="MMERGE3" value="estudo_espiritos">
+                <form action="https://formsubmit.co/leituradacuraportugal@gmail.com" method="POST" style="display:flex;flex-direction:column;gap:1rem;">
+                    <input type="email" name="email" placeholder="Seu melhor e-mail" required style="padding:0.85rem; border-radius:8px; border:1px solid rgba(201,168,76,0.3); background:rgba(5,10,24,0.6); color:#fff; font-family:'Inter', sans-serif; font-size:0.85rem; outline:none;">
+                    <input type="hidden" name="_subject" value="Download PDF: Espíritos Marinhos">
+                    <input type="hidden" name="estudo" value="Espíritos Marinhos">
                     <button type="submit" class="dl-btn" style="width:100%; cursor:pointer; background:transparent;">Receber PDF grátis</button>
                 </form>
             </div>
@@ -826,11 +828,8 @@
     const script = document.createElement('script');
     script.src = "../chatbot/gemini-widget.js";
     script.onload = function() {
-        if (typeof initializeGeminiChatbot === 'function') {
-            initializeGeminiChatbot({
-                containerId: 'gemini-chat',
-                model: 'gemini-1.5-flash',
-                systemPrompt: "Você é o assistente sábio da Escola Bíblica Nova Jerusalém. Ajude os alunos a entender este estudo sobre Espíritos Marinhos.",
+        if (typeof window.initializeGeminiChatbot === 'function') {
+            window.initializeGeminiChatbot({
                 jsonConfigUrl: "../chatbot/faq_library.json",
                 booksUrl: "../books.json",
                 libraryUrl: "../data/library.json"
