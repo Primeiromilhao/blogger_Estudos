@@ -1,207 +1,1075 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
-    <!-- ====================== META ====================== -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Eternidade – Estudos</title>
-    <meta name="description"
-          content="Reflexão sobre a eternidade à luz das Escrituras.">
-    <meta name="author" content="Primeiro Milhão">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eternidade, Tempo e a Cruz | Biblioteca Profética</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="assets/css/chatbot.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Cinzel:wght@400;600;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0a0612;
+            --parchment: #f5f0e8;
+            --gold: #c9a84c;
+            --gold-light: #e8cb7a;
+            --wine: #6b1425;
+            --wine-light: #8b1a30;
+            --mist: #d4cfc8;
+            --smoke: #1a1225;
+        }
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Eternidade – Estudos">
-    <meta property="og:description"
-          content="Reflexão sobre a eternidade à luz das Escrituras.">
-    <meta property="og:image"
-          content="https://primeiromilhao.github.io/blogger_Estudos/img/eternidade-og.jpg">
-    <meta property="og:url"
-          content="https://primeiromilhao.github.io/blogger_Estudos/Eternidade.html">
-    <meta property="og:type" content="article">
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Eternidade – Estudos">
-    <meta name="twitter:description"
-          content="Reflexão sobre a eternidade à luz das Escrituras.">
-    <meta name="twitter:image"
-          content="https://primeiromilhao.github.io/blogger_Estudos/img/eternidade-og.jpg">
+        html { scroll-behavior: smooth; }
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Roboto:wght@400;500&display=swap"
-          rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+        body {
+            background: var(--ink);
+            color: var(--parchment);
+            font-family: 'Lato', sans-serif;
+            font-weight: 300;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
 
-    <!-- CSS principal -->
-    <link rel="stylesheet" href="css/style.css">
+        /* ─── CANVAS 3D BACKGROUND ─── */
+        #cosmos-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-    <!-- JSON‑LD – Article schema -->
-    <script type="application/ld+json">
-    {
-      "@context":"https://schema.org",
-      "@type":"Article",
-      "headline":"Eternidade",
-      "image":["https://primeiromilhao.github.io/blogger_Estudos/img/eternidade-hero.jpg"],
-      "author":{"@type":"Person","name":"Primeiro Milhão"},
-      "datePublished":"2024-01-12",
-      "publisher":{"@type":"Organization","name":"Estudos do Primeiro Milhão","logo":{"@type":"ImageObject","url":"https://primeiromilhao.github.io/blogger_Estudos/img/logo.png"}},
-      "description":"Reflexão sobre a eternidade à luz das Escrituras."
-    }
-    </script>
+        /* ─── NAV ─── */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            z-index: 100;
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(to bottom, rgba(10,6,18,0.95), transparent);
+            border-bottom: 1px solid rgba(201,168,76,0.15);
+        }
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-X"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-XXXXXXX-X');
-    </script>
+        .nav-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            color: rgba(212,207,200,0.6);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--gold); }
+
+        /* ─── HERO ─── */
+        #hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero-eyebrow {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            letter-spacing: 0.4em;
+            color: var(--gold);
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.3s forwards;
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 300;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.6s forwards;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .hero-subtitle {
+            font-size: 0.95rem;
+            color: var(--mist);
+            max-width: 480px;
+            margin: 0 auto 3rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.9s forwards;
+        }
+
+        .hero-verse {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: rgba(201,168,76,0.7);
+            max-width: 500px;
+            margin: 0 auto 3rem;
+            border-left: 2px solid rgba(201,168,76,0.3);
+            padding-left: 1.2rem;
+            text-align: left;
+            opacity: 0;
+            animation: fadeUp 1s ease 1.1s forwards;
+        }
+
+        .hero-cta {
+            display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 1s ease 1.3s forwards;
+        }
+
+        .btn-primary {
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            padding: 0.85rem 2.2rem;
+            background: var(--wine);
+            color: var(--parchment);
+            border: 1px solid var(--wine-light);
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(201,168,76,0.15), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary:hover::before { opacity: 1; }
+        .btn-primary:hover { border-color: var(--gold); }
+
+        .btn-ghost {
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            padding: 0.85rem 2.2rem;
+            background: transparent;
+            color: var(--mist);
+            border: 1px solid rgba(212,207,200,0.25);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 1.8s forwards;
+        }
+
+        .scroll-hint span {
+            font-family: 'Cinzel', serif;
+            font-size: 0.55rem;
+            letter-spacing: 0.3em;
+            color: rgba(201,168,76,0.5);
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 48px;
+            background: linear-gradient(to bottom, rgba(201,168,76,0.5), transparent);
+            animation: scrollPulse 2s ease infinite;
+        }
+
+        /* ─── SECTIONS ─── */
+        main {
+            position: relative;
+            z-index: 1;
+        }
+
+        section {
+            scroll-margin-top: 4rem;
+        }
+
+        /* ─── DIVIDER ─── */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 0 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(201,168,76,0.3), transparent);
+        }
+
+        .divider-symbol {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            color: rgba(201,168,76,0.4);
+        }
+
+        /* ─── SECTION WRAPPER ─── */
+        .section-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+        }
+
+        .section-label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.35em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 300;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ─── VISÃO GERAL ─── */
+        #visao-geral .section-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+
+        .verse-card-3d {
+            perspective: 800px;
+        }
+
+        .verse-card-inner {
+            background: linear-gradient(135deg, rgba(107,20,37,0.3) 0%, rgba(26,18,37,0.8) 100%);
+            border: 1px solid rgba(201,168,76,0.2);
+            padding: 2.5rem;
+            transform-style: preserve-3d;
+            transform: rotateY(-8deg) rotateX(4deg);
+            transition: transform 0.6s ease;
+            position: relative;
+            box-shadow:
+                20px 20px 60px rgba(0,0,0,0.6),
+                inset 0 0 40px rgba(107,20,37,0.1);
+        }
+
+        .verse-card-3d:hover .verse-card-inner {
+            transform: rotateY(0deg) rotateX(0deg);
+        }
+
+        .verse-card-inner::before {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border: 1px solid rgba(201,168,76,0.1);
+            pointer-events: none;
+        }
+
+        .verse-card-inner::after {
+            content: '';
+            position: absolute;
+            top: -1px; left: 10%;
+            width: 80%; height: 2px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+        }
+
+        .verse-card-inner blockquote {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            line-height: 1.7;
+            color: var(--parchment);
+            margin-bottom: 1.2rem;
+        }
+
+        .verse-ref {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+        }
+
+        .text-mist { color: var(--mist); font-size: 0.95rem; }
+
+        /* ─── 3D TIME GRID ─── */
+        #chronos-kairos .section-inner {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .time-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .time-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            perspective: 1200px;
+        }
+
+        .time-card {
+            background: rgba(26,18,37,0.6);
+            border: 1px solid rgba(201,168,76,0.15);
+            padding: 2.5rem;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            cursor: default;
+        }
+
+        .time-card:hover {
+            transform: translateY(-8px) rotateX(3deg);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,168,76,0.25);
+        }
+
+        .time-card-num {
+            position: absolute;
+            top: -1.2rem;
+            left: 2rem;
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            background: var(--wine);
+            color: var(--gold);
+            padding: 0.3rem 0.8rem;
+            border: 1px solid rgba(201,168,76,0.3);
+        }
+
+        .time-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .time-card p { font-size: 0.9rem; color: var(--mist); line-height: 1.8; }
+
+        /* ─── JOÃO SECTION ─── */
+        #joao-apocalipse {
+            background: linear-gradient(to bottom, transparent, rgba(107,20,37,0.08), transparent);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0; bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -3rem;
+            top: 0.5rem;
+            width: 8px;
+            height: 8px;
+            border: 1px solid var(--gold);
+            background: var(--ink);
+            transform: rotate(45deg);
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: calc(-3rem + 4px);
+            top: 0.5rem;
+            width: 1px;
+            height: 100%;
+            background: rgba(201,168,76,0.1);
+        }
+
+        .timeline-tag {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            margin-bottom: 0.6rem;
+        }
+
+        .timeline-item h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 0.75rem;
+        }
+
+        .timeline-item p { font-size: 0.9rem; color: var(--mist); line-height: 1.8; }
+
+        /* ─── ABRAÃO ─── */
+        .cards-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            perspective: 1000px;
+        }
+
+        .card-3d {
+            background: rgba(15,10,25,0.8);
+            border: 1px solid rgba(201,168,76,0.15);
+            padding: 2rem;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateY(0deg);
+            transition: all 0.5s ease;
+        }
+
+        .card-3d:hover {
+            transform: rotateY(-6deg) translateY(-6px);
+            border-color: rgba(201,168,76,0.35);
+            box-shadow: 15px 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .card-3d .card-icon {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(201,168,76,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            color: var(--gold);
+        }
+
+        .card-3d h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--parchment);
+        }
+
+        .card-3d p { font-size: 0.85rem; color: var(--mist); line-height: 1.8; }
+
+        .card-accent {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--wine), transparent);
+            transform: scaleX(0);
+            transition: transform 0.5s ease;
+        }
+
+        .card-3d:hover .card-accent { transform: scaleX(1); }
+
+        /* ─── A CRUZ ─── */
+        #a-cruz {
+            position: relative;
+        }
+
+        #a-cruz::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(107,20,37,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cross-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            border: 1px solid rgba(201,168,76,0.15);
+            position: relative;
+        }
+
+        .cross-container::before {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0;
+            left: 33.33%; right: 33.33%;
+            border-left: 1px solid rgba(201,168,76,0.1);
+            border-right: 1px solid rgba(201,168,76,0.1);
+            pointer-events: none;
+        }
+
+        .cross-panel {
+            padding: 3rem 2rem;
+            position: relative;
+            transition: background 0.4s;
+        }
+
+        .cross-panel:hover { background: rgba(107,20,37,0.1); }
+
+        .cross-panel-num {
+            font-family: 'Cinzel', serif;
+            font-size: 0.55rem;
+            letter-spacing: 0.3em;
+            color: rgba(201,168,76,0.5);
+            margin-bottom: 0.5rem;
+        }
+
+        .cross-panel-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+        }
+
+        .cross-panel-ref {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            color: rgba(201,168,76,0.4);
+            margin-bottom: 1.2rem;
+        }
+
+        .cross-panel p { font-size: 0.85rem; color: var(--mist); line-height: 1.8; }
+
+        .cross-panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 2rem; right: 2rem;
+            height: 1px;
+            background: rgba(201,168,76,0.08);
+        }
+
+        /* ─── APLICAÇÃO ─── */
+        .application-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.08);
+        }
+
+        .app-item {
+            background: rgba(10,6,18,0.9);
+            padding: 2.5rem;
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        .app-item:hover { background: rgba(26,18,37,0.95); }
+
+        .app-item-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            font-weight: 300;
+            color: rgba(201,168,76,0.08);
+            position: absolute;
+            top: 1rem; right: 1.5rem;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .app-item h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            color: var(--gold);
+            margin-bottom: 0.75rem;
+        }
+
+        .app-item p { font-size: 0.88rem; color: var(--mist); line-height: 1.8; }
+
+        /* ─── DOWNLOADS ─── */
+        #downloads { background: rgba(15,10,25,0.5); }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: rgba(201,168,76,0.1);
+        }
+
+        .download-card {
+            background: rgba(10,6,18,0.95);
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: background 0.3s;
+            overflow: hidden;
+        }
+
+        .download-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--wine), var(--gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .download-card:hover { background: rgba(26,18,37,0.95); }
+        .download-card:hover::before { transform: scaleX(1); }
+
+        .dl-icon {
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(201,168,76,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .dl-icon svg { width: 20px; height: 20px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+
+        .download-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .download-card p { font-size: 0.82rem; color: rgba(212,207,200,0.6); flex: 1; margin-bottom: 2rem; line-height: 1.7; }
+
+        .btn-download {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            padding: 0.75rem 0;
+            text-align: center;
+            background: transparent;
+            color: var(--gold);
+            border: 1px solid rgba(201,168,76,0.3);
+            text-decoration: none;
+            transition: all 0.3s;
+            display: block;
+        }
+
+        .btn-download:hover {
+            background: rgba(201,168,76,0.1);
+            border-color: var(--gold);
+        }
+
+        /* ─── FOOTER ─── */
+        footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid rgba(201,168,76,0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        footer p { font-size: 0.8rem; color: rgba(212,207,200,0.35); }
+
+        /* ─── ANIMATIONS ─── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 0.5; transform: scaleY(1); }
+            50% { opacity: 1; transform: scaleY(1.3); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            #visao-geral .section-inner { grid-template-columns: 1fr; gap: 2rem; }
+            .time-cards, .cards-grid-3, .cross-container, .application-grid { grid-template-columns: 1fr; }
+            .download-grid { grid-template-columns: 1fr 1fr; }
+            .nav-links { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            .download-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ─── GOLD ORNAMENT ─── */
+        .ornament {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .ornament-line {
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(201,168,76,0.4));
+        }
+        .ornament-line.rev { background: linear-gradient(to left, transparent, rgba(201,168,76,0.4)); }
+        .ornament-dot { width: 4px; height: 4px; background: var(--gold); transform: rotate(45deg); }
+    </style>
+    <link rel="stylesheet" href="assets/css/chatbot.css">
 </head>
+<body>
 
-<body data-theme="dark">
+    <!-- 3D CANVAS BACKGROUND -->
+    <canvas id="cosmos-canvas"></canvas>
 
-    <!-- ========= BARRA DE LEITURA ========= -->
-    <div id="readingProgress" aria-hidden="true"></div>
+    <!-- NAV -->
+    <nav>
+        <a href="#" class="nav-brand">Eternidade &amp; Tempo</a>
+        <ul class="nav-links">
+            <li><a href="#visao-geral">Visão Geral</a></li>
+            <li><a href="#chronos-kairos">Chronos × Kairos</a></li>
+            <li><a href="#joao-apocalipse">Apocalipse</a></li>
+            <li><a href="#abraao">Abraão</a></li>
+            <li><a href="#a-cruz">A Cruz</a></li>
+            <li><a href="#downloads">Downloads</a></li>
+        </ul>
+    </nav>
 
-    <!-- ========= HEADER ========= -->
-    <header class="site-header">
-        <div class="container">
-            <h1 class="site-title"><a href="index.html">Estudos</a></h1>
-            <nav class="site-nav" aria-label="Navegação principal">
-                <ul class="nav-list">
-                    <li><a href="index.html">Início</a></li>
-                    <li><a href="Eternidade.html" class="active">Eternidade</a></li>
-                    <li><a href="O%20Chamado%20Para%20Restaurar.html">Chamado para Restaurar</a></li>
-                    <li><a href="Sobre.html">Sobre</a></li>
-                </ul>
-                <button id="themeToggle" aria-label="Alternar modo escuro" title="Modo escuro/claro">🌙</button>
-            </nav>
+    <!-- HERO -->
+    <section id="hero">
+        <span class="hero-eyebrow">Estudo Bíblico · Apocalipse 1 · Hebreus 11 · Salmos 22 & 18 · Colossenses 2</span>
+        <h1 class="hero-title">
+            Eternidade,<br>
+            <em>Tempo</em><br>
+            e a Cruz
+        </h1>
+        <div class="ornament" style="opacity:0;animation:fadeUp 1s ease 0.8s forwards;">
+            <div class="ornament-line rev"></div>
+            <div class="ornament-dot"></div>
+            <div class="ornament-line"></div>
         </div>
-    </header>
+        <p class="hero-subtitle">Onde o eterno e o temporal se cruzam — e Cristo é o ponto de encontro.</p>
+        <blockquote class="hero-verse">
+            "Eu sou o Alfa e o Ômega, o princípio e o fim,<br>
+            diz o Senhor, que é, que era e que há de vir."<br>
+            <small style="font-size:0.75rem;opacity:0.7;font-style:normal;">— Apocalipse 1.8</small>
+        </blockquote>
+        <div class="hero-cta">
+            <a href="#visao-geral" class="btn-primary">Ler Estudo</a>
+            <a href="#downloads" class="btn-ghost">Ver Materiais</a>
+        </div>
+        <div class="scroll-hint">
+            <span>Descer</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
 
-    <!-- ========= CONTEÚDO ========= -->
-    <main class="site-content container">
-        <article class="post">
+    <main>
 
-            <figure class="post-hero">
-                <picture>
-                    <source srcset="img/eternidade-hero.avif" type="image/avif">
-                    <source srcset="img/eternidade-hero.webp" type="image/webp">
-                    <img src="img/eternidade-hero.jpg" alt="Ilustração que simboliza a eternidade" loading="lazy">
-                </picture>
-                <h1 class="hero-title">Eternidade</h1>
-                <figcaption>Eternidade – a primavera que nunca acaba</figcaption>
-            </figure>
+        <!-- VISÃO GERAL -->
+        <section id="visao-geral">
+            <div class="section-inner">
+                <div class="reveal">
+                    <span class="section-label">I — Fundamento</span>
+                    <h2 class="section-title">Visão Geral</h2>
+                    <div class="ornament" style="justify-content:flex-start;">
+                        <div class="ornament-line" style="width:40px;"></div>
+                        <div class="ornament-dot"></div>
+                    </div>
+                    <p class="text-mist" style="margin-bottom:1.2rem;">Partimos de Apocalipse 1.8 para compreender a interseção entre o tempo e a eternidade. Existem duas ideias fundamentais: <strong style="color:var(--parchment);font-weight:400;">"Alfa e Ômega, princípio e fim"</strong> falam do tempo, da história com começo e fim.</p>
+                    <p class="text-mist">Por outro lado, <strong style="color:var(--parchment);font-weight:400;">"que é, que era e que há de vir"</strong> falam da eternidade — a existência de Deus sem início nem término, num eterno "é". É exatamente em Cristo que o tempo e a eternidade se cruzam de forma perfeita.</p>
+                </div>
+                <div class="verse-card-3d reveal" style="transition-delay:0.2s;">
+                    <div class="verse-card-inner">
+                        <blockquote>
+                            "Eu sou o Alfa e o Ômega, o princípio e o fim, diz o Senhor, que é, que era e que há de vir, o Todo-Poderoso."
+                        </blockquote>
+                        <span class="verse-ref">Apocalipse 1.8</span>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <header class="post-header">
-                <h1 class="post-title">Eternidade</h1>
-                <p class="post-meta">
-                    <time datetime="2024-01-12">12 de janeiro de 2024</time> •
-                    <a href="#" class="post-category">Estudo Bíblico</a>
-                </p>
-            </header>
+        <!-- DIVIDER -->
+        <div class="section-divider"><div class="divider-line"></div><div class="divider-symbol">✦</div><div class="divider-line"></div></div>
 
-            <nav class="shelf-nav">
-                <a href="#definicao" class="nav-pill tilt-book">Definição</a>
-                <a href="#intersecao" class="nav-pill tilt-book">O Tempo</a>
-                <a href="#implicacoes" class="nav-pill tilt-book">Vida Cristã</a>
-                <a href="#recursos" class="nav-pill tilt-book">Recursos</a>
-            </nav>
+        <!-- CHRONOS x KAIROS -->
+        <section id="chronos-kairos">
+            <div class="section-inner">
+                <div class="time-header reveal">
+                    <span class="section-label">II — Dimensões</span>
+                    <h2 class="section-title">Chronos <em style="color:rgba(201,168,76,0.5);">×</em> Kairos</h2>
+                    <p style="color:var(--mist);max-width:600px;margin:0 auto 1rem;font-size:0.9rem;">O tempo (Chronos) é passado, presente e futuro. A eternidade (Kairos) é a dimensão maior que o envolve. Deus senta-se no "É" da eternidade e vê o início e o fim da história humana simultaneamente.</p>
+                </div>
+                <div class="time-cards">
+                    <div class="time-card reveal">
+                        <div class="time-card-num">ILUSTRAÇÃO 01</div>
+                        <h3>O Filme</h3>
+                        <p>Imagine um filme de três horas. Nós assistimos minuto a minuto: essa é a experiênca do tempo, onde só vemos a cena presente. O diretor, porém, está na sala de edição com o filme inteiro aberto — ele vê o começo, o meio e o fim ao mesmo tempo. Nós somos o espectador preso ao relógio; Deus é o diretor que tem toda a história diante de Si num único "agora".</p>
+                    </div>
+                    <div class="time-card reveal" style="transition-delay:0.15s;">
+                        <div class="time-card-num">ILUSTRAÇÃO 02</div>
+                        <h3>A Rua e o Prédio</h3>
+                        <p>Pense em alguém a caminhar numa rua longa. Só consegue ver alguns metros à frente — isso é o tempo. Agora, imagine que essa pessoa sobe ao terraço de um prédio alto e olha para baixo. Vê, ao mesmo tempo, o início, o meio e o fim da rua inteira. Essa visão de cima ilustra perfeitamente a perspetiva da eternidade.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <nav class="toc" id="toc"></nav>
+        <!-- DIVIDER -->
+        <div class="section-divider"><div class="divider-line"></div><div class="divider-symbol">✦</div><div class="divider-line"></div></div>
 
-            <section class="post-intro">
-                <p>O conceito de “eternidade” molda a nossa caminhada com Deus, revelando que o tempo cronológico é apenas o palco para um destino eterno.</p>
-            </section>
-
-            <section class="post-body">
-                <h2 id="definicao">1. Definição bíblica</h2>
-                <p>A eternidade não é apenas tempo infinito, mas a qualidade de vida encontrada na comunhão ininterrupta com o Criador.</p>
-
-                <blockquote class="verse">
-                    “Os céus proclamam a glória de Deus; o firmamento anuncia a obra das suas mãos.”<br>
-                    <footer>‑ <cite>Salmos 19:1</cite></footer>
-                </blockquote>
-
-                <h3 id="intersecao">1.1 A Interseção com o Tempo</h3>
-                <p>Em Cristo, o eterno invade o temporal. Ele é o Alfa e o Ômega, o princípio e o fim.</p>
-
-                <h2 id="implicacoes">2. Implicações para a vida cristã</h2>
-                <p>Viver com a perspectiva da eternidade altera as nossas prioridades e a forma como enfrentamos o sofrimento temporal.</p>
-
-                <figure class="align-right">
-                    <img src="img/eternidade-simbolismo.jpg" alt="Mosaico que representa a eternidade" loading="lazy">
-                    <figcaption>Mosaico de esperança</figcaption>
-                </figure>
-
-                <div style="background: rgba(13, 110, 253, 0.05); padding: 2.5rem; border-radius: 12px; text-align: center; border: 1px solid rgba(212,160,23,0.3);">
-                    <h3>Biblioteca de Recursos Eternos</h3>
-                    <p>Receba guias exclusivos e materiais de apoio para aprofundar sua caminhada.</p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
-                        <div class="glass-card" style="margin-bottom:0; background:rgba(255,255,255,0.03);">
-                            <h4>Guia: Visão Geral</h4>
-                            <form action="https://drive.google.com/uc?export=download&id=1yEenSDCkR_J8zWqc6TcLGmxJFoV__23i" method="GET" target="_blank">
-                                <input type="email" name="email" placeholder="Seu e-mail" required style="padding: 0.6rem; border-radius: 8px; border: 1px solid #444; width: 100%; margin-bottom: 0.8rem; background: #111; color: #fff;">
-                                <input type="hidden" name="_subject" value="Download PDF: Eternidade - Guia 1">
-                                <button type="submit" class="btn-primary" style="width: 100%;">Baixar PDF 1</button>
-                            </form>
+        <!-- JOÃO & APOCALIPSE -->
+        <section id="joao-apocalipse">
+            <div class="section-inner">
+                <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:5rem;align-items:start;">
+                    <div class="reveal">
+                        <span class="section-label">III — Revelação</span>
+                        <h2 class="section-title">João e o Apocalipse</h2>
+                        <div class="ornament" style="justify-content:flex-start;">
+                            <div class="ornament-line" style="width:40px;"></div>
+                            <div class="ornament-dot"></div>
                         </div>
-                        <div class="glass-card" style="margin-bottom:0; background:rgba(255,255,255,0.03);">
-                            <h4>Aprofundamento: Eternidade</h4>
-                            <form action="https://drive.google.com/uc?export=download&id=1h6i8JZhoRkgUd8peNBc4J50jUZRRZCXI" method="GET" target="_blank">
-                                <input type="email" name="email" placeholder="Seu e-mail" required style="padding: 0.6rem; border-radius: 8px; border: 1px solid #444; width: 100%; margin-bottom: 0.8rem; background: #111; color: #fff;">
-                                <input type="hidden" name="_subject" value="Download PDF: Eternidade - Guia 2">
-                                <button type="submit" class="btn-primary" style="width: 100%;">Baixar PDF 2</button>
-                            </form>
+                        <p class="text-mist">João está em Patmos, limitado pelo tempo, mas é levado em espírito à realidade celestial — ao "É" eterno de Deus. O Apocalipse não mostra apenas o futuro. João é levado também a eventos do passado eterno.</p>
+                    </div>
+                    <div class="timeline">
+                        <div class="timeline-item reveal">
+                            <div class="timeline-tag">Patmos</div>
+                            <h3>O Encontro Glorificado</h3>
+                            <p>João vê Jesus glorificado (olhos como chama de fogo, cabelos brancos como lã) e cai aos Seus pés como morto. Jesus apresenta-Se como o mesmo que andou com ele na terra — a essência não muda, apenas a manifestação da glória.</p>
+                        </div>
+                        <div class="timeline-item reveal" style="transition-delay:0.15s;">
+                            <div class="timeline-tag">Eternidade</div>
+                            <h3>O Livro Selado</h3>
+                            <p>João vê o Pai no trono com um livro selado com sete selos. Ninguém é achado digno de o abrir, e João chora. De repente, surge o Cordeiro como tendo sido morto — digno de abrir o livro.</p>
+                        </div>
+                        <div class="timeline-item reveal" style="transition-delay:0.3s;">
+                            <div class="timeline-tag">Além do Tempo</div>
+                            <h3>O Instante Eterno</h3>
+                            <p>Tudo acontece num "instante eterno" que, de volta ao tempo, representa poucos segundos. Por isso João recebe revelações de coisas futuras mas as narra como se já estivessem a acontecer, a partir do "É" de Deus.</p>
                         </div>
                     </div>
-                    <p style="font-size: 0.9rem; margin-top: 1.5rem; color: var(--color-gold);">Livro Recomendado: <a href="/api/redirect?book=deus_terminar" style="color: #fff; text-decoration: underline;">O Altar da Eternidade na Amazon</a></p>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section class="post-conclusion">
-                <p>Em síntese, a eternidade não é apenas um conceito futuro, mas a realidade que molda nosso presente.</p>
-            </section>
+        <!-- DIVIDER -->
+        <div class="section-divider"><div class="divider-line"></div><div class="divider-symbol">✦</div><div class="divider-line"></div></div>
 
-            <footer class="post-footer">
-                <nav class="post-pager">
-                    <a href="index.html" rel="prev">← Início</a>
-                    <a href="O%20Chamado%20Para%20Restaurar.html" rel="next">Próximo →</a>
-                </nav>
-
-                <div class="post-share">
-                    <p>Compartilhe:</p>
-                    <a href="#" class="share-btn fb" id="share-fb" target="_blank" rel="noopener">Facebook</a>
-                    <a href="#" class="share-btn wa" id="share-wa" target="_blank" rel="noopener">WhatsApp</a>
+        <!-- ABRAÃO -->
+        <section id="abraao">
+            <div class="section-inner">
+                <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+                    <span class="section-label">IV — Fé</span>
+                    <h2 class="section-title">Abraão e a Cidade</h2>
                 </div>
-
-                <div id="comments" class="post-comments">
-                    <script src="https://utteranc.es/client.js" repo="primeiromilhao/blogger_Estudos" issue-term="pathname" label="comment" theme="github-light" crossorigin="anonymous" async></script>
+                <div class="cards-grid-3">
+                    <div class="card-3d reveal">
+                        <div class="card-icon">I</div>
+                        <h3>A Promessa</h3>
+                        <p>Hebreus 11 mostra que Abraão sai sem saber para onde vai. Aos olhos naturais, o terreno estava vazio, sem construção. Ele habita em tendas no tempo, mas caminhando em direção à promessa eterna.</p>
+                        <div class="card-accent"></div>
+                    </div>
+                    <div class="card-3d reveal" style="transition-delay:0.15s;">
+                        <div class="card-icon">II</div>
+                        <h3>A Cidade Celestial</h3>
+                        <p>Abraão espera uma cidade com fundamentos construída por Deus. Pela fé, tem acesso ao "projeto" da Nova Jerusalém, que no tempo parece não estar pronta, mas na eternidade já o está.</p>
+                        <div class="card-accent"></div>
+                    </div>
+                    <div class="card-3d reveal" style="transition-delay:0.3s;">
+                        <div class="card-icon">III</div>
+                        <h3>O Sacrifício e a Fé</h3>
+                        <p>Quando recebe a ordem para sacrificar Isaque, a sua fé é tão forte que já considerava Deus poderoso para ressuscitar. Ele sobe o monte com certeza absoluta de que desceria com o filho vivo.</p>
+                        <div class="card-accent"></div>
+                    </div>
                 </div>
-            </footer>
-        </article>
+            </div>
+        </section>
 
-        <aside class="sidebar" aria-label="Posts relacionados">
-            <h2 class="widget-title">Você também pode gostar</h2>
-            <ul class="related-list">
-                <li><a href="O%20Chamado%20Para%20Restaurar.html">O Chamado Para Restaurar</a></li>
-                <li><a href="Espirito_Marinho.html">Espíritos Marinhos</a></li>
-                <li><a href="index.html">Hub de Estudos</a></li>
-            </ul>
-        </aside>
+        <!-- DIVIDER -->
+        <div class="section-divider"><div class="divider-line"></div><div class="divider-symbol">✦</div><div class="divider-line"></div></div>
+
+        <!-- A CRUZ -->
+        <section id="a-cruz">
+            <div class="section-inner">
+                <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+                    <span class="section-label">V — O Sacrifício</span>
+                    <h2 class="section-title">A Cruz na Eternidade</h2>
+                    <p style="color:var(--mist);max-width:580px;margin:1rem auto 0;font-size:0.9rem;">Pense na cruz como uma cena filmada por três câmaras diferentes. Cada perspetiva revela uma dimensão que os olhos físicos não alcançam.</p>
+                </div>
+                <div class="cross-container reveal">
+                    <div class="cross-panel">
+                        <div class="cross-panel-num">CÂMARA 01</div>
+                        <div class="cross-panel-title">Salmo 22</div>
+                        <div class="cross-panel-ref">O Coração de Jesus</div>
+                        <p>Focada no interior de Cristo. Mostra o que Ele sente por dentro e o que acontece espiritualmente: o clamor de abandono, a zombaria, e os demónios figurados como touros e cães a cercá-Lo.</p>
+                    </div>
+                    <div class="cross-panel">
+                        <div class="cross-panel-num">CÂMARA 02</div>
+                        <div class="cross-panel-title">Salmo 18</div>
+                        <div class="cross-panel-ref">O Mundo Espiritual</div>
+                        <p>Mostra o Pai descendo com poder: a terra a tremer, trevas, trovões e raios. Deus desce para livrar o Filho e batalhar ativamente contra os inimigos nas esferas celestiais.</p>
+                    </div>
+                    <div class="cross-panel">
+                        <div class="cross-panel-num">CÂMARA 03</div>
+                        <div class="cross-panel-title">Colossenses 2</div>
+                        <div class="cross-panel-ref">O Efeito Jurídico</div>
+                        <p>Mostra o efeito legal da cruz. Jesus perdoa as ofensas, risca e crava na cruz a cédula de dívida. Despoja principados e potestades, proclamando uma vitória eterna e oficial de liberdade.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DIVIDER -->
+        <div class="section-divider"><div class="divider-line"></div><div class="divider-symbol">✦</div><div class="divider-line"></div></div>
+
+        <!-- APLICAÇÃO -->
+        <section id="aplicacao">
+            <div class="section-inner">
+                <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+                    <span class="section-label">VI — Aplicação</span>
+                    <h2 class="section-title">Para a Vida</h2>
+                </div>
+                <div class="application-grid reveal">
+                    <div class="app-item">
+                        <div class="app-item-num">1</div>
+                        <h3>A Teologia do "Hoje"</h3>
+                        <p>Deus deu-nos um dia chamado "hoje". O que temos a fazer — orar, buscar, servir e obedecer — deve ser feito agora, pois o homem não aguenta administrar adequadamente o seu próprio tempo.</p>
+                    </div>
+                    <div class="app-item">
+                        <div class="app-item-num">2</div>
+                        <h3>Viver no Nível da Eternidade</h3>
+                        <p>Pela fé, podemos falar de coisas que ainda não existem no tempo como se já existissem, porque já estão prontas na eternidade. Não é fantasia — é visão de fé.</p>
+                    </div>
+                    <div class="app-item">
+                        <div class="app-item-num">3</div>
+                        <h3>Arrependimento e Perdão Eterno</h3>
+                        <p>No tempo, precisamos de chorar, arrepender-nos e pedir perdão. Mas na eternidade, Deus não é surpreendido — Ele já nos vê perdoados e sentados à mesa nas Bodas do Cordeiro.</p>
+                    </div>
+                    <div class="app-item">
+                        <div class="app-item-num">4</div>
+                        <h3>A Fé como Lanterna</h3>
+                        <p>Enquanto estamos no túnel do tempo, a fé é indispensável para vermos o caminho. Um dia, quando sairmos para a luz da eternidade, não precisaremos mais de crer — passaremos a ver.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DIVIDER -->
+        <div class="section-divider"><div class="divider-line"></div><div class="divider-symbol">✦</div><div class="divider-line"></div></div>
+
+        <!-- DOWNLOADS -->
+        <section id="downloads">
+            <div class="section-inner">
+                <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+                    <span class="section-label">Materiais</span>
+                    <h2 class="section-title">Guias de Estudo</h2>
+                    <p style="color:var(--mist);max-width:500px;margin:1rem auto 0;font-size:0.88rem;">Aprofunde-se em cada tema com materiais estruturados em PDF, com resumos, passagens bíblicas e questões para reflexão.</p>
+                </div>
+                <div class="download-grid reveal">
+                    <div class="download-card">
+                        <div class="dl-icon">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/></svg>
+                        </div>
+                        <h3>Visão Geral &amp; Apocalipse</h3>
+                        <p>A visão de João em Patmos e a introdução ao conceito de Jesus como Alfa e Ômega.</p>
+                        <a href="https://drive.google.com/uc?export=download&id=1SLAaLZ5e_5T3r95uC1I1qm2Cz9JZUrwp" target="_blank" rel="noopener" class="btn-download">Download PDF</a>
+                    </div>
+                    <div class="download-card">
+                        <div class="dl-icon">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+                        </div>
+                        <h3>Chronos × Kairos</h3>
+                        <p>As ilustrações do filme, da rua e do prédio para compreender as dimensões do tempo e eternidade.</p>
+                        <a href="https://drive.google.com/uc?export=download&id=1yEenSDCkR_J8zWqc6TcLGmxJFoV__23i" target="_blank" rel="noopener" class="btn-download">Download PDF</a>
+                    </div>
+                    <div class="download-card">
+                        <div class="dl-icon">
+                            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0"/><path d="M12 8v4l2 2"/></svg>
+                        </div>
+                        <h3>Abraão e a Cidade</h3>
+                        <p>A caminhada de fé de Abraão rumo à promessa da pátria celestial e o sacrifício de Isaque.</p>
+                        <a href="https://drive.google.com/uc?export=download&id=1h6i8JZhoRkgUd8peNBc4J50jUZRRZCXI" target="_blank" rel="noopener" class="btn-download">Download PDF</a>
+                    </div>
+                    <div class="download-card">
+                        <div class="dl-icon">
+                            <svg viewBox="0 0 24 24"><path d="M12 21V3M3 12h18"/></svg>
+                        </div>
+                        <h3>A Cruz na Eternidade</h3>
+                        <p>Análise pelas lentes dos Salmos 22 e 18, e Colossenses 2 — as três câmaras do Calvário.</p>
+                        <a href="#" class="btn-download" style="opacity:0.45;pointer-events:none;cursor:default;">Em breve</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <footer class="site-footer">
-        <div class="container">
-            <p>© 2026 Primeiro Milhão • <a href="Sobre.html">Sobre</a> • <a href="Privacidade.html">Política de privacidade</a></p>
-            <div class="social-links">
-                <a href="https://www.facebook.com/bibliotecaprofetica" class="social-icon" target="_blank"><i data-lucide="facebook"></i> Facebook</a>
-                <a href="https://instagram.com/primeiromilhao" class="social-icon" target="_blank"><i data-lucide="instagram"></i> Instagram</a>
-                <a href="https://youtube.com/@primeiromilhao" class="social-icon" target="_blank"><i data-lucide="youtube"></i> YouTube</a>
-            </div>
+    <!-- FOOTER -->
+    <footer>
+        <div class="ornament" style="margin-bottom:1.5rem;">
+            <div class="ornament-line rev"></div>
+            <div class="ornament-dot"></div>
+            <div class="ornament-line"></div>
         </div>
+        <div class="footer-brand">Biblioteca Profética</div>
+        <p>© 2026 Primeiro Milhão • Design &amp; Tecnologia Educacional</p>
     </footer>
 
     <div id="gemini-chat"></div>
@@ -215,27 +1083,193 @@
                     booksUrl: "books.json"
                 });
             }
-
-            // Social Share Dinâmico
-            const url = encodeURIComponent(window.location.href);
-            const title = encodeURIComponent(document.title);
-            const shareWa = document.getElementById('share-wa');
-            const shareFb = document.getElementById('share-fb');
-            if (shareWa) shareWa.href = `https://api.whatsapp.com/send?text=${title}: ${url}`;
-            if (shareFb) shareFb.href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-            
-            // Fix WhatsApp Floating Number
-            const floatWa = document.querySelector('.floating-wa');
-            if (floatWa) floatWa.href = "https://wa.me/351964264264";
         });
     </script>
-    <!-- Botão Flutuante WhatsApp -->
-    <a href="https://wa.me/351964264264" class="floating-wa" target="_blank" aria-label="Fale conosco no WhatsApp">
-        <i data-lucide="message-circle" style="width: 30px; height: 30px;"></i>
-    </a>
 
-    <script src="https://unpkg.com/tocbot@4.13.0/dist/tocbot.min.js"></script>
-    <script src="js/main.js"></script>
-    <script>lucide.createIcons();</script>
+    <script>
+    /* ─── 3D STARFIELD + CROSS CANVAS ─── */
+    const canvas = document.getElementById('cosmos-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let W, H, stars = [], particles = [], mouse = { x: 0, y: 0 };
+    const NUM_STARS = 180;
+    const NUM_PARTICLES = 30;
+
+    function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    }
+
+    function initStars() {
+        stars = [];
+        for (let i = 0; i < NUM_STARS; i++) {
+            stars.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                z: Math.random() * W,
+                size: Math.random() * 1.5 + 0.2,
+                twinkle: Math.random() * Math.PI * 2,
+                speed: Math.random() * 0.15 + 0.05,
+                color: Math.random() < 0.15 ? '#c9a84c' : '#d4cfc8'
+            });
+        }
+    }
+
+    function initParticles() {
+        particles = [];
+        for (let i = 0; i < NUM_PARTICLES; i++) {
+            particles.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                life: Math.random() * Math.PI * 2,
+                size: Math.random() * 2 + 0.5,
+            });
+        }
+    }
+
+    let t = 0;
+
+    function drawCross(cx, cy, opacity) {
+        const armLen = Math.min(W, H) * 0.12;
+        const armW = armLen * 0.12;
+
+        ctx.save();
+        ctx.globalAlpha = opacity;
+
+        // 3D perspective effect
+        const scrollPct = window.scrollY / (document.body.scrollHeight - H);
+        const tiltX = (mouse.y / H - 0.5) * 0.15;
+        const tiltY = (mouse.x / W - 0.5) * 0.15;
+
+        ctx.translate(cx, cy);
+        ctx.transform(
+            1, tiltX * 0.3,
+            tiltY * 0.3, 1,
+            0, 0
+        );
+
+        // Outer glow
+        const radGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, armLen * 1.8);
+        radGlow.addColorStop(0, 'rgba(107,20,37,0.12)');
+        radGlow.addColorStop(0.5, 'rgba(107,20,37,0.05)');
+        radGlow.addColorStop(1, 'transparent');
+        ctx.fillStyle = radGlow;
+        ctx.fillRect(-armLen * 2, -armLen * 2, armLen * 4, armLen * 4);
+
+        // Vertical beam
+        const vGrad = ctx.createLinearGradient(-armW, -armLen, armW, armLen);
+        vGrad.addColorStop(0, 'rgba(201,168,76,0)');
+        vGrad.addColorStop(0.3, 'rgba(201,168,76,0.06)');
+        vGrad.addColorStop(0.5, 'rgba(201,168,76,0.12)');
+        vGrad.addColorStop(0.7, 'rgba(201,168,76,0.06)');
+        vGrad.addColorStop(1, 'rgba(201,168,76,0)');
+
+        ctx.fillStyle = vGrad;
+        ctx.fillRect(-armW, -armLen, armW * 2, armLen * 2.4);
+
+        // Horizontal beam
+        const hGrad = ctx.createLinearGradient(-armLen, 0, armLen, 0);
+        hGrad.addColorStop(0, 'rgba(201,168,76,0)');
+        hGrad.addColorStop(0.3, 'rgba(201,168,76,0.06)');
+        hGrad.addColorStop(0.5, 'rgba(201,168,76,0.12)');
+        hGrad.addColorStop(0.7, 'rgba(201,168,76,0.06)');
+        hGrad.addColorStop(1, 'rgba(201,168,76,0)');
+
+        ctx.fillStyle = hGrad;
+        ctx.fillRect(-armLen, -armW, armLen * 2, armW * 2);
+
+        // Cross outline
+        ctx.beginPath();
+        ctx.moveTo(-armW, -armLen);
+        ctx.lineTo(armW, -armLen);
+        ctx.lineTo(armW, -armW);
+        ctx.lineTo(armLen, -armW);
+        ctx.lineTo(armLen, armW);
+        ctx.lineTo(armW, armW);
+        ctx.lineTo(armW, armLen * 1.4);
+        ctx.lineTo(-armW, armLen * 1.4);
+        ctx.lineTo(-armW, armW);
+        ctx.lineTo(-armLen, armW);
+        ctx.lineTo(-armLen, -armW);
+        ctx.lineTo(-armW, -armW);
+        ctx.closePath();
+
+        ctx.strokeStyle = `rgba(201,168,76,${0.12 + Math.sin(t * 0.3) * 0.04})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    function draw() {
+        t += 0.008;
+        ctx.clearRect(0, 0, W, H);
+
+        // Deep background
+        ctx.fillStyle = 'rgba(10,6,18,1)';
+        ctx.fillRect(0, 0, W, H);
+
+        // Stars
+        stars.forEach(s => {
+            s.twinkle += s.speed * 0.05;
+            const alpha = 0.3 + 0.7 * Math.abs(Math.sin(s.twinkle));
+            const px = s.x + (mouse.x / W - 0.5) * (s.z / W) * 40;
+            const py = s.y + (mouse.y / H - 0.5) * (s.z / W) * 40;
+
+            ctx.beginPath();
+            ctx.arc(px, py, s.size, 0, Math.PI * 2);
+            ctx.fillStyle = s.color === '#c9a84c'
+                ? `rgba(201,168,76,${alpha * 0.9})`
+                : `rgba(212,207,200,${alpha * 0.5})`;
+            ctx.fill();
+        });
+
+        // Particles
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+            if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+            const alpha = 0.05 + 0.05 * Math.sin(p.life);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(107,20,37,${alpha})`;
+            ctx.fill();
+        });
+
+        drawCross(W * 0.5, H * 0.48, 1);
+
+        requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('resize', () => { resize(); initStars(); initParticles(); });
+    resize(); initStars(); initParticles(); draw();
+
+    /* ─── SCROLL REVEAL ─── */
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
+
+    /* ─── TILT ─── */
+    document.querySelectorAll('.verse-card-3d').forEach(card => {
+        const inner = card.querySelector('.verse-card-inner');
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            inner.style.transform = `rotateY(${x * 20}deg) rotateX(${-y * 15}deg)`;
+        });
+        card.addEventListener('mouseleave', () => inner.style.transform = 'rotateY(-8deg) rotateX(4deg)');
+    });
+    </script>
 </body>
 </html>

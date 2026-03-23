@@ -1,311 +1,301 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- ====================== META ====================== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>O Chamado Para Restaurar – Estudos Proféticos</title>
-    <meta name="description"
-          content="Uma análise profunda do livro de Neemias: as 4 atitudes do restaurador e o mistério das 10 portas de Jerusalém.">
-    <meta name="author" content="Primeiro Milhão">
+    <title>O Chamado Para Restaurar — Estudos Proféticos</title>
+    <meta name="description" content="Uma análise profunda do livro de Neemias: as 4 atitudes do restaurador e o mistério das 10 portas de Jerusalém.">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/chatbot.css">
+    <style>
+        :root {
+            --gold: #C9A84C;
+            --gold-light: #F0D080;
+            --void: #080C1A;
+            --card-bg: rgba(10, 16, 40, 0.7);
+        }
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="O Chamado Para Restaurar – Estudos">
-    <meta property="og:description"
-          content="Reflexão sobre as 4 atitudes do restaurador e as 10 portas de Jerusalém.">
-    <meta property="og:image"
-          content="https://primeiromilhao.github.io/blogger_Estudos/img/restaurar-og.jpg">
-    <meta property="og:url"
-          content="https://primeiromilhao.github.io/blogger_Estudos/O%20Chamado%20Para%20Restaurar.html">
-    <meta property="og:type" content="article">
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--void);
+            color: #D0D8F0;
+            overflow-x: hidden;
+        }
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="O Chamado Para Restaurar – Estudos">
-    <meta name="twitter:description"
-          content="Análise profética sobre o chamado divino à restauração.">
-    <meta name="twitter:image"
-          content="https://primeiromilhao.github.io/blogger_Estudos/img/restaurar-og.jpg">
+        h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Roboto:wght@400;500;700&display=swap"
-          rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-    <!-- CSS principal -->
-    <link rel="stylesheet" href="css/style.css">
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            z-index: 100;
+            background: rgba(5, 8, 20, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        nav a {
+            color: #A0AACC;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        nav a:hover { color: var(--gold); }
 
-    <!-- JSON‑LD – Article schema -->
-    <script type="application/ld+json">
-    {
-      "@context":"https://schema.org",
-      "@type":"Article",
-      "headline":"O Chamado Para Restaurar",
-      "image":["https://primeiromilhao.github.io/blogger_Estudos/img/restaurar-hero.jpg"],
-      "author":{"@type":"Person","name":"Primeiro Milhão"},
-      "datePublished":"2024-02-14",
-      "publisher":{"@type":"Organization","name":"Estudos do Primeiro Milhão","logo":{"@type":"ImageObject","url":"https://primeiromilhao.github.io/blogger_Estudos/img/logo.png"}},
-      "description":"Uma análise profunda do livro de Neemias e o chamado à restauração."
-    }
-    </script>
+        #hero {
+            position: relative;
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            z-index: 1;
+        }
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-X"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-XXXXXXX-X');
-    </script>
+        .hero-title {
+            font-size: clamp(2.5rem, 7vw, 6rem);
+            font-weight: 900;
+            line-height: 1.1;
+            color: #fff;
+            text-shadow: 0 0 80px rgba(201,168,76,0.15);
+        }
+        .hero-title span {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+        .section-label {
+            display: inline-block;
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.8rem;
+        }
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(201, 168, 76, 0.15);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            transition: transform 0.4s ease, border-color 0.4s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(201, 168, 76, 0.4);
+        }
+
+        .dl-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 420px;
+            margin: 2rem auto;
+        }
+        .dl-btn {
+            display: block;
+            border: 1px solid rgba(201,168,76,0.4);
+            color: var(--gold);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin-top: 1.5rem;
+        }
+        .dl-btn:hover {
+            background: var(--gold);
+            color: #050A18;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible { opacity: 1; transform: none; }
+    </style>
 </head>
+<body>
 
-<body data-theme="dark" class="study-restaurar">
+<canvas id="bg-canvas"></canvas>
 
-    <!-- BARRA DE PROGRESSÃO -->
-    <div id="readingProgress" aria-hidden="true"></div>
-
-    <!-- HEADER -->
-    <header class="site-header">
-        <div class="container">
-            <h1 class="site-title"><a href="index.html">Estudos</a></h1>
-            <nav class="site-nav" aria-label="Navegação principal">
-                <ul class="nav-list">
-                    <li><a href="index.html">Início</a></li>
-                    <li><a href="Eternidade.html">Eternidade</a></li>
-                    <li><a href="O%20Chamado%20Para%20Restaurar.html" class="active">Chamado para Restaurar</a></li>
-                    <li><a href="Sobre.html">Sobre</a></li>
-                </ul>
-                <button id="themeToggle" aria-label="Alternar modo escuro" title="Modo escuro/claro">🌙</button>
-            </nav>
+<nav>
+    <div class="nav-inner">
+        <span class="nav-logo">Escola Bíblica</span>
+        <div class="hidden md:flex gap-10">
+            <a href="index.html">Hub</a>
+            <a href="Eternidade.html">Eternidade</a>
+            <a href="Espirito_Marinho.html">Marinhos</a>
         </div>
-    </header>
+    </div>
+</nav>
 
-    <main class="site-content container">
-        <article class="post">
+<section id="hero">
+    <div class="reveal">
+        <span class="section-label">Estudo Profético</span>
+        <h1 class="hero-title">O Chamado<br><span>Para Restaurar</span></h1>
+        <p style="margin-top:1.5rem; font-style:italic; color:#8090B0;">"Erguendo os muros da alma sobre os fundamentos da Palavra."</p>
+    </div>
+</section>
 
-            <figure class="post-hero" style="position:relative; min-height:450px; border-radius:16px; overflow:hidden; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1541410965313-261543329241?auto=format&fit=crop&q=80&w=1200'); background-size:cover; background-position:center; display:flex; flex-direction:column; justify-content:flex-end; padding:2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
-                <div style="position:relative; z-index:2;">
-                    <span style="color:var(--color-primary); font-family:'Cinzel',serif; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; background:rgba(212,160,23,0.1); padding:0.4rem 1rem; border-radius:99px; border:1px solid rgba(212,160,23,0.3);">Estudo Profético de Reconstrução</span>
-                    <h1 class="hero-title">O Chamado Para Restaurar</h1>
-                </div>
-                <figcaption style="position:static; background:none; padding:0; margin-top:1rem; font-style:italic; opacity:0.8;">"Erguendo os muros da alma sobre os fundamentos da Palavra."</figcaption>
-            </figure>
-
-            <header class="post-header">
-                <p class="post-meta">
-                    <time datetime="2024-03-19">19 de março de 2024</time> •
-                    <a href="#" class="post-category">Estudo Profético</a>
-                </p>
-            </header>
-
-            <nav class="shelf-nav">
-                <a href="#atitudes-neemias" class="nav-pill tilt-book">4 Atitudes</a>
-                <a href="#mistério-das-portas" class="nav-pill tilt-book">10 Portas</a>
-                <a href="#oracao-restauracao" class="nav-pill tilt-book">Oração</a>
-                <a href="#lidando-com-oposicao" class="nav-pill tilt-book">Guerra Espiritual</a>
-                <a href="#guia-download" class="nav-pill tilt-book">Download PDF</a>
-            </nav>
-
-            <nav class="toc" id="toc"></nav>
-
-            <section class="post-intro">
-                <p>Nesta geração, muitos clamam por mudança, mas poucos respondem ao <strong>chamado profético</strong> de restaurar aquilo que foi quebrado. Neemias é o nosso modelo de como Deus usa um coração disposto para levantar os fundamentos de muitas gerações.</p>
-            </section>
-
-            <section class="post-body">
-
-                <h2 id="atitudes-neemias">1. As 4 Atitudes do Restaurador</h2>
-                <p>Neemias não começou com pedras e argamassa; ele começou no oculto. Antes da obra física, houve a obra espiritual.</p>
-
-                <div class="grid-2">
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="anchor"></i></div>
-                        <h3>1. Assentar-se</h3>
-                        <p>Reflexão profunda. Neemias parou para ouvir a realidade. Sem consciência da ruína, não há urgência na restauração (Ne 1:4). É o momento de encarar a verdade sem filtros.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="droplets"></i></div>
-                        <h3>2. Chorar</h3>
-                        <p>O coração de Neemias foi quebrado pelo que quebra o coração de Deus. A dor pelas almas e pela glória do Senhor é o combustível do restaurador. Quem não chora pelas ruínas, não tem autoridade para reconstruir.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="shield-alert"></i></div>
-                        <h3>3. Lamentar</h3>
-                        <p>O reconhecimento do pecado corporativo e individual. Neemias não culpou os outros; ele identificou-se com a falha do seu povo. "Eu e a casa de meu pai pecamos" (Ne 1:6).</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="flame"></i></div>
-                        <h3>4. Orar e Jejuar</h3>
-                        <p>A batalha espiritual precede a física. Foram quatro meses de oração intensa antes de uma única palavra ser dita ao Rei. O restaurador depende totalmente da mão de Deus.</p>
-                    </div>
-                </div>
-
-                <blockquote class="verse">
-                    “E os teus renovarão as antigas ruínas; e levantarás os fundamentos de muitas gerações; e chamar-te-ão reparador das brechas, e restaurador de caminhos para morar.”<br>
-                    <footer>‑ <cite>Isaías 58:12</cite></footer>
-                </blockquote>
-
-                <h2 id="mistério-das-portas">2. O Mistério das 10 Portas</h2>
-                <p>A reconstrução das portas de Jerusalém (Neemias 3) não é apenas arquitetura; é um mapa profético da jornada do cristão.</p>
-
-                <div class="grid-2">
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="sheep"></i></div>
-                        <strong>1. Porta das Ovelhas</strong>
-                        <p>O Altar da Cruz. Onde o sacrifício de Jesus nos purifica. Ne 3:1.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="waves"></i></div>
-                        <strong>2. Porta do Peixe</strong>
-                        <p>O chamado ao evangelismo e à produtividade espiritual. Ne 3:3.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="history"></i></div>
-                        <strong>3. Porta Velha</strong>
-                        <p>Ponto de retorno às veredas antigas e fundamentos da fé. Ne 3:6.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="mountain"></i></div>
-                        <strong>4. Porta do Vale</strong>
-                        <p>Lugar de humilhação e prova que forja o caráter. Ne 3:13.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="trash-2"></i></div>
-                        <strong>5. Porta do Esterco</strong>
-                        <p>Santificação: o descarte de tudo o que é impuro. Ne 3:14.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="glass-water"></i></div>
-                        <strong>6. Porta da Fonte</strong>
-                        <p>A plenitude do Espírito Santo que sacia a alma. Ne 3:15.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="droplets"></i></div>
-                        <strong>7. Porta das Águas</strong>
-                        <p>A lavagem regeneradora da Palavra de Deus. Ne 3:26.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="swords"></i></div>
-                        <strong>8. Porta dos Cavalos</strong>
-                        <p>Vigilância e prontidão para a batalha espiritual. Ne 3:28.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="sunrise"></i></div>
-                        <strong>9. Porta Oriental</strong>
-                        <p>A esperança da Glória e o retorno do Rei. Ne 3:29.</p>
-                    </div>
-                    <div class="glass-card tilt-book">
-                        <div class="icon-wrapper"><i data-lucide="clipboard-check"></i></div>
-                        <strong>10. Porta da Atribuição</strong>
-                        <p>O lugar da prestação de contas e recompensa final. Ne 3:31.</p>
-                    </div>
-                </div>
-
-                <h2 id="oracao-restauracao">3. Oração de Restauração</h2>
-                <div class="glass-card" style="border-left: 4px solid var(--color-gold); background: rgba(184, 134, 11, 0.05);">
-                    <p><em>"Senhor Deus, eu reconheço que as minhas brechas precisam de reparo. Como Neemias, eu me coloco diante de Ti para reconstruir o que foi destruído. Peço que as Tuas mãos estejam sobre mim, fortalecendo-me contra toda a oposição e dando-me a visão clara para cada porta da minha vida. Eu recebo a Tua força para restaurar os fundamentos de muitas gerações. Em nome de Jesus, Amém."</em></p>
-                </div>
-
-                <h2 id="lidando-com-oposicao">4. Lidando com a Oposição</h2>
-                <p>Sambalate e Tobias usaram a zombaria e o medo. Neemias respondeu com vigilância e foco: <em>"Estou a realizar uma grande obra e não posso descer"</em>.</p>
-
-                <div class="glass-card" style="border-left: 4px solid var(--color-accent);">
-                    <h3>Estratégia do Guerreiro</h3>
-                    <p>Neemias ensinou o povo a trabalhar com uma mão na ferramenta e a outra na espada. Nunca baixe a guarda durante a reconstrução do seu destino.</p>
-                    <a href="/api/redirect?book=pessoas_dificeis" class="btn-primary">Aprofundar no Livro Amazon</a>
-                </div>
-
-                <h2 id="guia-download">5. Material de Apoio (PDF)</h2>
-                <div style="background: rgba(13, 110, 253, 0.05); padding: 2rem; border-radius: 12px; text-align: center;">
-                    <h3>Receba o Guia de Estudo Completo</h3>
-                    <p>Inclui o detalhamento de todas as 10 portas e orações de restauração.</p>
-                    <form action="https://drive.google.com/uc?export=download&id=1xqA_jX1mKArbWgSCcxv_H3-KF29ambSC" method="GET" target="_blank" style="margin-top: 1.5rem;">
-                        <input type="email" name="email" placeholder="Seu melhor e-mail" required style="padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc; width: 100%; max-width: 300px; margin-bottom: 1rem; background: #fff; color: #333;">
-                        <input type="hidden" name="_subject" value="Download PDF: O Chamado Para Restaurar">
-                        <button type="submit" class="btn-primary">Download do Guia PDF</button>
-                    </form>
-                </div>
-
-            </section>
-
-            <section class="post-conclusion">
-                <p>A restauração não é um evento; é um processo de manter o foco no que Deus chamou a construir, ignorando as vozes que tentam fazê-lo descer do muro.</p>
-                <a href="#comments" class="btn-primary">Deixar um Comentário</a>
-            </section>
-
-            <footer class="post-footer">
-                <nav class="post-pager">
-                    <a href="Eternidade.html" rel="prev">← Estudo: Eternidade</a>
-                    <a href="Espirito_Marinho.html" rel="next">Estudo: Espíritos Marinhos →</a>
-                </nav>
-
-                <div class="post-share">
-                    <p>Compartilhar Estudo:</p>
-                    <a href="#" id="share-fb" target="_blank" rel="noopener" class="share-btn fb">Facebook</a>
-                    <a href="#" id="share-wa" target="_blank" rel="noopener" class="share-btn wa">WhatsApp</a>
-                </div>
-
-                <div id="comments" class="post-comments">
-                    <script src="https://utteranc.es/client.js" repo="primeiromilhao/blogger_Estudos" issue-term="pathname" label="comment" theme="github-light" crossorigin="anonymous" async></script>
-                </div>
-            </footer>
-        </article>
-
-        <aside class="sidebar" aria-label="Posts relacionados">
-            <h2 class="widget-title">Crescimento Contínuo</h2>
-            <ul class="related-list">
-                <li><a href="Eternidade.html">Eternidade – O que nos espera?</a></li>
-                <li><a href="Espirito_Marinho.html">Guerra Espiritual e Marinhos</a></li>
-                <li><a href="index.html">Voltar ao Hub de Estudos</a></li>
-            </ul>
-        </aside>
-
-    </main>
-
-    <footer class="site-footer">
-        <div class="container">
-            <p>© 2026 Primeiro Milhão • <a href="Sobre.html">Sobre</a> • <a href="Privacidade.html">Política de privacidade</a></p>
-            <div class="social-links">
-                <a href="https://instagram.com/primeiromilhao" class="social-icon" target="_blank"><i data-lucide="instagram"></i> Instagram</a>
-                <a href="https://youtube.com/@primeiromilhao" class="social-icon" target="_blank"><i data-lucide="youtube"></i> YouTube</a>
-                <a href="https://www.facebook.com/bibliotecaprofetica" class="social-icon" target="_blank"><i data-lucide="facebook"></i> Facebook</a>
+<section class="section-inner">
+    <div class="reveal">
+        <h2 class="section-title">1. As 4 Atitudes do Restaurador</h2>
+        <p style="margin-bottom:2rem; color:#8090B0;">Neemias não começou com pedras; ele começou no oculto. Antes da obra física, houve a obra espiritual.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass-card">
+                <h3 style="color:var(--gold); margin-bottom:0.5rem;">1. Assentar-se</h3>
+                <p>Reflexão profunda. Neemias parou para ouvir a realidade. Sem consciência da ruína, não há urgência na restauração.</p>
+            </div>
+            <div class="glass-card">
+                <h3 style="color:var(--gold); margin-bottom:0.5rem;">2. Chorar</h3>
+                <p>O coração de Neemias foi quebrado pelo que quebra o coração de Deus. A dor pelas ruínas é o combustível.</p>
+            </div>
+            <div class="glass-card">
+                <h3 style="color:var(--gold); margin-bottom:0.5rem;">3. Lamentar</h3>
+                <p>O reconhecimento do pecado corporativo e individual. Identificação com a falha para buscar a cura.</p>
+            </div>
+            <div class="glass-card">
+                <h3 style="color:var(--gold); margin-bottom:0.5rem;">4. Orar e Jejuar</h3>
+                <p>A batalha espiritual precede a física. Dependência total da mão de Deus antes da ação.</p>
             </div>
         </div>
-    </footer>
+    </div>
+</section>
 
-    <div id="gemini-chat"></div>
-    <script src="chatbot/gemini-widget.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar Chatbot
-            if (window.initializeGeminiChatbot) {
-                window.initializeGeminiChatbot({
-                    jsonConfigUrl: "chatbot/faq_library.json",
-                    booksUrl: "books.json"
-                });
-            }
+<section class="section-inner" style="background:rgba(5,8,20,0.4);">
+    <div class="reveal">
+        <h2 class="section-title">2. O Mistério das 10 Portas</h2>
+        <p style="margin-bottom:2rem; color:#8090B0;">A reconstrução das portas de Jerusalém (Neemias 3) é um mapa profético da jornada do cristão.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="glass-card"><strong>1. Porta das Ovelhas:</strong> Altar da Cruz. Purificação.</div>
+            <div class="glass-card"><strong>2. Porta do Peixe:</strong> Evangelismo e produtividade.</div>
+            <div class="glass-card"><strong>3. Porta Velha:</strong> Retorno às veredas antigas.</div>
+            <div class="glass-card"><strong>4. Porta do Vale:</strong> Humilhação que forja caráter.</div>
+            <div class="glass-card"><strong>5. Porta do Esterco:</strong> Santificação e descarte do impuro.</div>
+            <div class="glass-card"><strong>6. Porta da Fonte:</strong> Plenitude do Espírito Santo.</div>
+            <div class="glass-card"><strong>7. Porta das Águas:</strong> Lavagem pela Palavra.</div>
+            <div class="glass-card"><strong>8. Porta dos Cavalos:</strong> Vigilância e batalha espiritual.</div>
+            <div class="glass-card"><strong>9. Porta Oriental:</strong> Esperança da Glória e do Rei.</div>
+            <div class="glass-card"><strong>10. Porta da Atribuição:</strong> Prestação de contas final.</div>
+        </div>
+    </div>
+</section>
 
-            // Social Share Dinâmico
-            const url = encodeURIComponent(window.location.href);
-            const title = encodeURIComponent(document.title);
-            const shareWa = document.getElementById('share-wa');
-            const shareFb = document.getElementById('share-fb');
-            if (shareWa) shareWa.href = `https://api.whatsapp.com/send?text=${title}: ${url}`;
-            if (shareFb) shareFb.href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-            
-            // Fix WhatsApp Floating Number
-            const floatWa = document.querySelector('.floating-wa');
-            if (floatWa) floatWa.href = "https://wa.me/351964264264";
+<section class="section-inner">
+    <div class="reveal">
+        <h2 class="section-title">Oração e Downloads</h2>
+        <div class="glass-card" style="margin-bottom:3rem; border-left:4px solid var(--gold);">
+            <p style="font-style:italic;">"Senhor, reconheço que minhas brechas precisam de reparo. Como Neemias, coloco-me diante de Ti para reconstruir o que foi destruído. Amém."</p>
+        </div>
+
+        <div class="dl-card">
+            <h3 style="color:#fff; font-size:1.2rem;">Guia de Estudo Completo</h3>
+            <p style="color:#8090B0; font-size:0.9rem; margin-top:0.5rem;">Download do material em PDF com o detalhamento das 10 portas.</p>
+            <a href="https://drive.google.com/uc?export=download&id=1xqA_jX1mKArbWgSCcxv_H3-KF29ambSC" target="_blank" class="dl-btn">DOWNLOAD PDF DIRETO</a>
+        </div>
+    </div>
+</section>
+
+<footer style="text-align:center; padding:3rem; color:#4A5A7A; font-size:0.8rem; border-top:1px solid rgba(201,168,76,0.1);">
+    <p>&copy; 2026 Biblioteca Profética — Restauração e Vida.</p>
+</footer>
+
+<div id="gemini-chat"></div>
+<script src="chatbot/gemini-widget.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.initializeGeminiChatbot) {
+            window.initializeGeminiChatbot({
+                jsonConfigUrl: "chatbot/faq_library.json",
+                booksUrl: "books.json"
+            });
+        }
+    });
+
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+
+    function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    }
+
+    const particles = Array.from({length: 100}, () => ({
+        x: Math.random() * 2000,
+        y: Math.random() * 2000,
+        r: Math.random() * 1.5,
+        a: Math.random() * Math.PI * 2
+    }));
+
+    function loop() {
+        ctx.clearRect(0,0,W,H);
+        ctx.fillStyle = "rgba(201,168,76,0.3)";
+        particles.forEach(p => {
+            p.x += Math.cos(p.a) * 0.2;
+            p.y += Math.sin(p.a) * 0.2;
+            if(p.x > W) p.x = 0; if(p.x < 0) p.x = W;
+            if(p.y > H) p.y = 0; if(p.y < 0) p.y = H;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+            ctx.fill();
         });
-    </script>
-    <!-- Botão Flutuante WhatsApp -->
-    <a href="https://wa.me/351964264264" class="floating-wa" target="_blank" aria-label="Fale conosco no WhatsApp">
-        <i data-lucide="message-circle" style="width: 30px; height: 30px;"></i>
-    </a>
+        requestAnimationFrame(loop);
+    }
 
-    <script src="https://unpkg.com/tocbot@4.13.0/dist/tocbot.min.js"></script>
-    <script src="js/main.js"></script>
-    <script>lucide.createIcons();</script>
+    resize(); loop();
+    window.addEventListener('resize', resize);
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
 </body>
 </html>
