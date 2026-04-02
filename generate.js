@@ -165,7 +165,7 @@ async function renderHTML(post, book, fileName, prevFile, nextFile, themeCss) {
   const dateISO = formatDateISO();
   const humanDate = formatDateHuman();
   const metaDesc = metaDescription(post.intro);
-  const baseUrl = 'https://primeiromilhao.github.io/blogger_Estudos';
+  const baseUrl = 'https://rumoanovajerusalem.github.io/blogger_Estudos';
   const pageUrl = `${baseUrl}/${fileName}`;
   const logoUrl = `${baseUrl}/img/logo.png`;
 
@@ -190,7 +190,7 @@ async function renderHTML(post, book, fileName, prevFile, nextFile, themeCss) {
     '{{NEXT_URL}}': nextFile ? `./${nextFile}` : '#',
     '{{LOGO_URL}}': logoUrl,
     '{{MAP_DATA_JSON}}': JSON.stringify(post.mapData || {}, null, 2),
-    '{{AFFILIATE_LINK}}': book.affiliate_link || 'https://primeiromilhao.github.io/blogger_Estudos/#biblioteca'
+    '{{AFFILIATE_LINK}}': book.affiliate_link || 'https://rumoanovajerusalem.github.io/blogger_Estudos/#biblioteca'
   };
 
   let templateHtml = await fs.readFile(TEMPLATE_PATH, 'utf8');

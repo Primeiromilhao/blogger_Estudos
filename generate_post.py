@@ -6,7 +6,7 @@ json_data = '''{
   "recommendedBook": {
     "title": "A Graça Salvadora",
     "coverUrl": "assets/covers/graca-salvadora.jpg",
-    "pageUrl": "https://primeiromilhao.github.io/blogger_Estudos/studies/graca-salvadora/index.html"
+    "pageUrl": "https://rumoanovajerusalem.github.io/blogger_Estudos/studies/graca-salvadora/index.html"
   },
   "biblicalPassage": {
     "reference": "Efésios 2:8",

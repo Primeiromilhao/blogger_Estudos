@@ -146,8 +146,8 @@ if __name__ == "__main__":
         if official_pt: ai_data['verse_pt'] = official_pt
         
         # Link do livro escolhido e Capa
-        final_link = "https://primeiromilhao.github.io/blogger_Estudos/#biblioteca"
-        book_cover = "https://primeiromilhao.github.io/blogger_Estudos/img/default-book.jpg"
+        final_link = "https://rumoanovajerusalem.github.io/blogger_Estudos/#biblioteca"
+        book_cover = "https://rumoanovajerusalem.github.io/blogger_Estudos/img/default-book.jpg"
         
         if BOOKS_JSON.exists():
             with open(BOOKS_JSON, "r", encoding="utf-8") as f:

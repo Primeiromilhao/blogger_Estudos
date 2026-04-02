@@ -57,8 +57,8 @@ async function renderFromResult() {
       '{{META_DESC}}': postData.summary.substring(0, 150) + '...',
       '{{COVER_URL}}': postData.recommendedBook.coverUrl || 'assets/default-cover.jpg',
       '{{COVER_ALT}}': `Estudo Bíblico sobre ${postData.topic}`,
-      '{{PAGE_URL}}': `https://primeiromilhao.github.io/blogger_Estudos/post-${slugify(postData.topic)}.html`,
-      '{{LOGO_URL}}': 'https://primeiromilhao.github.io/blogger_Estudos/assets/images/logo.png', // Fallback
+      '{{PAGE_URL}}': `https://rumoanovajerusalem.github.io/blogger_Estudos/post-${slugify(postData.topic)}.html`,
+      '{{LOGO_URL}}': 'https://rumoanovajerusalem.github.io/blogger_Estudos/assets/images/logo.png', // Fallback
       '{{DATE}}': new Date().toISOString(),
       '{{FORMATTED_DATE}}': new Date().toLocaleDateString('pt-BR'),
       '{{INTRO}}': `<p>Bem-vindo ao estudo sobre <strong>${postData.topic}</strong>. Este material foi cuidadosamente preparado pela IA com base em nossos estudos cristãos.</p>`,

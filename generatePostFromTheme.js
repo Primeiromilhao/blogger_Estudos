@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 /* -------------------------------------------------
    CONFIGURAÇÕES
    ------------------------------------------------- */
-const REPO_OWNER = 'Primeiromilhao';
+const REPO_OWNER = 'rumoanovajerusalem';
 const REPO_NAME  = 'blogger_Estudos';
 const GITHUB_API = 'https://api.github.com';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -107,7 +107,7 @@ ${texto.slice(0, 1500).replace(/\r?\n/g, ' ')}
 Seu objetivo é, a partir do tema que o usuário fornecer, gerar:
 
 1. **Resumo conceitual** que conecte o tema ao ensinamento bíblico.  
-2. **Recomendação de um livro** (título, capa, link interno – use a URL relativa ao repositório \`https://primeiromilhao.github.io/blogger_Estudos/{Contexto Original}/index.html\`) que melhor aborda o assunto.  
+2. **Recomendação de um livro** (título, capa, link interno – use a URL relativa ao repositório \`https://rumoanovajerusalem.github.io/blogger_Estudos/{Contexto Original}/index.html\`) que melhor aborda o assunto.  
 3. **Passagem bíblica** que legitime a recomendação (PROPORCIONE UMA REFERÊNCIA VÁLIDA PARA BUSCA NA API, ex: "John 3:16", "Genesis 1:1"). Use nomes de livros em inglês para garantir compatibilidade com a API.
 4. **Exemplo prático** de como aplicar esse princípio no cotidiano (máximo 3 frases).  
 

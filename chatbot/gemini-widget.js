@@ -13,7 +13,7 @@
             libraryPath: options.libraryUrl || 'data/library.json',
             bibleApi: 'https://bible-api.com',
             bibleTranslation: 'almeida',
-            affiliateTag: 'primeiromilhao-20',
+            affiliateTag: 'rumoanovajerusalem-20',
             maxResults: 5
         };
 

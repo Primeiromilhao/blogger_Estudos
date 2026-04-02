@@ -48,7 +48,7 @@ const STUDY_LINKS = {
     "eternidade_pdf2": "https://drive.google.com/file/d/1yEenSDCkR_J8zWqc6TcLGmxJFoV__23i/view?usp=drive_link"
 };
 
-const DEFAULT_DESTINATION = "https://primeiromilhao.github.io/blogger_Estudos/#biblioteca";
+const DEFAULT_DESTINATION = "https://rumoanovajerusalem.github.io/blogger_Estudos/#biblioteca";
 
 // Função de utilidade para fazer POST
 const doPost = (url, headers, body) => {

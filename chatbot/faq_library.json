@@ -1,6 +1,18 @@
 {
   "questions": [
     {
+      "question": "Como funciona o estudo de 21 dias?",
+      "answer": "A Jornada de 21 Dias é um guia prático focado em Identidade, Prosperidade e Autoridade. A cada dia, você recebe uma base bíblica, um estudo de caso prático e um protocolo de ativação para aplicar o resgate jurídico na sua vida."
+    },
+    {
+      "question": "O que é o estudo 'O Resgate da Terra'?",
+      "answer": "É um guia de ativação de 21 dias (Edição de Ouro) focado em restaurar sua identidade de herdeiro e sua prosperidade legal perante o tribunal celestial."
+    },
+    {
+      "question": "Quem é o Goel em Apocalipse 5?",
+      "answer": "O Goel é o 'Parente Redentor'. Jesus é o nosso Goel, que por meio de Sua morte e ressurreição, pagou o resgate legal da nossa herança e da posse da terra."
+    },
+    {
       "question": "O que é a Escolha Bíblica Nova Jerusalém?",
       "answer": "Somos uma plataforma dedicada ao estudo profundo das Escrituras, focada em revelações proféticas e crescimento espiritual."
     },
@@ -43,7 +55,9 @@
     {
       "question": "Onde encontro o livro sobre Espíritos Marinhos?",
       "answer": "Você pode encontrar o material completo e livros recomendados em nossa seção de 'Explorar Estudos' na página principal.",
-      "links": ["https://amzn.to/3TOCVIn"]
+      "links": [
+        "https://amzn.to/3TOCVIn"
+      ]
     },
     {
       "question": "O que é a oração e como ela funciona?",
