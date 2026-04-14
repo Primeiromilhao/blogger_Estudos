@@ -1,24 +1,22 @@
 // gemini-widget.js - Sábio da Nova Jerusalém
-// Versão: 4.0.0 (Motor: Groq llama3 | Abas: Chat, Estudos, Biblioteca)
+// Versão: 5.0.0 (Motor: Ollama local | Fallback: FAQ offline)
 
-(function() {
+(function () {
     'use strict';
 
-    window.initializeGeminiChatbot = function(options = {}) {
+    window.initializeGeminiChatbot = function (options = {}) {
 
         const CONFIG = {
-            faqPath:         options.jsonConfigUrl || 'chatbot/faq_library.json',
-            booksPath:       options.booksUrl      || 'books_categorized.json',
-            bibleApi:        'https://bible-api.com',
-            bibleTranslation:'almeida',
-            maxResults:      5,
+            faqPath:          options.jsonConfigUrl || 'chatbot/faq_library.json',
+            booksPath:        options.booksUrl      || 'books_categorized.json',
+            bibleApi:         'https://bible-api.com',
+            bibleTranslation: 'almeida',
 
-            // ── GROQ CONFIG ─────────────────────────────────────────────────────
-            // Chave pública de cliente (CORS permitido pela Groq para browsers)
-            // Substitua pelo valor real em groq.com/keys
-            groqApiKey:  options.groqApiKey || 'SUA_CHAVE_GROQ_AQUI',
-            groqModel:   'llama3-8b-8192',
-            groqEndpoint:'https://api.groq.com/openai/v1/chat/completions',
+            // ── OLLAMA (local) ───────────────────────────────────────────────────
+            // Ollama expõe uma API OpenAI-compatível em localhost:11434
+            // Para funcionar no browser: definir OLLAMA_ORIGINS=*   (já feito no START_CLÁUDIO_TURBO.bat)
+            ollamaEndpoint: options.ollamaEndpoint || 'http://localhost:11434/api/chat',
+            ollamaModel:    options.ollamaModel    || 'llama3.2:1b',
             // ────────────────────────────────────────────────────────────────────
         };
 
@@ -27,45 +25,43 @@
             'que','qual','quais','como','quando','onde','porque','é','são',
             'foi','foram','ser','estar','eu','voce'];
 
-        let knowledgeBase = { faq: [], books: [] };
+        let kb = { faq: [], books: [] };
+        let ollamaOnline = false; // será verificado no init
         let activeTab = 'chat';
         let isOpen = false;
         let isLoading = false;
 
-        // ── CSS ─────────────────────────────────────────────────────────────────
+        // ── ESTILOS ────────────────────────────────────────────────────────────
         const styles = `
             @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
             * { margin:0; padding:0; box-sizing:border-box; }
             :host {
-                --gold:   #D4AF37;
-                --gold-l: #F4E8C1;
-                --navy:   #0a1628;
-                --glass:  rgba(10,22,40,0.92);
-                --border: rgba(212,175,55,0.3);
-                --txt:    #f0f0f0;
-                --txt-m:  #b0b0b0;
-                --groq:   #F55036;
+                --gold:  #D4AF37; --gold-l: #F4E8C1;
+                --glass: rgba(10,22,40,0.93); --border: rgba(212,175,55,0.3);
+                --txt:   #f0f0f0; --txt-m: #b0b0b0;
+                --olive: #7CB342;  /* cor Ollama */
             }
+
             .sabio-widget { position:fixed; bottom:25px; right:25px; z-index:10000; font-family:'Inter',sans-serif; }
 
             .sabio-bubble {
                 width:70px; height:70px; border-radius:50%;
-                background:linear-gradient(135deg,var(--gold) 0%,#B8860B 100%);
+                background:linear-gradient(135deg,var(--gold),#B8860B);
                 border:2px solid var(--gold-l);
-                box-shadow:0 5px 25px rgba(212,175,55,0.4);
+                box-shadow:0 5px 25px rgba(212,175,55,.45);
                 cursor:pointer; display:flex; align-items:center; justify-content:center;
                 transition:all .4s cubic-bezier(.175,.885,.32,1.275);
-                font-size:35px; color:#fff;
+                font-size:34px; color:#fff;
             }
-            .sabio-bubble:hover { transform:scale(1.1) rotate(5deg); }
+            .sabio-bubble:hover  { transform:scale(1.1) rotate(5deg); }
             .sabio-bubble.active { transform:rotate(45deg); background:#c82333; border-color:#ff6b6b; }
 
             .sabio-chat-window {
                 position:absolute; bottom:85px; right:0;
-                width:430px; height:690px; max-height:87vh;
+                width:430px; height:690px; max-height:88vh;
                 background:var(--glass); backdrop-filter:blur(25px);
                 border:1px solid var(--border); border-radius:25px;
-                box-shadow:0 20px 60px rgba(0,0,0,.6);
+                box-shadow:0 20px 60px rgba(0,0,0,.65);
                 display:flex; flex-direction:column;
                 opacity:0; transform:translateY(20px) scale(.95);
                 pointer-events:none;
@@ -73,87 +69,91 @@
             }
             .sabio-chat-window.open { opacity:1; transform:translateY(0) scale(1); pointer-events:all; }
 
-            /* HEADER BADGE */
+            /* STATUS HEADER */
             .sabio-header {
                 display:flex; align-items:center; gap:8px;
-                padding:12px 18px 0;
-                font-size:11px; color:var(--groq);
-                font-weight:600; letter-spacing:.5px;
+                padding:10px 18px 0; font-size:11px; font-weight:600; letter-spacing:.4px;
             }
-            .badge-groq {
-                background:var(--groq); color:#fff;
-                padding:2px 7px; border-radius:20px;
-                font-size:10px; font-weight:700;
+            .badge-motor {
+                padding:2px 8px; border-radius:20px;
+                font-size:10px; font-weight:700; color:#fff;
             }
+            .badge-online  { background:var(--olive); }
+            .badge-offline { background:#888; }
+            .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+            .dot-on  { background:var(--olive); box-shadow:0 0 4px var(--olive); }
+            .dot-off { background:#888; }
 
             /* ABAS */
             .sabio-tabs { display:flex; background:rgba(0,0,0,.2); border-bottom:1px solid var(--border); }
-            .sabio-tab {
+            .sabio-tab  {
                 flex:1; padding:13px; text-align:center; cursor:pointer;
-                color:var(--txt-m); font-size:12.5px; font-weight:500;
+                color:var(--txt-m); font-size:12px; font-weight:500;
                 transition:all .3s; display:flex; flex-direction:column; align-items:center; gap:3px;
             }
             .sabio-tab.active { color:var(--gold); background:rgba(212,175,55,.1); border-bottom:3px solid var(--gold); }
 
             /* CONTEÚDO */
-            .sabio-content { flex:1; overflow-y:auto; display:none; padding:18px; }
-            .sabio-content.active { display:flex; flex-direction:column; }
-            .sabio-messages { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:14px; }
+            .sabio-content { flex:1; overflow-y:auto; display:none; padding:16px; flex-direction:column; }
+            .sabio-content.active { display:flex; }
+            .sabio-messages { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:13px; }
 
             /* MENSAGENS */
-            .message { max-width:90%; padding:12px 16px; border-radius:18px; line-height:1.55; font-size:15px; }
+            .message { max-width:90%; padding:11px 15px; border-radius:18px; line-height:1.55; font-size:15px; }
             .message.user { align-self:flex-end; background:var(--gold); color:#fff; border-bottom-right-radius:4px; }
             .message.bot  { align-self:flex-start; background:rgba(255,255,255,.08); color:var(--txt); border-bottom-left-radius:4px; font-family:'Crimson Text',serif; font-size:16px; }
-            .message.error { background:rgba(245,80,54,.15); border:1px solid rgba(245,80,54,.3); }
 
             /* BÍBLIA */
             .bible-verse {
-                background:rgba(212,175,55,.15); border-left:4px solid var(--gold);
-                padding:12px; margin-bottom:12px; border-radius:0 10px 10px 0;
+                background:rgba(212,175,55,.14); border-left:4px solid var(--gold);
+                padding:11px; margin-bottom:11px; border-radius:0 10px 10px 0;
                 font-style:italic; font-size:15px;
             }
-            .bible-verse strong { display:block; color:var(--gold); font-style:normal; font-size:11px; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px; }
+            .bible-verse strong { display:block; color:var(--gold); font-style:normal; font-size:10px; margin-bottom:4px; text-transform:uppercase; letter-spacing:1px; }
 
-            /* GROQ BADGE NA RESPOSTA */
-            .groq-badge { font-size:10px; color:var(--groq); font-style:normal; float:right; margin-top:6px; opacity:.7; }
+            /* BADGE Motor */
+            .motor-badge { font-size:10px; color:var(--olive); float:right; margin-top:5px; opacity:.75; font-style:normal; }
+            .motor-badge.offline { color:#888; }
 
             /* ESTUDOS */
-            .study-item { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); padding:14px; border-radius:12px; margin-bottom:10px; cursor:pointer; transition:all .2s; }
+            .study-item { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); padding:13px; border-radius:12px; margin-bottom:9px; cursor:pointer; transition:all .2s; }
             .study-item:hover { background:rgba(212,175,55,.1); border-color:var(--gold); }
-            .study-item h4 { color:var(--gold); font-size:14px; margin-bottom:5px; }
-            .study-item p  { color:var(--txt-m); font-size:12px; line-height:1.4; }
+            .study-item h4 { color:var(--gold); font-size:13.5px; margin-bottom:4px; }
+            .study-item p  { color:var(--txt-m); font-size:11.5px; line-height:1.4; }
 
             /* BIBLIOTECA */
-            .book-item { display:flex; gap:14px; background:rgba(255,255,255,.03); padding:14px; border-radius:14px; margin-bottom:14px; border:1px solid rgba(255,255,255,.06); transition:border .2s; }
+            .book-item { display:flex; gap:13px; background:rgba(255,255,255,.03); padding:13px; border-radius:14px; margin-bottom:13px; border:1px solid rgba(255,255,255,.06); transition:border .2s; }
             .book-item:hover { border-color:rgba(212,175,55,.3); }
-            .book-cover { width:68px; height:98px; background:#222; border-radius:6px; flex-shrink:0; object-fit:cover; }
+            .book-cover { width:66px; height:96px; background:#1a1a2e; border-radius:6px; flex-shrink:0; object-fit:cover; }
             .book-info  { flex:1; display:flex; flex-direction:column; justify-content:space-between; }
-            .book-info h4 { color:var(--gold); font-size:13px; margin-bottom:4px; line-height:1.3; }
+            .book-info h4 { color:var(--gold); font-size:13px; margin-bottom:3px; line-height:1.3; }
             .book-info p  { color:var(--txt-m); font-size:11px; }
-            .amazon-btn { background:#FF9900; color:#000; text-decoration:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; text-align:center; display:inline-block; margin-top:6px; }
+            .amazon-btn { background:#FF9900; color:#000; text-decoration:none; padding:6px 11px; border-radius:6px; font-size:11px; font-weight:700; text-align:center; display:inline-block; margin-top:5px; }
 
             /* INPUT */
-            .sabio-input-area { padding:14px 18px; background:rgba(0,0,0,.3); border-top:1px solid var(--border); display:flex; gap:10px; align-items:center; }
-            .sabio-input { flex:1; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:20px; padding:10px 15px; color:#fff; outline:none; font-size:14px; }
-            .sabio-input::placeholder { color:rgba(255,255,255,.35); }
+            .sabio-input-area { padding:13px 16px; background:rgba(0,0,0,.3); border-top:1px solid var(--border); display:flex; gap:9px; align-items:center; }
+            .sabio-input { flex:1; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.11); border-radius:20px; padding:10px 15px; color:#fff; outline:none; font-size:14px; }
+            .sabio-input::placeholder { color:rgba(255,255,255,.32); }
             .sabio-input:focus { border-color:var(--gold); }
-            .sabio-send { background:var(--gold); border:none; width:40px; height:40px; border-radius:50%; color:#fff; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:background .2s; flex-shrink:0; }
-            .sabio-send:hover { background:#c9a227; }
+            .sabio-send { background:var(--gold); border:none; width:40px; height:40px; border-radius:50%; color:#fff; cursor:pointer; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .2s; }
+            .sabio-send:hover { background:#bda020; }
 
-            .typing-indicator { font-size:12px; color:var(--groq); margin-top:8px; font-style:italic; padding-left:2px; }
+            .typing-indicator { font-size:12px; color:var(--olive); margin-top:7px; font-style:italic; }
+
+            /* AVISO OLLAMA OFFLINE */
+            .offline-banner { background:rgba(255,200,0,.1); border:1px solid rgba(255,200,0,.25); border-radius:10px; padding:10px 13px; font-size:12px; color:#ffd740; margin-bottom:12px; line-height:1.5; }
 
             /* MOBILE */
             @media (max-width:480px) {
                 .sabio-widget { bottom:15px; right:15px; }
-                .sabio-chat-window { width:calc(100vw - 30px); height:80vh; right:0; bottom:75px; border-radius:20px; }
-                .sabio-bubble { width:60px; height:60px; font-size:28px; }
-                .sabio-tab { padding:10px 5px; font-size:11px; }
+                .sabio-chat-window { width:calc(100vw - 28px); height:82vh; right:0; bottom:73px; border-radius:20px; }
+                .sabio-bubble { width:60px; height:60px; font-size:27px; }
                 .message { max-width:95%; font-size:14px; }
             }
-            @media (max-height:600px) { .sabio-chat-window { height:88vh; } }
+            @media (max-height:600px) { .sabio-chat-window { height:90vh; } }
         `;
 
-        // ── WIDGET CLASS ─────────────────────────────────────────────────────────
+        // ── WIDGET ────────────────────────────────────────────────────────────
         class SabioWidget {
             constructor() {
                 this.host   = document.createElement('div');
@@ -166,57 +166,95 @@
                 const styleEl = document.createElement('style');
                 styleEl.textContent = styles;
                 this.shadow.appendChild(styleEl);
+
                 this.render();
-                await this.loadData();
+                await Promise.all([this.loadData(), this.checkOllama()]);
                 this.setupTabs();
-                this.addMessage('bot', '✦ Graça e Paz! Sou o Sábio da Nova Jerusalém — agora com inteligência <strong>Groq</strong>. Faça sua pergunta bíblica ou busque um livro.');
+                this.updateStatusUI();
+
+                const welcome = ollamaOnline
+                    ? '✦ Graça e Paz! Sou o Sábio da Nova Jerusalém — motor <strong>Ollama local</strong> activo. Faça sua pergunta bíblica!'
+                    : '✦ Graça e Paz! Estou no modo offline (FAQ). Inicie o Ollama para respostas com IA completa. Como posso ajudar?';
+                this.addMessage('bot', welcome);
                 this.populateStudies();
                 this.populateLibrary();
             }
 
+            // ── VERIFICAR OLLAMA ─────────────────────────────────────────────
+            async checkOllama() {
+                try {
+                    const r = await fetch('http://localhost:11434/', {
+                        method: 'GET', signal: AbortSignal.timeout(2000)
+                    });
+                    ollamaOnline = r.ok || r.status === 200 || r.type === 'opaque';
+                } catch (_) {
+                    ollamaOnline = false;
+                }
+            }
+
+            updateStatusUI() {
+                const dot   = this.shadow.getElementById('status-dot');
+                const badge = this.shadow.getElementById('status-badge');
+                const model = this.shadow.getElementById('status-model');
+                if (!dot) return;
+                if (ollamaOnline) {
+                    dot.className   = 'status-dot dot-on';
+                    badge.className = 'badge-motor badge-online';
+                    badge.textContent = 'OLLAMA';
+                    model.textContent = CONFIG.ollamaModel;
+                    model.style.color = 'var(--olive)';
+                } else {
+                    dot.className   = 'status-dot dot-off';
+                    badge.className = 'badge-motor badge-offline';
+                    badge.textContent = 'OFFLINE';
+                    model.textContent = 'FAQ local';
+                    model.style.color = '#888';
+                }
+            }
+
+            // ── RENDER ───────────────────────────────────────────────────────
             render() {
                 this.shadow.innerHTML += `
-                    <div class="sabio-widget">
-                        <div class="sabio-bubble" id="toggleBtn">📖</div>
-                        <div class="sabio-chat-window" id="window">
+                <div class="sabio-widget">
+                    <div class="sabio-bubble" id="toggleBtn">📖</div>
+                    <div class="sabio-chat-window" id="window">
 
-                            <div class="sabio-header">
-                                <span>⚡ Motor</span>
-                                <span class="badge-groq">GROQ</span>
-                                <span style="color:var(--txt-m); font-weight:400">llama3-8b-8192</span>
-                            </div>
-
-                            <div class="sabio-tabs">
-                                <div class="sabio-tab active" data-tab="chat"><span>💬</span>Chat</div>
-                                <div class="sabio-tab" data-tab="estudos"><span>📝</span>Estudos</div>
-                                <div class="sabio-tab" data-tab="biblioteca"><span>📚</span>Livros</div>
-                            </div>
-
-                            <!-- Chat -->
-                            <div class="sabio-content active" id="tab-chat">
-                                <div class="sabio-messages" id="messages"></div>
-                                <div id="typing" class="typing-indicator" style="display:none">⚡ Groq está processando...</div>
-                                <div class="sabio-input-area">
-                                    <input type="text" class="sabio-input" id="userInput" placeholder="Sua dúvida bíblica ou nome do livro...">
-                                    <button class="sabio-send" id="sendBtn">➤</button>
-                                </div>
-                            </div>
-
-                            <!-- Estudos -->
-                            <div class="sabio-content" id="tab-estudos">
-                                <h3 style="color:var(--gold);margin-bottom:14px;font-size:15px">📝 Estudos Bíblicos</h3>
-                                <div id="list-estudos"></div>
-                            </div>
-
-                            <!-- Biblioteca -->
-                            <div class="sabio-content" id="tab-biblioteca">
-                                <h3 style="color:var(--gold);margin-bottom:14px;font-size:15px">📚 Biblioteca Recomendada</h3>
-                                <div id="list-biblioteca"></div>
-                            </div>
-
+                        <div class="sabio-header">
+                            <span id="status-dot" class="status-dot dot-off"></span>
+                            <span id="status-badge" class="badge-motor badge-offline">A verificar...</span>
+                            <span id="status-model" style="color:#888; font-weight:400; font-size:10px"></span>
                         </div>
+
+                        <div class="sabio-tabs">
+                            <div class="sabio-tab active" data-tab="chat"><span>💬</span>Chat</div>
+                            <div class="sabio-tab" data-tab="estudos"><span>📝</span>Estudos</div>
+                            <div class="sabio-tab" data-tab="biblioteca"><span>📚</span>Livros</div>
+                        </div>
+
+                        <!-- Chat -->
+                        <div class="sabio-content active" id="tab-chat">
+                            <div class="sabio-messages" id="messages"></div>
+                            <div id="typing" class="typing-indicator" style="display:none">🦙 Ollama está a processar...</div>
+                            <div class="sabio-input-area">
+                                <input type="text" class="sabio-input" id="userInput" placeholder="Questão bíblica ou nome do livro...">
+                                <button class="sabio-send" id="sendBtn">➤</button>
+                            </div>
+                        </div>
+
+                        <!-- Estudos -->
+                        <div class="sabio-content" id="tab-estudos">
+                            <h3 style="color:var(--gold);margin-bottom:13px;font-size:15px">📝 Estudos Bíblicos</h3>
+                            <div id="list-estudos"></div>
+                        </div>
+
+                        <!-- Biblioteca -->
+                        <div class="sabio-content" id="tab-biblioteca">
+                            <h3 style="color:var(--gold);margin-bottom:13px;font-size:15px">📚 Biblioteca Recomendada</h3>
+                            <div id="list-biblioteca"></div>
+                        </div>
+
                     </div>
-                `;
+                </div>`;
 
                 this.toggleBtn    = this.shadow.querySelector('#toggleBtn');
                 this.window       = this.shadow.querySelector('#window');
@@ -225,14 +263,14 @@
                 this.msgContainer = this.shadow.querySelector('#messages');
                 this.typing       = this.shadow.querySelector('#typing');
 
-                this.toggleBtn.onclick = () => {
+                this.toggleBtn.onclick  = () => {
                     isOpen = !isOpen;
                     this.window.classList.toggle('open', isOpen);
                     this.toggleBtn.classList.toggle('active', isOpen);
                     if (isOpen && activeTab === 'chat') this.input.focus();
                 };
-                this.sendBtn.onclick    = () => this.handleSend();
-                this.input.onkeypress   = (e) => { if (e.key === 'Enter') this.handleSend(); };
+                this.sendBtn.onclick  = () => this.handleSend();
+                this.input.onkeypress = (e) => { if (e.key === 'Enter') this.handleSend(); };
             }
 
             setupTabs() {
@@ -248,38 +286,33 @@
                 });
             }
 
-            // ── LOAD DATA ────────────────────────────────────────────────────────
+            // ── CARREGAR DADOS ───────────────────────────────────────────────
             async loadData() {
                 try {
                     const [faqRes, booksRes] = await Promise.all([
                         fetch(CONFIG.faqPath).then(r => r.json()).catch(() => ({ questions: [] })),
                         fetch(CONFIG.booksPath).then(r => r.json()).catch(() => [])
                     ]);
-                    knowledgeBase.faq   = faqRes.questions || faqRes || [];
-                    // books_categorized.json é array de { category, books:[] }
-                    // Achata para lista simples de livros
-                    if (Array.isArray(booksRes) && booksRes[0] && booksRes[0].books) {
-                        knowledgeBase.books = booksRes.flatMap(cat => cat.books.map(b => ({ ...b, category: cat.category })));
+                    kb.faq = faqRes.questions || faqRes || [];
+                    // books_categorized.json → achata categorias
+                    if (Array.isArray(booksRes) && booksRes[0]?.books) {
+                        kb.books = booksRes.flatMap(cat => cat.books.map(b => ({ ...b, category: cat.category })));
                     } else {
-                        knowledgeBase.books = Array.isArray(booksRes) ? booksRes : (booksRes.books || []);
+                        kb.books = Array.isArray(booksRes) ? booksRes : (booksRes.books || []);
                     }
-                    console.log('[Sábio] FAQ carregado:', knowledgeBase.faq.length, '| Livros:', knowledgeBase.books.length);
-                } catch (e) {
-                    console.error('[Sábio] Erro ao carregar dados:', e);
-                }
+                } catch (e) { console.error('[Sábio] Erro dados:', e); }
             }
 
-            // ── POPULATE STUDIES ─────────────────────────────────────────────────
+            // ── POPULAR ESTUDOS ──────────────────────────────────────────────
             populateStudies() {
-                const container = this.shadow.querySelector('#list-estudos');
-                if (!container || !knowledgeBase.faq.length) return;
-                container.innerHTML = knowledgeBase.faq.map(item => `
-                    <div class="study-item" data-q="${this.escAttr(item.question)}">
-                        <h4>${item.question}</h4>
-                        <p>${item.answer.substring(0, 90)}...</p>
-                    </div>
-                `).join('');
-                container.querySelectorAll('.study-item').forEach(el => {
+                const c = this.shadow.querySelector('#list-estudos');
+                if (!c || !kb.faq.length) return;
+                c.innerHTML = kb.faq.map(f => `
+                    <div class="study-item" data-q="${this.esc(f.question)}">
+                        <h4>${f.question}</h4>
+                        <p>${f.answer.substring(0, 90)}...</p>
+                    </div>`).join('');
+                c.querySelectorAll('.study-item').forEach(el => {
                     el.onclick = () => {
                         this.shadow.querySelector('[data-tab="chat"]').click();
                         this.input.value = el.dataset.q;
@@ -288,30 +321,29 @@
                 });
             }
 
-            // ── POPULATE LIBRARY ─────────────────────────────────────────────────
+            // ── POPULAR BIBLIOTECA ───────────────────────────────────────────
             populateLibrary() {
-                const container = this.shadow.querySelector('#list-biblioteca');
-                if (!container) return;
-                if (!knowledgeBase.books.length) {
-                    container.innerHTML = '<p style="text-align:center;color:#666;font-size:13px;margin-top:20px">A carregar livros...</p>';
+                const c = this.shadow.querySelector('#list-biblioteca');
+                if (!c) return;
+                if (!kb.books.length) {
+                    c.innerHTML = '<p style="text-align:center;color:#555;font-size:13px;margin-top:20px">A carregar livros...</p>';
                     return;
                 }
-                container.innerHTML = knowledgeBase.books.map(b => `
+                c.innerHTML = kb.books.map(b => `
                     <div class="book-item">
-                        <img class="book-cover" src="${b.cover || ''}" alt="${b.title}"
-                             onerror="this.style.background='#2a2a3a';this.src=''">
+                        <img class="book-cover" src="${b.cover||''}" alt="${b.title}"
+                             onerror="this.style.background='#1a1a2e';this.removeAttribute('src')">
                         <div class="book-info">
                             <div>
                                 <h4>${b.title}</h4>
                                 <p>${b.category || 'Recomendado'}</p>
                             </div>
-                            <a href="${b.affiliate_link || b.amazonUrl || '#'}" target="_blank" class="amazon-btn">🛒 Ver na Amazon</a>
+                            <a href="${b.affiliate_link||b.amazonUrl||'#'}" target="_blank" class="amazon-btn">🛒 Ver na Amazon</a>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`).join('');
             }
 
-            // ── SEND HANDLER ─────────────────────────────────────────────────────
+            // ── ENVIO ────────────────────────────────────────────────────────
             async handleSend() {
                 const text = this.input.value.trim();
                 if (!text || isLoading) return;
@@ -319,131 +351,122 @@
                 this.addMessage('user', text);
                 this.typing.style.display = 'block';
                 isLoading = true;
-
-                try {
-                    await this.processQuery(text);
-                } finally {
-                    this.typing.style.display = 'none';
-                    isLoading = false;
-                }
+                try   { await this.processQuery(text); }
+                finally { this.typing.style.display = 'none'; isLoading = false; }
             }
 
-            // ── MAIN QUERY PROCESSOR ─────────────────────────────────────────────
+            // ── MOTOR DE RESPOSTA ────────────────────────────────────────────
             async processQuery(query) {
-                // 1. Buscar versículos relevantes na Bíblia
+                // 1. Buscar versículos na query
                 const scriptures = await this.fetchBibleVerses(query);
 
-                // 2. Buscar livros relevantes (busca local)
+                // 2. Livros relevantes (busca local)
                 const relevantBooks = this.searchBooks(query);
 
-                // 3. Montar contexto para o Groq
-                const faqContext = knowledgeBase.faq
-                    .map(f => `P: ${f.question}\nR: ${f.answer}`)
-                    .join('\n\n');
-
-                const bookContext = relevantBooks.length
-                    ? '\n\nLIVROS RELACIONADOS:\n' + relevantBooks.map(b => `- "${b.title}" → ${b.affiliate_link || ''}`).join('\n')
+                // -── Construir contexto FAQ ──────────────────────────────────
+                const faqCtx = kb.faq.map(f => `P: ${f.question}\nR: ${f.answer}`).join('\n\n');
+                const bookCtx = relevantBooks.length
+                    ? '\n\nLIVROS RELACIONADOS:\n' + relevantBooks.map(b => `- "${b.title}": ${b.affiliate_link||''}`).join('\n')
+                    : '';
+                const bibleCtx = scriptures.length
+                    ? '\n\nVERSÍCULOS:\n' + scriptures.map(s => `${s.ref}: "${s.text.trim()}"`).join('\n')
                     : '';
 
-                const bibleContext = scriptures.length
-                    ? '\n\nVERSÍCULOS ENCONTRADOS:\n' + scriptures.map(s => `${s.ref}: "${s.text.trim()}"`).join('\n')
-                    : '';
-
-                const systemPrompt = `Você é o Sábio da Nova Jerusalém — um assistente bíblico sábio e amoroso, especializado em estudos teológicos cristãos. Responda SEMPRE em Português de Portugal.
+                const systemPrompt = `És o Sábio da Nova Jerusalém — assistente bíblico sábio e amoroso. Responde SEMPRE em Português de Portugal.
 
 Regras:
-1. Baseie-se sempre nas Escrituras. Cite versículos bíblicos quando relevante.
-2. Use o conteúdo da FAQ como base de conhecimento.
-3. Se o utilizador perguntar sobre um livro, recomende-o com o link da Amazon.
-4. Seja conciso (máximo 4 parágrafos). Use formatação simples.
-5. Termine sempre com uma bênção ou versículo motivador.
+1. Baseia-te sempre nas Escrituras e cita versículos.
+2. Usa o contexto do FAQ como conhecimento base.
+3. Se perguntarem sobre livros, recomenda com o link da Amazon.
+4. Sê conciso (máximo 4 parágrafos). Usa linguagem simples.
+5. Termina sempre com uma bênção ou versículo motivador.
 
-CONHECIMENTO DA FAQ:
-${faqContext}
-${bookContext}
-${bibleContext}`;
+CONHECIMENTO DO FAQ:
+${faqCtx}${bookCtx}${bibleCtx}`;
 
-                const response = await this.callGroq(systemPrompt, query);
+                // 3. Chamar Ollama ou fallback
+                let response, usedOllama = false;
+                if (ollamaOnline) {
+                    try {
+                        response   = await this.callOllama(systemPrompt, query);
+                        usedOllama = true;
+                    } catch (e) {
+                        console.warn('[Sábio] Ollama falhou, usando FAQ:', e.message);
+                        response = this.fallbackFAQ(query);
+                    }
+                } else {
+                    response = this.fallbackFAQ(query);
+                }
 
-                // 4. Construir HTML da resposta
+                // 4. Montar HTML
                 let html = '';
                 if (scriptures.length) {
                     scriptures.forEach(s => {
                         html += `<div class="bible-verse"><strong>📖 ${s.ref}</strong>${s.text.trim()}</div>`;
                     });
                 }
-                html += `<div>${this.formatText(response)}</div>`;
+                html += `<div>${this.fmt(response)}</div>`;
                 if (relevantBooks.length) {
-                    html += `<br><div style="font-size:13px; color:rgba(212,175,55,.8)">📚 Livros relacionados: ${relevantBooks.slice(0,2).map(b => `<a href="${b.affiliate_link || '#'}" target="_blank" style="color:var(--gold)">${b.title}</a>`).join(', ')}</div>`;
+                    const links = relevantBooks.slice(0,2).map(b =>
+                        `<a href="${b.affiliate_link||'#'}" target="_blank" style="color:var(--gold)">${b.title}</a>`
+                    ).join(', ');
+                    html += `<br><div style="font-size:12px;color:rgba(212,175,55,.75)">📚 ${links}</div>`;
                 }
-                html += `<div class="groq-badge">⚡ via Groq</div>`;
+                html += usedOllama
+                    ? `<div class="motor-badge">🦙 Ollama local</div>`
+                    : `<div class="motor-badge offline">📖 FAQ offline</div>`;
 
                 this.addMessage('bot', html, true);
             }
 
-            // ── GROQ API CALL ────────────────────────────────────────────────────
-            async callGroq(systemPrompt, userQuery) {
-                if (CONFIG.groqApiKey === 'SUA_CHAVE_GROQ_AQUI') {
-                    // Modo offline: usa FAQ local
-                    return this.fallbackLocal(userQuery);
-                }
-
-                try {
-                    const res = await fetch(CONFIG.groqEndpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${CONFIG.groqApiKey}`
-                        },
-                        body: JSON.stringify({
-                            model: CONFIG.groqModel,
-                            messages: [
-                                { role: 'system', content: systemPrompt },
-                                { role: 'user',   content: userQuery }
-                            ],
-                            temperature: 0.7,
-                            max_tokens:  800
-                        })
-                    });
-
-                    if (!res.ok) {
-                        const err = await res.json().catch(() => ({}));
-                        throw new Error(err.error?.message || `HTTP ${res.status}`);
-                    }
-
-                    const data = await res.json();
-                    return data.choices?.[0]?.message?.content || 'Não recebi resposta do Groq.';
-
-                } catch (e) {
-                    console.error('[Sábio/Groq] Erro:', e.message);
-                    return this.fallbackLocal(userQuery);
-                }
+            // ── OLLAMA API ───────────────────────────────────────────────────
+            // Usa a API nativa /api/chat (suporta streaming — aqui modo não-stream)
+            async callOllama(systemPrompt, userQuery) {
+                const res = await fetch(CONFIG.ollamaEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model:  CONFIG.ollamaModel,
+                        stream: false,
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user',   content: userQuery }
+                        ],
+                        options: { temperature: 0.7, num_predict: 600 }
+                    }),
+                    signal: AbortSignal.timeout(30000)
+                });
+                if (!res.ok) throw new Error(`Ollama HTTP ${res.status}`);
+                const data = await res.json();
+                return data.message?.content || data.response || 'Ollama não retornou resposta.';
             }
 
-            // ── FALLBACK LOCAL (sem API key ou erro de rede) ──────────────────────
-            fallbackLocal(query) {
-                const norm = this.normalize(query);
+            // ── FALLBACK FAQ ─────────────────────────────────────────────────
+            fallbackFAQ(query) {
+                const norm   = this.norm(query);
                 const tokens = norm.split(/\s+/).filter(t => t.length > 2 && !STOPWORDS.includes(t));
                 let best = null, bestScore = 0;
-                for (const item of knowledgeBase.faq) {
+                for (const item of kb.faq) {
                     let score = 0;
-                    const qn = this.normalize(item.question);
+                    const qn = this.norm(item.question);
+                    const an = this.norm(item.answer);
                     if (qn.includes(norm)) score += 10;
-                    tokens.forEach(t => { if (qn.includes(t)) score += 2; if (this.normalize(item.answer).includes(t)) score += 1; });
+                    tokens.forEach(t => {
+                        if (qn.includes(t)) score += 2;
+                        if (an.includes(t)) score += 1;
+                    });
                     if (score > bestScore) { bestScore = score; best = item; }
                 }
                 if (best && bestScore > 1) return best.answer;
-                return 'Não encontrei estudos sobre este tema na nossa base. Configure a chave Groq para respostas com IA completa, ou contacte-nos em leituradacuraportugal@gmail.com 🙏';
+                return 'Não encontrei estudos sobre este tema na nossa base.\n\nPara respostas completas com IA, inicie o Ollama com o comando:\n\n**ollama serve**\n\nOu contacte-nos: leituradacuraportugal@gmail.com 🙏';
             }
 
-            // ── BIBLE FETCH ──────────────────────────────────────────────────────
+            // ── FETCH BÍBLIA ─────────────────────────────────────────────────
             async fetchBibleVerses(text) {
                 const regex = /\b(\d?\s*[a-zA-ZçÇãÃõÕáÁéÉíÍóÓúÚ]+)\s+(\d+):(\d+)(?:-(\d+))?\b/g;
-                const refs = [];
-                let match;
-                while ((match = regex.exec(text)) !== null) {
-                    refs.push(`${match[1].trim()} ${match[2]}:${match[3]}${match[4] ? '-' + match[4] : ''}`);
-                }
+                const refs = []; let m;
+                while ((m = regex.exec(text)) !== null)
+                    refs.push(`${m[1].trim()} ${m[2]}:${m[3]}${m[4] ? '-'+m[4] : ''}`);
                 const results = [];
                 for (const ref of [...new Set(refs)].slice(0, 2)) {
                     try {
@@ -455,31 +478,28 @@ ${bibleContext}`;
                 return results;
             }
 
-            // ── BOOK SEARCH (local) ──────────────────────────────────────────────
+            // ── BUSCA DE LIVROS LOCAL ────────────────────────────────────────
             searchBooks(query) {
-                const norm = this.normalize(query);
-                return knowledgeBase.books
-                    .map(b => ({ ...b, score: this.normalize(b.title).split('').filter((_, i) => norm.includes(this.normalize(b.title)[i])).length }))
-                    .filter(b => {
-                        const bn = this.normalize(b.title);
-                        return norm.split(/\s+/).some(t => t.length > 3 && bn.includes(t));
-                    })
-                    .slice(0, 3);
+                const n = this.norm(query);
+                const tokens = n.split(/\s+/).filter(t => t.length > 3);
+                return kb.books.filter(b => {
+                    const bn = this.norm(b.title);
+                    return tokens.some(t => bn.includes(t));
+                }).slice(0, 2);
             }
 
-            // ── HELPERS ──────────────────────────────────────────────────────────
+            // ── HELPERS ──────────────────────────────────────────────────────
             addMessage(type, text, html = false) {
                 const div = document.createElement('div');
                 div.className = `message ${type}`;
                 if (html) div.innerHTML = text;
-                else      div.innerHTML = text; // permite bold na boas-vindas
+                else      div.innerHTML = text;
                 this.msgContainer.appendChild(div);
                 this.msgContainer.scrollTop = this.msgContainer.scrollHeight;
             }
-
-            normalize(t)   { return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,'').trim(); }
-            formatText(t)  { return t.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>'); }
-            escAttr(s)     { return s.replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+            norm(t) { return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,'').trim(); }
+            fmt(t)  { return t.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>'); }
+            esc(s)  { return s.replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
         }
 
         new SabioWidget();
