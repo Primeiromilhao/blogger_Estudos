@@ -1,5 +1,5 @@
 // gemini-widget.js - Sábio da Nova Jerusalém
-// Versão: 5.0.0 (Motor: Ollama local | Fallback: FAQ offline)
+// Versão: 6.0.0 (Motor: Pollinations.ai — 100% gratuito, sem API key, disponível para todos)
 
 (function () {
     'use strict';
@@ -11,149 +11,281 @@
             booksPath:        options.booksUrl      || 'books_categorized.json',
             bibleApi:         'https://bible-api.com',
             bibleTranslation: 'almeida',
-
-            // ── OLLAMA (local) ───────────────────────────────────────────────────
-            // Ollama expõe uma API OpenAI-compatível em localhost:11434
-            // Para funcionar no browser: definir OLLAMA_ORIGINS=*   (já feito no START_CLÁUDIO_TURBO.bat)
-            ollamaEndpoint: options.ollamaEndpoint || 'http://localhost:11434/api/chat',
-            ollamaModel:    options.ollamaModel    || 'llama3.2:1b',
+            // ── POLLINATIONS.AI ─────────────────────────────────────────────────
+            // Completamente gratuito, sem registo, sem API key.
+            // Funciona de qualquer browser em qualquer dispositivo.
+            aiEndpoint: 'https://text.pollinations.ai/openai',
+            aiModel:    'openai',       // opções: openai | openai-large | mistral | llama
             // ────────────────────────────────────────────────────────────────────
         };
 
         const STOPWORDS = ['o','a','os','as','um','uma','de','da','do','das','dos',
-            'em','no','na','nos','nas','por','para','com','sem','sobre','sob',
-            'que','qual','quais','como','quando','onde','porque','é','são',
-            'foi','foram','ser','estar','eu','voce'];
+            'em','no','na','nos','nas','por','para','com','sem','sobre','que',
+            'qual','como','quando','onde','porque','é','são','foi','ser','estar','eu','voce'];
 
         let kb = { faq: [], books: [] };
-        let ollamaOnline = false; // será verificado no init
         let activeTab = 'chat';
-        let isOpen = false;
+        let isOpen    = false;
         let isLoading = false;
 
-        // ── ESTILOS ────────────────────────────────────────────────────────────
+        // ── ESTILOS ─────────────────────────────────────────────────────────────
         const styles = `
             @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
-            * { margin:0; padding:0; box-sizing:border-box; }
+            *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
             :host {
-                --gold:  #D4AF37; --gold-l: #F4E8C1;
-                --glass: rgba(10,22,40,0.93); --border: rgba(212,175,55,0.3);
-                --txt:   #f0f0f0; --txt-m: #b0b0b0;
-                --olive: #7CB342;  /* cor Ollama */
+                --gold:   #D4AF37;
+                --gold-l: #F4E8C1;
+                --navy:   #0a1628;
+                --glass:  rgba(10,22,40,0.93);
+                --border: rgba(212,175,55,0.28);
+                --txt:    #f0f4ff;
+                --txt-m:  #a0a8c0;
+                --ai:     #4DB8FF;
             }
 
-            .sabio-widget { position:fixed; bottom:25px; right:25px; z-index:10000; font-family:'Inter',sans-serif; }
+            /* ── WIDGET WRAPPER ── */
+            .sabio-widget {
+                position: fixed; bottom: 24px; right: 24px;
+                z-index: 10000; font-family: 'Inter', sans-serif;
+            }
 
+            /* ── TOGGLE BUBBLE ── */
             .sabio-bubble {
-                width:70px; height:70px; border-radius:50%;
-                background:linear-gradient(135deg,var(--gold),#B8860B);
-                border:2px solid var(--gold-l);
-                box-shadow:0 5px 25px rgba(212,175,55,.45);
-                cursor:pointer; display:flex; align-items:center; justify-content:center;
-                transition:all .4s cubic-bezier(.175,.885,.32,1.275);
-                font-size:34px; color:#fff;
+                width: 68px; height: 68px; border-radius: 50%;
+                background: linear-gradient(135deg, #D4AF37, #B8860B);
+                border: 2.5px solid var(--gold-l);
+                box-shadow: 0 6px 28px rgba(212,175,55,0.45), 0 0 0 0 rgba(212,175,55,0.4);
+                cursor: pointer; display: flex; align-items: center; justify-content: center;
+                transition: all .4s cubic-bezier(.175,.885,.32,1.275);
+                font-size: 32px; color: #fff; user-select: none;
+                animation: pulse-bubble 3s ease-in-out infinite;
             }
-            .sabio-bubble:hover  { transform:scale(1.1) rotate(5deg); }
-            .sabio-bubble.active { transform:rotate(45deg); background:#c82333; border-color:#ff6b6b; }
+            @keyframes pulse-bubble {
+                0%, 100% { box-shadow: 0 6px 28px rgba(212,175,55,.45), 0 0 0 0 rgba(212,175,55,.3); }
+                50%       { box-shadow: 0 6px 28px rgba(212,175,55,.45), 0 0 0 10px rgba(212,175,55,0); }
+            }
+            .sabio-bubble:hover  { transform: scale(1.1) rotate(5deg); animation: none; }
+            .sabio-bubble.active { transform: rotate(45deg); background: #b02020; border-color: #ff8080; animation: none; }
 
+            /* ── NOTIFICATION BADGE ── */
+            .notif-badge {
+                position: absolute; top: -4px; right: -4px;
+                width: 16px; height: 16px; border-radius: 50%;
+                background: #ff4444; border: 2px solid white;
+                font-size: 9px; color: white; font-weight: 700;
+                display: flex; align-items: center; justify-content: center;
+            }
+
+            /* ── CHAT WINDOW ── */
             .sabio-chat-window {
-                position:absolute; bottom:85px; right:0;
-                width:430px; height:690px; max-height:88vh;
-                background:var(--glass); backdrop-filter:blur(25px);
-                border:1px solid var(--border); border-radius:25px;
-                box-shadow:0 20px 60px rgba(0,0,0,.65);
-                display:flex; flex-direction:column;
-                opacity:0; transform:translateY(20px) scale(.95);
-                pointer-events:none;
-                transition:all .4s cubic-bezier(.16,1,.3,1); overflow:hidden;
+                position: absolute; bottom: 82px; right: 0;
+                width: 440px; height: 700px; max-height: 88vh;
+                background: var(--glass); backdrop-filter: blur(28px) saturate(1.4);
+                border: 1px solid var(--border); border-radius: 28px;
+                box-shadow: 0 24px 72px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.08);
+                display: flex; flex-direction: column;
+                opacity: 0; transform: translateY(24px) scale(.93);
+                pointer-events: none;
+                transition: all .42s cubic-bezier(.16,1,.3,1); overflow: hidden;
             }
-            .sabio-chat-window.open { opacity:1; transform:translateY(0) scale(1); pointer-events:all; }
-
-            /* STATUS HEADER */
-            .sabio-header {
-                display:flex; align-items:center; gap:8px;
-                padding:10px 18px 0; font-size:11px; font-weight:600; letter-spacing:.4px;
+            .sabio-chat-window.open {
+                opacity: 1; transform: translateY(0) scale(1); pointer-events: all;
             }
-            .badge-motor {
-                padding:2px 8px; border-radius:20px;
-                font-size:10px; font-weight:700; color:#fff;
+
+            /* ── HEADER ── */
+            .sabio-hdr {
+                display: flex; align-items: center; gap: 10px;
+                padding: 16px 20px 10px;
+                border-bottom: 1px solid rgba(255,255,255,.06);
             }
-            .badge-online  { background:var(--olive); }
-            .badge-offline { background:#888; }
-            .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-            .dot-on  { background:var(--olive); box-shadow:0 0 4px var(--olive); }
-            .dot-off { background:#888; }
-
-            /* ABAS */
-            .sabio-tabs { display:flex; background:rgba(0,0,0,.2); border-bottom:1px solid var(--border); }
-            .sabio-tab  {
-                flex:1; padding:13px; text-align:center; cursor:pointer;
-                color:var(--txt-m); font-size:12px; font-weight:500;
-                transition:all .3s; display:flex; flex-direction:column; align-items:center; gap:3px;
+            .hdr-avatar {
+                width: 36px; height: 36px; border-radius: 50%;
+                background: linear-gradient(135deg,#D4AF37,#B8860B);
+                display: flex; align-items: center; justify-content: center;
+                font-size: 18px; flex-shrink: 0;
             }
-            .sabio-tab.active { color:var(--gold); background:rgba(212,175,55,.1); border-bottom:3px solid var(--gold); }
+            .hdr-info { flex: 1; }
+            .hdr-name { font-size: 14px; font-weight: 600; color: var(--gold); line-height: 1; }
+            .hdr-sub  { font-size: 10.5px; color: var(--txt-m); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+            .online-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 5px #4ade80; flex-shrink: 0; }
 
-            /* CONTEÚDO */
-            .sabio-content { flex:1; overflow-y:auto; display:none; padding:16px; flex-direction:column; }
-            .sabio-content.active { display:flex; }
-            .sabio-messages { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:13px; }
-
-            /* MENSAGENS */
-            .message { max-width:90%; padding:11px 15px; border-radius:18px; line-height:1.55; font-size:15px; }
-            .message.user { align-self:flex-end; background:var(--gold); color:#fff; border-bottom-right-radius:4px; }
-            .message.bot  { align-self:flex-start; background:rgba(255,255,255,.08); color:var(--txt); border-bottom-left-radius:4px; font-family:'Crimson Text',serif; font-size:16px; }
-
-            /* BÍBLIA */
-            .bible-verse {
-                background:rgba(212,175,55,.14); border-left:4px solid var(--gold);
-                padding:11px; margin-bottom:11px; border-radius:0 10px 10px 0;
-                font-style:italic; font-size:15px;
+            /* ── ABAS ── */
+            .sabio-tabs {
+                display: flex; background: rgba(0,0,0,.25);
+                border-bottom: 1px solid rgba(255,255,255,.06);
             }
-            .bible-verse strong { display:block; color:var(--gold); font-style:normal; font-size:10px; margin-bottom:4px; text-transform:uppercase; letter-spacing:1px; }
+            .sabio-tab {
+                flex: 1; padding: 12px 6px; text-align: center; cursor: pointer;
+                color: var(--txt-m); font-size: 11.5px; font-weight: 500;
+                transition: all .3s; display: flex; flex-direction: column;
+                align-items: center; gap: 3px; letter-spacing: .01em;
+            }
+            .sabio-tab span { font-size: 17px; }
+            .sabio-tab.active {
+                color: var(--gold); background: rgba(212,175,55,.1);
+                border-bottom: 2.5px solid var(--gold);
+            }
+            .sabio-tab:hover:not(.active) { color: var(--txt); background: rgba(255,255,255,.04); }
 
-            /* BADGE Motor */
-            .motor-badge { font-size:10px; color:var(--olive); float:right; margin-top:5px; opacity:.75; font-style:normal; }
-            .motor-badge.offline { color:#888; }
+            /* ── CONTEÚDO ── */
+            .sabio-content { flex: 1; overflow-y: auto; display: none; padding: 18px; flex-direction: column; }
+            .sabio-content.active { display: flex; }
+            .sabio-content::-webkit-scrollbar { width: 4px; }
+            .sabio-content::-webkit-scrollbar-thumb { background: rgba(212,175,55,.3); border-radius: 4px; }
+
+            /* ── MENSAGENS ── */
+            .sabio-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 4px; }
+            .sabio-messages::-webkit-scrollbar { width: 3px; }
+            .sabio-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); }
+
+            .message-wrap { display: flex; gap: 8px; align-items: flex-end; max-width: 92%; }
+            .message-wrap.user { align-self: flex-end; flex-direction: row-reverse; }
+            .msg-avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+            .msg-av-bot { background: linear-gradient(135deg,#D4AF37,#8B6914); }
+            .msg-av-usr { background: linear-gradient(135deg,#4DB8FF,#1a6faa); }
+
+            .message {
+                padding: 11px 15px; border-radius: 18px; line-height: 1.6;
+                font-size: 14.5px; max-width: 100%;
+            }
+            .message.user {
+                background: linear-gradient(135deg, var(--ai), #1a6faa);
+                color: #fff; border-bottom-right-radius: 5px;
+            }
+            .message.bot {
+                background: rgba(255,255,255,.09); color: var(--txt);
+                border-bottom-left-radius: 5px;
+                font-family: 'Crimson Text', serif; font-size: 15.5px;
+                border: 1px solid rgba(255,255,255,.08);
+            }
+
+            /* BÍBLIA BLOCK */
+            .bible-block {
+                background: rgba(212,175,55,.12);
+                border-left: 3px solid var(--gold);
+                padding: 10px 13px; margin-bottom: 10px;
+                border-radius: 0 10px 10px 0;
+                font-style: italic; font-size: 14px; color: var(--txt);
+            }
+            .bible-ref {
+                display: block; color: var(--gold); font-style: normal;
+                font-size: 10px; font-weight: 600; text-transform: uppercase;
+                letter-spacing: 1px; margin-bottom: 4px;
+            }
+
+            /* BOOK SUGESTÃO */
+            .book-chip {
+                display: inline-flex; align-items: center; gap: 5px;
+                background: rgba(212,175,55,.1); border: 1px solid rgba(212,175,55,.25);
+                border-radius: 8px; padding: 5px 10px; font-size: 11.5px;
+                color: var(--gold); text-decoration: none; margin-top: 8px; margin-right: 4px;
+                transition: background .2s;
+            }
+            .book-chip:hover { background: rgba(212,175,55,.2); }
+
+            /* AI BADGE */
+            .ai-badge { font-size: 9.5px; color: var(--ai); float: right; margin-top: 6px; opacity: .75; }
+
+            /* TYPING ── */
+            .typing-wrap { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
+            .typing-dots { display: flex; gap: 4px; }
+            .typing-dots span {
+                width: 6px; height: 6px; border-radius: 50%;
+                background: var(--gold); opacity: .5;
+                animation: blink 1.4s ease-in-out infinite;
+            }
+            .typing-dots span:nth-child(2) { animation-delay: .2s; }
+            .typing-dots span:nth-child(3) { animation-delay: .4s; }
+            @keyframes blink { 0%,80%,100% { opacity:.2; transform:scale(.9); } 40% { opacity:1; transform:scale(1); } }
 
             /* ESTUDOS */
-            .study-item { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); padding:13px; border-radius:12px; margin-bottom:9px; cursor:pointer; transition:all .2s; }
-            .study-item:hover { background:rgba(212,175,55,.1); border-color:var(--gold); }
-            .study-item h4 { color:var(--gold); font-size:13.5px; margin-bottom:4px; }
-            .study-item p  { color:var(--txt-m); font-size:11.5px; line-height:1.4; }
+            .study-item {
+                background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+                padding: 13px 15px; border-radius: 13px; margin-bottom: 9px;
+                cursor: pointer; transition: all .2s;
+            }
+            .study-item:hover { background: rgba(212,175,55,.1); border-color: rgba(212,175,55,.4); transform: translateX(3px); }
+            .study-item h4 { color: var(--gold); font-size: 13.5px; margin-bottom: 4px; line-height: 1.3; }
+            .study-item p  { color: var(--txt-m); font-size: 11.5px; line-height: 1.45; }
 
             /* BIBLIOTECA */
-            .book-item { display:flex; gap:13px; background:rgba(255,255,255,.03); padding:13px; border-radius:14px; margin-bottom:13px; border:1px solid rgba(255,255,255,.06); transition:border .2s; }
-            .book-item:hover { border-color:rgba(212,175,55,.3); }
-            .book-cover { width:66px; height:96px; background:#1a1a2e; border-radius:6px; flex-shrink:0; object-fit:cover; }
-            .book-info  { flex:1; display:flex; flex-direction:column; justify-content:space-between; }
-            .book-info h4 { color:var(--gold); font-size:13px; margin-bottom:3px; line-height:1.3; }
-            .book-info p  { color:var(--txt-m); font-size:11px; }
-            .amazon-btn { background:#FF9900; color:#000; text-decoration:none; padding:6px 11px; border-radius:6px; font-size:11px; font-weight:700; text-align:center; display:inline-block; margin-top:5px; }
+            .book-section-label {
+                font-size: 10px; font-weight: 600; text-transform: uppercase;
+                letter-spacing: .15em; color: var(--txt-m);
+                border-bottom: 1px solid rgba(255,255,255,.07);
+                padding-bottom: 6px; margin: 14px 0 10px;
+            }
+            .book-item {
+                display: flex; gap: 12px;
+                background: rgba(255,255,255,.04); padding: 12px;
+                border-radius: 14px; margin-bottom: 11px;
+                border: 1px solid rgba(255,255,255,.06);
+                transition: all .2s;
+            }
+            .book-item:hover { background: rgba(212,175,55,.07); border-color: rgba(212,175,55,.3); }
+            .book-cover {
+                width: 62px; height: 90px; object-fit: cover;
+                border-radius: 6px; flex-shrink: 0;
+                background: linear-gradient(135deg,#1a1a2e,#2a2a4e);
+            }
+            .book-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+            .book-info h4 { color: var(--gold); font-size: 12.5px; line-height: 1.35; margin-bottom: 3px; }
+            .book-info p  { color: var(--txt-m); font-size: 10.5px; }
+            .amazon-btn {
+                display: inline-block; background: linear-gradient(135deg,#FF9900,#e68900);
+                color: #000; font-weight: 700; font-size: 11px;
+                padding: 5px 10px; border-radius: 6px; text-decoration: none;
+                margin-top: 6px; transition: opacity .2s;
+            }
+            .amazon-btn:hover { opacity: .85; }
 
             /* INPUT */
-            .sabio-input-area { padding:13px 16px; background:rgba(0,0,0,.3); border-top:1px solid var(--border); display:flex; gap:9px; align-items:center; }
-            .sabio-input { flex:1; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.11); border-radius:20px; padding:10px 15px; color:#fff; outline:none; font-size:14px; }
-            .sabio-input::placeholder { color:rgba(255,255,255,.32); }
-            .sabio-input:focus { border-color:var(--gold); }
-            .sabio-send { background:var(--gold); border:none; width:40px; height:40px; border-radius:50%; color:#fff; cursor:pointer; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .2s; }
-            .sabio-send:hover { background:#bda020; }
+            .sabio-input-area {
+                padding: 13px 16px 14px;
+                background: rgba(0,0,0,.35);
+                border-top: 1px solid rgba(255,255,255,.06);
+                display: flex; gap: 9px; align-items: center;
+            }
+            .sabio-input {
+                flex: 1; background: rgba(255,255,255,.07);
+                border: 1px solid rgba(255,255,255,.1); border-radius: 22px;
+                padding: 10px 16px; color: var(--txt); outline: none;
+                font-size: 13.5px; font-family: 'Inter', sans-serif;
+                transition: border-color .25s;
+            }
+            .sabio-input::placeholder { color: rgba(255,255,255,.28); }
+            .sabio-input:focus { border-color: rgba(212,175,55,.5); }
+            .sabio-send {
+                width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+                background: linear-gradient(135deg,var(--gold),#B8860B);
+                border: none; color: #fff; cursor: pointer; font-size: 16px;
+                display: flex; align-items: center; justify-content: center;
+                transition: all .2s; box-shadow: 0 3px 12px rgba(212,175,55,.3);
+            }
+            .sabio-send:hover { transform: scale(1.08); box-shadow: 0 5px 18px rgba(212,175,55,.45); }
+            .sabio-send:active { transform: scale(.95); }
 
-            .typing-indicator { font-size:12px; color:var(--olive); margin-top:7px; font-style:italic; }
-
-            /* AVISO OLLAMA OFFLINE */
-            .offline-banner { background:rgba(255,200,0,.1); border:1px solid rgba(255,200,0,.25); border-radius:10px; padding:10px 13px; font-size:12px; color:#ffd740; margin-bottom:12px; line-height:1.5; }
+            /* SUGESTÕES RÁPIDAS */
+            .quick-suggestions {
+                display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 0 12px;
+            }
+            .quick-btn {
+                background: rgba(212,175,55,.1); border: 1px solid rgba(212,175,55,.2);
+                border-radius: 16px; padding: 5px 11px; font-size: 11px;
+                color: var(--gold); cursor: pointer; transition: all .2s; white-space: nowrap;
+            }
+            .quick-btn:hover { background: rgba(212,175,55,.2); border-color: var(--gold); }
 
             /* MOBILE */
-            @media (max-width:480px) {
-                .sabio-widget { bottom:15px; right:15px; }
-                .sabio-chat-window { width:calc(100vw - 28px); height:82vh; right:0; bottom:73px; border-radius:20px; }
-                .sabio-bubble { width:60px; height:60px; font-size:27px; }
-                .message { max-width:95%; font-size:14px; }
+            @media (max-width: 500px) {
+                .sabio-widget { bottom: 14px; right: 14px; }
+                .sabio-chat-window { width: calc(100vw - 28px); height: 84vh; right: 0; bottom: 78px; border-radius: 22px; }
+                .sabio-bubble { width: 60px; height: 60px; font-size: 28px; }
             }
-            @media (max-height:600px) { .sabio-chat-window { height:90vh; } }
+            @media (max-height: 640px) { .sabio-chat-window { height: 90vh; } }
         `;
 
-        // ── WIDGET ────────────────────────────────────────────────────────────
+        // ── WIDGET CLASS ─────────────────────────────────────────────────────────
         class SabioWidget {
             constructor() {
                 this.host   = document.createElement('div');
@@ -166,111 +298,112 @@
                 const styleEl = document.createElement('style');
                 styleEl.textContent = styles;
                 this.shadow.appendChild(styleEl);
-
                 this.render();
-                await Promise.all([this.loadData(), this.checkOllama()]);
+                await this.loadData();
                 this.setupTabs();
-                this.updateStatusUI();
-
-                const welcome = ollamaOnline
-                    ? '✦ Graça e Paz! Sou o Sábio da Nova Jerusalém — motor <strong>Ollama local</strong> activo. Faça sua pergunta bíblica!'
-                    : '✦ Graça e Paz! Estou no modo offline (FAQ). Inicie o Ollama para respostas com IA completa. Como posso ajudar?';
-                this.addMessage('bot', welcome);
+                this.addBotMessage('✦ Graça e Paz! Sou o <strong>Sábio da Nova Jerusalém</strong>. Posso responder questões bíblicas, ajudá-lo a encontrar livros e partilhar estudos. Como posso servir?');
                 this.populateStudies();
                 this.populateLibrary();
             }
 
-            // ── VERIFICAR OLLAMA ─────────────────────────────────────────────
-            async checkOllama() {
-                try {
-                    const r = await fetch('http://localhost:11434/', {
-                        method: 'GET', signal: AbortSignal.timeout(2000)
-                    });
-                    ollamaOnline = r.ok || r.status === 200 || r.type === 'opaque';
-                } catch (_) {
-                    ollamaOnline = false;
-                }
-            }
-
-            updateStatusUI() {
-                const dot   = this.shadow.getElementById('status-dot');
-                const badge = this.shadow.getElementById('status-badge');
-                const model = this.shadow.getElementById('status-model');
-                if (!dot) return;
-                if (ollamaOnline) {
-                    dot.className   = 'status-dot dot-on';
-                    badge.className = 'badge-motor badge-online';
-                    badge.textContent = 'OLLAMA';
-                    model.textContent = CONFIG.ollamaModel;
-                    model.style.color = 'var(--olive)';
-                } else {
-                    dot.className   = 'status-dot dot-off';
-                    badge.className = 'badge-motor badge-offline';
-                    badge.textContent = 'OFFLINE';
-                    model.textContent = 'FAQ local';
-                    model.style.color = '#888';
-                }
-            }
-
-            // ── RENDER ───────────────────────────────────────────────────────
+            // ── RENDER ───────────────────────────────────────────────────────────
             render() {
                 this.shadow.innerHTML += `
                 <div class="sabio-widget">
-                    <div class="sabio-bubble" id="toggleBtn">📖</div>
+                    <div style="position:relative; display:inline-block;">
+                        <div class="sabio-bubble" id="toggleBtn">📖</div>
+                        <div class="notif-badge" id="notifBadge">1</div>
+                    </div>
                     <div class="sabio-chat-window" id="window">
 
-                        <div class="sabio-header">
-                            <span id="status-dot" class="status-dot dot-off"></span>
-                            <span id="status-badge" class="badge-motor badge-offline">A verificar...</span>
-                            <span id="status-model" style="color:#888; font-weight:400; font-size:10px"></span>
+                        <!-- HEADER -->
+                        <div class="sabio-hdr">
+                            <div class="hdr-avatar">📖</div>
+                            <div class="hdr-info">
+                                <div class="hdr-name">Sábio da Nova Jerusalém</div>
+                                <div class="hdr-sub">
+                                    <div class="online-dot"></div>
+                                    <span>IA disponível • Escola Bíblica Online</span>
+                                </div>
+                            </div>
                         </div>
 
+                        <!-- ABAS -->
                         <div class="sabio-tabs">
                             <div class="sabio-tab active" data-tab="chat"><span>💬</span>Chat</div>
                             <div class="sabio-tab" data-tab="estudos"><span>📝</span>Estudos</div>
                             <div class="sabio-tab" data-tab="biblioteca"><span>📚</span>Livros</div>
                         </div>
 
-                        <!-- Chat -->
+                        <!-- ABA CHAT -->
                         <div class="sabio-content active" id="tab-chat">
                             <div class="sabio-messages" id="messages"></div>
-                            <div id="typing" class="typing-indicator" style="display:none">🦙 Ollama está a processar...</div>
+                            <div id="typingWrap" style="display:none; padding:4px 0;">
+                                <div class="typing-wrap">
+                                    <div class="msg-avatar msg-av-bot">📖</div>
+                                    <div class="typing-dots">
+                                        <span></span><span></span><span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quick-suggestions" id="quickSuggestions">
+                                <div class="quick-btn">🛡️ Espíritos Marinhos</div>
+                                <div class="quick-btn">💰 Prosperidade Bíblica</div>
+                                <div class="quick-btn">🙏 Como orar melhor?</div>
+                                <div class="quick-btn">📖 O que é a eternidade?</div>
+                            </div>
                             <div class="sabio-input-area">
-                                <input type="text" class="sabio-input" id="userInput" placeholder="Questão bíblica ou nome do livro...">
+                                <input type="text" class="sabio-input" id="userInput" placeholder="Faça sua pergunta bíblica...">
                                 <button class="sabio-send" id="sendBtn">➤</button>
                             </div>
                         </div>
 
-                        <!-- Estudos -->
+                        <!-- ABA ESTUDOS -->
                         <div class="sabio-content" id="tab-estudos">
-                            <h3 style="color:var(--gold);margin-bottom:13px;font-size:15px">📝 Estudos Bíblicos</h3>
+                            <h3 style="color:var(--gold);font-size:14px;margin-bottom:14px;letter-spacing:.05em">📝 ESTUDOS BÍBLICOS DISPONÍVEIS</h3>
                             <div id="list-estudos"></div>
                         </div>
 
-                        <!-- Biblioteca -->
+                        <!-- ABA BIBLIOTECA -->
                         <div class="sabio-content" id="tab-biblioteca">
-                            <h3 style="color:var(--gold);margin-bottom:13px;font-size:15px">📚 Biblioteca Recomendada</h3>
+                            <h3 style="color:var(--gold);font-size:14px;margin-bottom:6px;letter-spacing:.05em">📚 BIBLIOTECA RECOMENDADA</h3>
+                            <p style="color:var(--txt-m);font-size:11px;margin-bottom:12px">Livros seleccionados para o seu crescimento espiritual e financeiro.</p>
                             <div id="list-biblioteca"></div>
                         </div>
 
                     </div>
                 </div>`;
 
+                this.bubble       = this.shadow.querySelector('#toggleBtn').parentElement;
                 this.toggleBtn    = this.shadow.querySelector('#toggleBtn');
+                this.notifBadge   = this.shadow.querySelector('#notifBadge');
                 this.window       = this.shadow.querySelector('#window');
                 this.input        = this.shadow.querySelector('#userInput');
                 this.sendBtn      = this.shadow.querySelector('#sendBtn');
                 this.msgContainer = this.shadow.querySelector('#messages');
-                this.typing       = this.shadow.querySelector('#typing');
+                this.typingWrap   = this.shadow.querySelector('#typingWrap');
 
-                this.toggleBtn.onclick  = () => {
+                this.toggleBtn.onclick = () => {
                     isOpen = !isOpen;
                     this.window.classList.toggle('open', isOpen);
                     this.toggleBtn.classList.toggle('active', isOpen);
-                    if (isOpen && activeTab === 'chat') this.input.focus();
+                    if (isOpen) {
+                        this.notifBadge.style.display = 'none';
+                        if (activeTab === 'chat') this.input.focus();
+                    }
                 };
+
                 this.sendBtn.onclick  = () => this.handleSend();
                 this.input.onkeypress = (e) => { if (e.key === 'Enter') this.handleSend(); };
+
+                // Quick suggestions
+                this.shadow.querySelectorAll('.quick-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        this.input.value = btn.textContent.replace(/^[^\s]+\s/, '');
+                        this.handleSend();
+                        this.shadow.querySelector('#quickSuggestions').style.display = 'none';
+                    };
+                });
             }
 
             setupTabs() {
@@ -286,31 +419,34 @@
                 });
             }
 
-            // ── CARREGAR DADOS ───────────────────────────────────────────────
+            // ── CARREGAR DADOS ────────────────────────────────────────────────────
             async loadData() {
                 try {
-                    const [faqRes, booksRes] = await Promise.all([
-                        fetch(CONFIG.faqPath).then(r => r.json()).catch(() => ({ questions: [] })),
-                        fetch(CONFIG.booksPath).then(r => r.json()).catch(() => [])
+                    const [faqRes, booksRes] = await Promise.allSettled([
+                        fetch(CONFIG.faqPath).then(r => r.json()),
+                        fetch(CONFIG.booksPath).then(r => r.json())
                     ]);
-                    kb.faq = faqRes.questions || faqRes || [];
-                    // books_categorized.json → achata categorias
-                    if (Array.isArray(booksRes) && booksRes[0]?.books) {
-                        kb.books = booksRes.flatMap(cat => cat.books.map(b => ({ ...b, category: cat.category })));
+                    kb.faq = (faqRes.status === 'fulfilled' ? (faqRes.value.questions || faqRes.value || []) : []);
+                    const br = booksRes.status === 'fulfilled' ? booksRes.value : [];
+                    // Suporta tanto books_categorized.json (array de cats) como books.json (array plano)
+                    if (Array.isArray(br) && br.length && br[0]?.books) {
+                        kb.books = br.flatMap(cat => cat.books.map(b => ({ ...b, category: cat.category })));
+                        kb.categories = br;
                     } else {
-                        kb.books = Array.isArray(booksRes) ? booksRes : (booksRes.books || []);
+                        kb.books = Array.isArray(br) ? br : [];
+                        kb.categories = null;
                     }
-                } catch (e) { console.error('[Sábio] Erro dados:', e); }
+                } catch (e) { console.error('[Sábio]', e); }
             }
 
-            // ── POPULAR ESTUDOS ──────────────────────────────────────────────
+            // ── POPULAR ESTUDOS ───────────────────────────────────────────────────
             populateStudies() {
                 const c = this.shadow.querySelector('#list-estudos');
-                if (!c || !kb.faq.length) return;
+                if (!c || !kb.faq.length) { c && (c.innerHTML = '<p style="color:var(--txt-m);font-size:13px">A carregar estudos...</p>'); return; }
                 c.innerHTML = kb.faq.map(f => `
                     <div class="study-item" data-q="${this.esc(f.question)}">
                         <h4>${f.question}</h4>
-                        <p>${f.answer.substring(0, 90)}...</p>
+                        <p>${f.answer.substring(0, 95)}...</p>
                     </div>`).join('');
                 c.querySelectorAll('.study-item').forEach(el => {
                     el.onclick = () => {
@@ -321,147 +457,152 @@
                 });
             }
 
-            // ── POPULAR BIBLIOTECA ───────────────────────────────────────────
+            // ── POPULAR BIBLIOTECA ────────────────────────────────────────────────
             populateLibrary() {
                 const c = this.shadow.querySelector('#list-biblioteca');
                 if (!c) return;
                 if (!kb.books.length) {
-                    c.innerHTML = '<p style="text-align:center;color:#555;font-size:13px;margin-top:20px">A carregar livros...</p>';
+                    c.innerHTML = '<p style="color:var(--txt-m);font-size:13px">A carregar livros...</p>';
                     return;
                 }
-                c.innerHTML = kb.books.map(b => `
+                if (kb.categories) {
+                    // Exibe por categorias
+                    c.innerHTML = kb.categories.map(cat => `
+                        <div class="book-section-label">${cat.icon || '📚'} ${cat.category}</div>
+                        ${cat.books.map(b => this.bookItemHTML(b)).join('')}
+                    `).join('');
+                } else {
+                    c.innerHTML = kb.books.map(b => this.bookItemHTML(b)).join('');
+                }
+            }
+
+            bookItemHTML(b) {
+                const link = b.affiliate_link || b.amazonUrl || '#';
+                return `
                     <div class="book-item">
-                        <img class="book-cover" src="${b.cover||''}" alt="${b.title}"
-                             onerror="this.style.background='#1a1a2e';this.removeAttribute('src')">
+                        <img class="book-cover" src="${b.cover || ''}" alt="${this.esc(b.title)}"
+                             loading="lazy"
+                             onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#2a2a4e)';this.removeAttribute('src')">
                         <div class="book-info">
                             <div>
                                 <h4>${b.title}</h4>
                                 <p>${b.category || 'Recomendado'}</p>
                             </div>
-                            <a href="${b.affiliate_link||b.amazonUrl||'#'}" target="_blank" class="amazon-btn">🛒 Ver na Amazon</a>
+                            <a href="${link}" target="_blank" rel="noopener" class="amazon-btn">🛒 Ver na Amazon</a>
                         </div>
-                    </div>`).join('');
+                    </div>`;
             }
 
-            // ── ENVIO ────────────────────────────────────────────────────────
+            // ── ENVIO ─────────────────────────────────────────────────────────────
             async handleSend() {
                 const text = this.input.value.trim();
                 if (!text || isLoading) return;
                 this.input.value = '';
-                this.addMessage('user', text);
-                this.typing.style.display = 'block';
+                this.shadow.querySelector('#quickSuggestions').style.display = 'none';
+                this.addUserMessage(text);
+                this.typingWrap.style.display = 'block';
                 isLoading = true;
                 try   { await this.processQuery(text); }
-                finally { this.typing.style.display = 'none'; isLoading = false; }
+                finally { this.typingWrap.style.display = 'none'; isLoading = false; }
             }
 
-            // ── MOTOR DE RESPOSTA ────────────────────────────────────────────
+            // ── PROCESSAMENTO ─────────────────────────────────────────────────────
             async processQuery(query) {
-                // 1. Buscar versículos na query
-                const scriptures = await this.fetchBibleVerses(query);
+                const [scriptures, relevantBooks] = await Promise.all([
+                    this.fetchBibleVerses(query),
+                    Promise.resolve(this.searchBooks(query))
+                ]);
 
-                // 2. Livros relevantes (busca local)
-                const relevantBooks = this.searchBooks(query);
-
-                // -── Construir contexto FAQ ──────────────────────────────────
-                const faqCtx = kb.faq.map(f => `P: ${f.question}\nR: ${f.answer}`).join('\n\n');
+                const faqCtx = kb.faq.slice(0, 15).map(f => `P: ${f.question}\nR: ${f.answer}`).join('\n\n');
                 const bookCtx = relevantBooks.length
-                    ? '\n\nLIVROS RELACIONADOS:\n' + relevantBooks.map(b => `- "${b.title}": ${b.affiliate_link||''}`).join('\n')
+                    ? '\n\nLIVROS RELACIONADOS:\n' + relevantBooks.map(b => `- "${b.title}" → ${b.affiliate_link || ''}`).join('\n')
                     : '';
                 const bibleCtx = scriptures.length
-                    ? '\n\nVERSÍCULOS:\n' + scriptures.map(s => `${s.ref}: "${s.text.trim()}"`).join('\n')
+                    ? '\n\nVERSÍCULOS ENCONTRADOS:\n' + scriptures.map(s => `${s.ref}: "${s.text.trim()}"`).join('\n')
                     : '';
 
-                const systemPrompt = `És o Sábio da Nova Jerusalém — assistente bíblico sábio e amoroso. Responde SEMPRE em Português de Portugal.
+                const systemPrompt = `És o Sábio da Nova Jerusalém — assistente bíblico sábio, amoroso e ungido. Respondes SEMPRE em Português de Portugal com graciosidade pastoral.
 
 Regras:
-1. Baseia-te sempre nas Escrituras e cita versículos.
-2. Usa o contexto do FAQ como conhecimento base.
-3. Se perguntarem sobre livros, recomenda com o link da Amazon.
-4. Sê conciso (máximo 4 parágrafos). Usa linguagem simples.
-5. Termina sempre com uma bênção ou versículo motivador.
+1. Baseia as respostas nas Escrituras. Cita versículos bíblicos sempre que relevante.
+2. Usa o conhecimento da FAQ como base principal.
+3. Quando o utilizador perguntar sobre livros, recomenda com o link Amazon.
+4. Sê conciso mas completo (3-4 parágrafos). Usa Markdown simples (negrito **texto**).
+5. Termina SEMPRE com uma bênção ou versículo motivador curto.
+6. Nunca inventes versículos — se não saben, diz que não encontras.
 
-CONHECIMENTO DO FAQ:
+CONHECIMENTO DA FAQ:
 ${faqCtx}${bookCtx}${bibleCtx}`;
 
-                // 3. Chamar Ollama ou fallback
-                let response, usedOllama = false;
-                if (ollamaOnline) {
-                    try {
-                        response   = await this.callOllama(systemPrompt, query);
-                        usedOllama = true;
-                    } catch (e) {
-                        console.warn('[Sábio] Ollama falhou, usando FAQ:', e.message);
-                        response = this.fallbackFAQ(query);
-                    }
-                } else {
-                    response = this.fallbackFAQ(query);
-                }
+                const response = await this.callAI(systemPrompt, query);
 
-                // 4. Montar HTML
+                // Montar HTML
                 let html = '';
+                // Versículos da Bíblia
                 if (scriptures.length) {
                     scriptures.forEach(s => {
-                        html += `<div class="bible-verse"><strong>📖 ${s.ref}</strong>${s.text.trim()}</div>`;
+                        html += `<div class="bible-block"><span class="bible-ref">📖 ${s.ref}</span>${s.text.trim()}</div>`;
                     });
                 }
+                // Resposta da IA
                 html += `<div>${this.fmt(response)}</div>`;
+                // Livros sugeridos
                 if (relevantBooks.length) {
-                    const links = relevantBooks.slice(0,2).map(b =>
-                        `<a href="${b.affiliate_link||'#'}" target="_blank" style="color:var(--gold)">${b.title}</a>`
-                    ).join(', ');
-                    html += `<br><div style="font-size:12px;color:rgba(212,175,55,.75)">📚 ${links}</div>`;
+                    html += `<div style="margin-top:10px">`;
+                    relevantBooks.slice(0, 3).forEach(b => {
+                        html += `<a href="${b.affiliate_link || '#'}" target="_blank" rel="noopener" class="book-chip">📚 ${b.title}</a>`;
+                    });
+                    html += `</div>`;
                 }
-                html += usedOllama
-                    ? `<div class="motor-badge">🦙 Ollama local</div>`
-                    : `<div class="motor-badge offline">📖 FAQ offline</div>`;
+                html += `<div class="ai-badge">✦ Nova Jerusalém IA</div>`;
 
-                this.addMessage('bot', html, true);
+                this.addBotMessage(html);
             }
 
-            // ── OLLAMA API ───────────────────────────────────────────────────
-            // Usa a API nativa /api/chat (suporta streaming — aqui modo não-stream)
-            async callOllama(systemPrompt, userQuery) {
-                const res = await fetch(CONFIG.ollamaEndpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model:  CONFIG.ollamaModel,
-                        stream: false,
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user',   content: userQuery }
-                        ],
-                        options: { temperature: 0.7, num_predict: 600 }
-                    }),
-                    signal: AbortSignal.timeout(30000)
-                });
-                if (!res.ok) throw new Error(`Ollama HTTP ${res.status}`);
-                const data = await res.json();
-                return data.message?.content || data.response || 'Ollama não retornou resposta.';
+            // ── POLLINATIONS.AI ───────────────────────────────────────────────────
+            async callAI(systemPrompt, userQuery) {
+                try {
+                    const res = await fetch(CONFIG.aiEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model:    CONFIG.aiModel,
+                            private:  true,
+                            messages: [
+                                { role: 'system', content: systemPrompt },
+                                { role: 'user',   content: userQuery }
+                            ],
+                            temperature: 0.7,
+                            max_tokens:  800
+                        }),
+                        signal: AbortSignal.timeout(25000)
+                    });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    return data.choices?.[0]?.message?.content || data.text || '';
+                } catch (e) {
+                    console.warn('[Sábio/AI] Usando FAQ local:', e.message);
+                    return this.fallbackFAQ(userQuery);
+                }
             }
 
-            // ── FALLBACK FAQ ─────────────────────────────────────────────────
+            // ── FALLBACK FAQ ──────────────────────────────────────────────────────
             fallbackFAQ(query) {
                 const norm   = this.norm(query);
                 const tokens = norm.split(/\s+/).filter(t => t.length > 2 && !STOPWORDS.includes(t));
                 let best = null, bestScore = 0;
                 for (const item of kb.faq) {
                     let score = 0;
-                    const qn = this.norm(item.question);
-                    const an = this.norm(item.answer);
+                    const qn = this.norm(item.question), an = this.norm(item.answer);
                     if (qn.includes(norm)) score += 10;
-                    tokens.forEach(t => {
-                        if (qn.includes(t)) score += 2;
-                        if (an.includes(t)) score += 1;
-                    });
+                    tokens.forEach(t => { if (qn.includes(t)) score += 2; if (an.includes(t)) score += 1; });
                     if (score > bestScore) { bestScore = score; best = item; }
                 }
                 if (best && bestScore > 1) return best.answer;
-                return 'Não encontrei estudos sobre este tema na nossa base.\n\nPara respostas completas com IA, inicie o Ollama com o comando:\n\n**ollama serve**\n\nOu contacte-nos: leituradacuraportugal@gmail.com 🙏';
+                return 'Não encontrei estudos específicos sobre este tema. Contacte-nos em **leituradacuraportugal@gmail.com** e respondemos com prazer. 🙏';
             }
 
-            // ── FETCH BÍBLIA ─────────────────────────────────────────────────
+            // ── FETCH VERSÍCULOS ──────────────────────────────────────────────────
             async fetchBibleVerses(text) {
                 const regex = /\b(\d?\s*[a-zA-ZçÇãÃõÕáÁéÉíÍóÓúÚ]+)\s+(\d+):(\d+)(?:-(\d+))?\b/g;
                 const refs = []; let m;
@@ -472,34 +613,48 @@ ${faqCtx}${bookCtx}${bibleCtx}`;
                     try {
                         const r = await fetch(`${CONFIG.bibleApi}/${encodeURIComponent(ref)}?translation=${CONFIG.bibleTranslation}`);
                         const d = await r.json();
-                        if (d.text) results.push({ ref: d.reference, text: d.text });
+                        if (d?.text) results.push({ ref: d.reference, text: d.text });
                     } catch (_) {}
                 }
                 return results;
             }
 
-            // ── BUSCA DE LIVROS LOCAL ────────────────────────────────────────
+            // ── BUSCA DE LIVROS LOCAL ─────────────────────────────────────────────
             searchBooks(query) {
-                const n = this.norm(query);
-                const tokens = n.split(/\s+/).filter(t => t.length > 3);
+                const tokens = this.norm(query).split(/\s+/).filter(t => t.length > 3);
+                if (!tokens.length) return [];
                 return kb.books.filter(b => {
                     const bn = this.norm(b.title);
                     return tokens.some(t => bn.includes(t));
-                }).slice(0, 2);
+                }).slice(0, 3);
             }
 
-            // ── HELPERS ──────────────────────────────────────────────────────
-            addMessage(type, text, html = false) {
-                const div = document.createElement('div');
-                div.className = `message ${type}`;
-                if (html) div.innerHTML = text;
-                else      div.innerHTML = text;
-                this.msgContainer.appendChild(div);
+            // ── DOM HELPERS ───────────────────────────────────────────────────────
+            addBotMessage(html) {
+                const wrap = document.createElement('div');
+                wrap.className = 'message-wrap';
+                wrap.innerHTML = `<div class="msg-avatar msg-av-bot">📖</div><div class="message bot">${html}</div>`;
+                this.msgContainer.appendChild(wrap);
                 this.msgContainer.scrollTop = this.msgContainer.scrollHeight;
             }
+
+            addUserMessage(text) {
+                const wrap = document.createElement('div');
+                wrap.className = 'message-wrap user';
+                wrap.innerHTML = `<div class="msg-avatar msg-av-usr">👤</div><div class="message user">${this.esc(text)}</div>`;
+                this.msgContainer.appendChild(wrap);
+                this.msgContainer.scrollTop = this.msgContainer.scrollHeight;
+            }
+
             norm(t) { return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,'').trim(); }
-            fmt(t)  { return t.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>'); }
-            esc(s)  { return s.replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+            fmt(t)  {
+                return t
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+            }
+            esc(s)  { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
         }
 
         new SabioWidget();

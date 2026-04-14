@@ -37,7 +37,6 @@
       --border-s: rgba(91, 168, 208, 0.1);
     }
   </style>
-  <link rel="stylesheet" href="blogger_Estudos/assets/css/chatbot.css">
 </head>
 <style>
   html {
@@ -1818,57 +1817,60 @@ var(--river-d);display:flex;align-items:center;gap:.8rem;font-size:.85rem;color:
 
     // ── CATEGORIZED VITRINE LOGIC ──
     async function loadCategorizedBooks() {
+      const container = document.getElementById('vitrine-categorias');
       try {
         const res = await fetch('books_categorized.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const categories = await res.json();
-        const container = document.getElementById('vitrine-categorias');
         container.innerHTML = '';
 
+        if (!categories || !categories.length) throw new Error('Sem dados');
+
         categories.forEach(cat => {
+          // Título da categoria
           const sec = document.createElement('div');
           sec.className = 'sec-lbl rv on';
-          sec.innerHTML = `<h2>${cat.icon} ${cat.category}</h2>`;
+          sec.innerHTML = `<h2>${cat.icon || '📚'} ${cat.category}</h2>`;
           container.appendChild(sec);
 
+          // Grid de livros
           const grid = document.createElement('div');
           grid.className = 'vitrine-grid rv d1 on';
+
           cat.books.forEach(book => {
+            const safeTitle = book.title.replace(/'/g, "\\'");
+            const safeLink  = book.affiliate_link || '#';
+            const coverSrc  = book.cover || '';
             grid.innerHTML += `
               <div class="book-card tilt">
-                <img class="book-img" src="${book.cover}" alt="${book.title}">
+                <img class="book-img"
+                     src="${coverSrc}"
+                     alt="${book.title}"
+                     loading="lazy"
+                     onerror="this.style.background='#e8f0f8';this.style.display='block';this.removeAttribute('src')">
                 <h4 class="book-title">${book.title}</h4>
                 <div class="book-btns">
-                  <a href="${book.affiliate_link}" target="_blank" class="btn btn-river btn-small">Ver na Amazon ➔</a>
-                  <button onclick="openPaymentModal('${book.title}', '9.90')" class="btn btn-gold btn-small">Comprar Acesso 🛒</button>
+                  <a href="${safeLink}" target="_blank" rel="noopener" class="btn btn-river btn-small">Ver na Amazon ➔</a>
+                  <button onclick="openPaymentModal('${safeTitle}', '9.90')" class="btn btn-gold btn-small">Acesso Digital 🛒</button>
                 </div>
               </div>`;
           });
+
           container.appendChild(grid);
         });
-      } catch (e) { console.error('Erro ao carregar livros:', e); }
+
+      } catch (e) {
+        console.error('[Vitrine] Erro ao carregar livros:', e);
+        container.innerHTML = `
+          <div style="text-align:center;padding:2rem;color:var(--text-l)">
+            <p style="font-size:1.2rem">📚</p>
+            <p>A biblioteca está a carregar. Tente novamente em alguns instantes.</p>
+          </div>`;
+      }
     }
     loadCategorizedBooks();
   </script>
-  <div id="sabio-chat"></div>
-  <script>
-    (function () {
-      const script = document.createElement('script');
-      // Caminho corrigido: relativo à localização do index.html
-      script.src = "chatbot/gemini-widget.js";
-      script.onload = function () {
-        if (typeof initializeGeminiChatbot === 'function') {
-          initializeGeminiChatbot({
-            // Caminhos relativos ao index.html (dentro de blogger_Estudos/)
-            jsonConfigUrl: "chatbot/faq_library.json",
-            booksUrl:      "books_categorized.json",
-            // ⚠️ Coloque aqui a sua chave Groq (obtenha em https://console.groq.com/keys)
-            groqApiKey:    "SUA_CHAVE_GROQ_AQUI"
-          });
-        }
-      };
-      document.head.appendChild(script);
-    })();
-  </script>
+  <script defer src="chatbot/gemini-widget.js" onload="initializeGeminiChatbot({ jsonConfigUrl: 'chatbot/faq_library.json', booksUrl: 'books_categorized.json' })"></script>
 </body>
 
 </html>
