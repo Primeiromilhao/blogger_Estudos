@@ -922,25 +922,9 @@ var(--river-d);display:flex;align-items:center;gap:.8rem;font-size:.85rem;color:
   <div class="main">
     <div>
 
-      <!-- VITRINE DE LIVROS -->
-      <div id="vitrine" class="sec-lbl rv">
-        <h2>✦ Vitrine de Vendas & Estudos</h2>
-      </div>
-      <div class="vitrine-grid rv d1">
-
-        <!-- Como é a Face de Jesus (Estúdio) -->
-        <div class="book-card tilt">
-          <div class="feat-tag"
-            style="background:var(--river-d); color:#fff; position:absolute; top:10px; right:10px; font-size:.5rem">
-            ESTÚDIO VÍDEO</div>
-          <img class="book-img" src="assets/face_cover.png" alt="Face de Jesus">
-          <h4 class="book-title">Como é a Face de Jesus</h4>
-          <p class="book-price">Estúdio Interativo</p>
-          <div class="book-btns">
-            <a href="estudio_jesus_face.html" class="btn btn-river btn-small">Abrir Estúdio ➔</a>
-          </div>
-        </div>
-
+      <!-- VITRINE DE LIVROS CATEGORIZADA -->
+      <div id="vitrine-categorias">
+         <!-- Injeção automática via JS -->
       </div>
   <!-- BIBLIOTECA DE LIVROS -->
   <div id="biblioteca" class="sec-lbl rv">
@@ -1832,16 +1816,38 @@ var(--river-d);display:flex;align-items:center;gap:.8rem;font-size:.85rem;color:
     const obs = new IntersectionObserver(e => e.forEach(e => { if (e.isIntersecting) e.target.classList.add('on') }), { threshold: 0.08 });
     rvEls.forEach(el => obs.observe(el));
 
-    // ── 3D TILT ──
-    document.querySelectorAll('.tilt').forEach(el => {
-      el.addEventListener('mousemove', e => {
-        const r = el.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width - .5;
-        const y = (e.clientY - r.top) / r.height - .5;
-        el.style.transform = `perspective(600px) rotateY(${x * 7}deg) rotateX(${-y * 7}deg) translateY(-4px)`;
-      });
-      el.addEventListener('mouseleave', () => { el.style.transform = ''; });
-    });
+    // ── CATEGORIZED VITRINE LOGIC ──
+    async function loadCategorizedBooks() {
+      try {
+        const res = await fetch('books_categorized.json');
+        const categories = await res.json();
+        const container = document.getElementById('vitrine-categorias');
+        container.innerHTML = '';
+
+        categories.forEach(cat => {
+          const sec = document.createElement('div');
+          sec.className = 'sec-lbl rv on';
+          sec.innerHTML = `<h2>${cat.icon} ${cat.category}</h2>`;
+          container.appendChild(sec);
+
+          const grid = document.createElement('div');
+          grid.className = 'vitrine-grid rv d1 on';
+          cat.books.forEach(book => {
+            grid.innerHTML += `
+              <div class="book-card tilt">
+                <img class="book-img" src="${book.cover}" alt="${book.title}">
+                <h4 class="book-title">${book.title}</h4>
+                <div class="book-btns">
+                  <a href="${book.affiliate_link}" target="_blank" class="btn btn-river btn-small">Ver na Amazon ➔</a>
+                  <button onclick="openPaymentModal('${book.title}', '9.90')" class="btn btn-gold btn-small">Comprar Acesso 🛒</button>
+                </div>
+              </div>`;
+          });
+          container.appendChild(grid);
+        });
+      } catch (e) { console.error('Erro ao carregar livros:', e); }
+    }
+    loadCategorizedBooks();
   </script>
   <div id="gemini-chat"></div>
   <script>

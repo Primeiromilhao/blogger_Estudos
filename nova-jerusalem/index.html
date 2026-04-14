@@ -183,14 +183,86 @@
         }
         .section-heading h2 {
             font-family: 'Cinzel', serif;
-            font-size: 0.75rem;
-            letter-spacing: 0.25em;
+            font-size: 0.8rem;
+            letter-spacing: 0.3em;
             text-transform: uppercase;
-            color: var(--gold);
+            color: #C5A028;
             white-space: nowrap;
         }
 
-        /* ── STUDY LINKS GRID ── */
+        /* ── VITRINE (BOOOKSHELF) ── */
+        .vitrine-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .book-card {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(184, 134, 11, 0.15);
+            border-radius: 16px;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s;
+            backdrop-filter: blur(8px);
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(184, 134, 11, 0.15);
+            border-color: #C5A028;
+        }
+
+        .book-img {
+            width: 120px;
+            height: 180px;
+            background: #eee;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            object-fit: cover;
+        }
+
+        .book-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1A2240;
+            margin-bottom: .4rem;
+            line-height: 1.3;
+        }
+
+        .book-btns {
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+            width: 100%;
+        }
+
+        .btn-small {
+            padding: .5rem 1rem;
+            font-size: 0.75rem;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 999px;
+            transition: all 0.3s;
+        }
+        
+        .btn-amazon {
+            background: #C5A028;
+            color: white;
+        }
+
+        .btn-amazon:hover {
+            background: #A08020;
+            transform: scale(1.05);
+        }
+
+        /* ── LINKS GRID (Original) ── */
         .links-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -395,10 +467,15 @@
         <p>Esta é a <strong>página central de estudos</strong>. Cada estudo abaixo é uma joia — como os doze fundamentos da Nova Jerusalém, adornada com safiras, esmeraldas, jaspe e ouro puro. Escolha um tema e aprofunde-se na Palavra de Deus.</p>
     </div>
 
+    <!-- ── VITRINE DE LIVROS CATEGORIZADA ── -->
+    <div id="vitrine-categorias" style="margin-bottom: 4rem;">
+         <!-- Injeção automática via JS -->
+    </div>
+
     <!-- ── LINKS DOS ESTUDOS ── -->
     <div class="section-heading reveal">
         <span></span>
-        <h2>✦ Estudos Disponíveis ✦</h2>
+        <h2>✦ Outros Estudos ✦</h2>
         <span style="background:linear-gradient(to left, rgba(184,134,11,0.3), transparent);"></span>
     </div>
 
@@ -544,26 +621,58 @@
 </div>
 
 <script>
-    /* =========================================================
-       GEMINI CHATBOT 
-       ========================================================= */
-    (function() {
+    // ── CATEGORIZED VITRINE LOGIC ──
+    async function loadCategorizedBooks() {
+        try {
+            // Busca o JSON no diretório pai
+            const res = await fetch('../books_categorized.json');
+            if (!res.ok) throw new Error('Falha ao carregar books_categorized.json');
+            
+            const categories = await res.json();
+            const container = document.getElementById('vitrine-categorias');
+            container.innerHTML = '';
+
+            categories.forEach(cat => {
+                const sec = document.createElement('div');
+                sec.className = 'section-heading reveal on';
+                sec.innerHTML = `<span></span><h2>${cat.icon} ${cat.category}</h2><span style="background:linear-gradient(to left, rgba(184,134,11,0.3), transparent);"></span>`;
+                container.appendChild(sec);
+
+                const grid = document.createElement('div');
+                grid.className = 'vitrine-grid reveal on';
+                cat.books.forEach(book => {
+                    grid.innerHTML += `
+                        <div class="book-card">
+                            <img class="book-img" src="${book.cover}" alt="${book.title}">
+                            <h4 class="book-title">${book.title}</h4>
+                            <div class="book-btns">
+                                <a href="${book.affiliate_link}" target="_blank" class="btn-small btn-amazon">Ver na Amazon ➔</a>
+                            </div>
+                        </div>`;
+                });
+                container.appendChild(grid);
+            });
+        } catch (e) { 
+            console.error('Erro ao carregar vitrine:', e); 
+            document.getElementById('vitrine-categorias').innerHTML = '<p style="text-align:center; color:#C5A028;">Consulte nossa biblioteca completa no menu principal.</p>';
+        }
+    }
+    
+    // Inicializa a vitrine ao carregar a página
+    window.addEventListener('DOMContentLoaded', loadCategorizedBooks);
+
+    (function () {
         const script = document.createElement('script');
         script.src = "../chatbot/gemini-widget.js";
-        script.onload = function() {
-            initializeGeminiChatbot({
-                containerId: 'gemini-chat',
-                model: 'gemini-1.5-flash',
-                systemPrompt: "Você é o assistente sábio da Escola Bíblica Nova Jerusalém. Ajude os alunos a encontrar os estudos.",
-                jsonConfigUrl: "../chatbot/faq_library.json",
-                booksUrl: "../books.json",
-                libraryUrl: "../data/library.json",
-                onMessage: (msg) => {
-                    if (typeof gtag === 'function') {
-                        gtag('event', 'chatbot_interaction', { 'message': msg });
-                    }
-                }
-            });
+        script.onload = function () {
+            if (typeof initializeGeminiChatbot === 'function') {
+                initializeGeminiChatbot({
+                    containerId: 'gemini-chat',
+                    model: 'gemini-1.5-pro',
+                    systemPrompt: "Você é o assistente sábio da Escola Bíblica Nova Jerusalém. Responda com base na Bíblia e encoraje o estudo.",
+                    jsonConfigUrl: "../chatbot/faq_library.json"
+                });
+            }
         };
         document.head.appendChild(script);
     })();

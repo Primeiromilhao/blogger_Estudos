@@ -9,12 +9,20 @@ import urllib.parse
 from pathlib import Path
 
 # Configuração da IA (Google Gen AI SDK Novo)
+# Conexão via Bridge Híbrida
+from pathlib import Path
+import sys
+
+# Adiciona o diretório pai ao sys.path para encontrar a bridge
+root_path = str(Path(__file__).parent.parent)
+if root_path not in sys.path:
+    sys.path.append(root_path)
+
 try:
-    from google import genai
+    from bridge import processar_pedido
 except ImportError:
-    print("ERRO: O pacote 'google-genai' não está instalado.")
-    print("Por favor, instale com: pip install google-genai")
-    sys.exit(1)
+    print("[!] bridge.py não encontrado. Usando modo de simulação.")
+    def processar_pedido(p): return {"resposta": "{}"}
 
 # Configuração de Pastas
 BASE_DIR = Path(__file__).parent
@@ -34,9 +42,7 @@ def slugify(text):
     return text.strip('-')
 
 def ask_ai_for_content(theme, books_list):
-    """ Usa o Google Gen AI para gerar todo o conteúdo de uma vez """
-    client = genai.Client(api_key=API_KEY)
-    model_id = 'gemini-1.5-flash'
+    """ Usa a Ponte Híbrida (Groq/Ollama) para gerar o conteúdo """
     
     prompt = f"""Você é um criador de conteúdo cristão de elite.
 Tema: {theme}
@@ -53,8 +59,13 @@ Livros disponíveis na biblioteca: {books_list}
 Responda APENAS o JSON puro, sem markdown. Adicione no final da legenda do Facebook o aviso: "Como associado da Amazon, recebo por compras qualificadas."
 """
 
-    response = client.models.generate_content(model=model_id, contents=prompt)
-    raw = response.text
+    try:
+        resultado = processar_pedido(prompt)
+        raw = resultado.get("resposta", "{}")
+        print(f"[IA] Conteúdo gerado via {resultado.get('provedor')} ({resultado.get('modelo')})")
+    except Exception as e:
+        print(f"[!] Erro ao gerar conteúdo: {e}")
+        raw = "{}"
     # Limpeza básica do JSON
     raw = re.sub(r'```json|```', '', raw).strip()
     return json.loads(raw)
