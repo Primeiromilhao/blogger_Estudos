@@ -1849,18 +1849,20 @@ var(--river-d);display:flex;align-items:center;gap:.8rem;font-size:.85rem;color:
     }
     loadCategorizedBooks();
   </script>
-  <div id="gemini-chat"></div>
+  <div id="sabio-chat"></div>
   <script>
     (function () {
       const script = document.createElement('script');
-      script.src = "blogger_Estudos/chatbot/gemini-widget.js";
+      // Caminho corrigido: relativo à localização do index.html
+      script.src = "chatbot/gemini-widget.js";
       script.onload = function () {
         if (typeof initializeGeminiChatbot === 'function') {
           initializeGeminiChatbot({
-            containerId: 'gemini-chat',
-            model: 'gemini-1.5-pro',
-            systemPrompt: "Você é o assistente sábio da Escola Bíblica Nova Jerusalém. Responda com base na Bíblia e encoraje o estudo.",
-            jsonConfigUrl: "blogger_Estudos/chatbot/faq_library.json"
+            // Caminhos relativos ao index.html (dentro de blogger_Estudos/)
+            jsonConfigUrl: "chatbot/faq_library.json",
+            booksUrl:      "books_categorized.json",
+            // ⚠️ Coloque aqui a sua chave Groq (obtenha em https://console.groq.com/keys)
+            groqApiKey:    "SUA_CHAVE_GROQ_AQUI"
           });
         }
       };
