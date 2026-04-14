@@ -1815,61 +1815,101 @@ var(--river-d);display:flex;align-items:center;gap:.8rem;font-size:.85rem;color:
     const obs = new IntersectionObserver(e => e.forEach(e => { if (e.isIntersecting) e.target.classList.add('on') }), { threshold: 0.08 });
     rvEls.forEach(el => obs.observe(el));
 
-    // ── CATEGORIZED VITRINE LOGIC ──
+    // ── VITRINE DE LIVROS ──
     async function loadCategorizedBooks() {
       const container = document.getElementById('vitrine-categorias');
       try {
         const res = await fetch('books_categorized.json');
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const categories = await res.json();
+
+        if (!Array.isArray(categories) || !categories.length) throw new Error('JSON vazio');
+
         container.innerHTML = '';
 
-        if (!categories || !categories.length) throw new Error('Sem dados');
+        categories.forEach(function(cat) {
 
-        categories.forEach(cat => {
-          // Título da categoria
-          const sec = document.createElement('div');
-          sec.className = 'sec-lbl rv on';
-          sec.innerHTML = `<h2>${cat.icon || '📚'} ${cat.category}</h2>`;
-          container.appendChild(sec);
+          // ── Título da categoria ──
+          const secEl = document.createElement('div');
+          secEl.className = 'sec-lbl rv on';
+          const h2 = document.createElement('h2');
+          h2.textContent = (cat.icon || '📚') + ' ' + cat.category;
+          secEl.appendChild(h2);
+          container.appendChild(secEl);
 
-          // Grid de livros
+          // ── Grid de livros ──
           const grid = document.createElement('div');
           grid.className = 'vitrine-grid rv d1 on';
 
-          cat.books.forEach(book => {
-            const safeTitle = book.title.replace(/'/g, "\\'");
-            const safeLink  = book.affiliate_link || '#';
-            const coverSrc  = book.cover || '';
-            grid.innerHTML += `
-              <div class="book-card tilt">
-                <img class="book-img"
-                     src="${coverSrc}"
-                     alt="${book.title}"
-                     loading="lazy"
-                     onerror="this.style.background='#e8f0f8';this.style.display='block';this.removeAttribute('src')">
-                <h4 class="book-title">${book.title}</h4>
-                <div class="book-btns">
-                  <a href="${safeLink}" target="_blank" rel="noopener" class="btn btn-river btn-small">Ver na Amazon ➔</a>
-                  <button onclick="openPaymentModal('${safeTitle}', '9.90')" class="btn btn-gold btn-small">Acesso Digital 🛒</button>
-                </div>
-              </div>`;
+          (cat.books || []).forEach(function(book) {
+
+            // Card
+            const card = document.createElement('div');
+            card.className = 'book-card tilt';
+
+            // Capa
+            const img = document.createElement('img');
+            img.className = 'book-img';
+            img.alt = book.title;
+            img.loading = 'lazy';
+            if (book.cover) img.src = book.cover;
+            img.onerror = function() {
+              this.style.background = '#dce8f0';
+              this.removeAttribute('src');
+            };
+
+            // Título
+            const title = document.createElement('h4');
+            title.className = 'book-title';
+            title.textContent = book.title;
+
+            // Botões
+            const btns = document.createElement('div');
+            btns.className = 'book-btns';
+
+            // Botão Amazon
+            const aLink = document.createElement('a');
+            aLink.href = book.affiliate_link || '#';
+            aLink.target = '_blank';
+            aLink.rel = 'noopener';
+            aLink.className = 'btn btn-river btn-small';
+            aLink.textContent = 'Ver na Amazon ➔';
+
+            // Botão Acesso Digital — usa data-attr para evitar problemas com caracteres especiais
+            const buyBtn = document.createElement('button');
+            buyBtn.className = 'btn btn-gold btn-small';
+            buyBtn.textContent = 'Acesso Digital 🛒';
+            buyBtn.dataset.title = book.title;
+            buyBtn.dataset.price = '9.90';
+            buyBtn.addEventListener('click', function() {
+              openPaymentModal(this.dataset.title, this.dataset.price);
+            });
+
+            btns.appendChild(aLink);
+            btns.appendChild(buyBtn);
+
+            card.appendChild(img);
+            card.appendChild(title);
+            card.appendChild(btns);
+            grid.appendChild(card);
           });
 
           container.appendChild(grid);
         });
 
       } catch (e) {
-        console.error('[Vitrine] Erro ao carregar livros:', e);
-        container.innerHTML = `
-          <div style="text-align:center;padding:2rem;color:var(--text-l)">
-            <p style="font-size:1.2rem">📚</p>
-            <p>A biblioteca está a carregar. Tente novamente em alguns instantes.</p>
-          </div>`;
+        console.error('[Vitrine] Erro:', e);
+        container.innerHTML =
+          '<div style="text-align:center;padding:3rem 1rem;color:var(--text-l)">' +
+          '<p style="font-size:2rem;margin-bottom:1rem">📚</p>' +
+          '<p style="font-size:.95rem">A vitrine não pôde ser carregada.</p>' +
+          '<p style="font-size:.8rem;margin-top:.5rem">Actualize a página com <strong>Ctrl + Shift + R</strong></p>' +
+          '</div>';
       }
     }
     loadCategorizedBooks();
   </script>
+
   <script defer src="chatbot/gemini-widget.js" onload="initializeGeminiChatbot({ jsonConfigUrl: 'chatbot/faq_library.json', booksUrl: 'books_categorized.json' })"></script>
 </body>
 
