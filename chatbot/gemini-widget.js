@@ -10,12 +10,10 @@
             faqPath:          options.jsonConfigUrl || 'chatbot/faq_library.json',
             booksPath:        options.booksUrl      || 'books_categorized.json',
             bibleApi:         'https://bible-api.com',
-            bibleTranslation: 'almeida',
-            // ── POLLINATIONS.AI ─────────────────────────────────────────────────
-            // Completamente gratuito, sem registo, sem API key.
-            // Funciona de qualquer browser em qualquer dispositivo.
-            aiEndpoint: 'https://text.pollinations.ai/openai',
-            aiModel:    'openai',       // opções: openai | openai-large | mistral | llama
+            bibleTranslation: 'kjv', // King James Version
+            // ── OLLAMA LOCAL ────────────────────────────────────────────────────
+            aiEndpoint: 'http://localhost:11434/api/generate',
+            aiModel:    'llama3.2',
             // ────────────────────────────────────────────────────────────────────
         };
 
@@ -514,75 +512,104 @@
                 ]);
 
                 const faqCtx = kb.faq.slice(0, 15).map(f => `P: ${f.question}\nR: ${f.answer}`).join('\n\n');
-                const bookCtx = relevantBooks.length
-                    ? '\n\nLIVROS RELACIONADOS:\n' + relevantBooks.map(b => `- "${b.title}" → ${b.affiliate_link || ''}`).join('\n')
+                
+                // Melhoria do contexto de livros para a IA
+                const bookCtx = kb.books.length 
+                    ? '\n\nCATÁLOGO COMPLETO DE LIVROS (Escolha os mais relevantes para vender!):\n' + 
+                      kb.books.map(b => `- "${b.title}" (Categoria: ${b.category || 'Geral'}) → Compre aqui: ${b.affiliate_link || '#'}`).join('\n')
                     : '';
+
                 const bibleCtx = scriptures.length
-                    ? '\n\nVERSÍCULOS ENCONTRADOS:\n' + scriptures.map(s => `${s.ref}: "${s.text.trim()}"`).join('\n')
+                    ? '\n\nVERSÍCULOS DA BÍBLIA (King James):\n' + scriptures.map(s => `${s.ref}: "${s.text.trim()}"`).join('\n')
                     : '';
 
-                const systemPrompt = `És o Sábio da Nova Jerusalém — assistente bíblico sábio, amoroso e ungido. Respondes SEMPRE em Português de Portugal com graciosidade pastoral.
+                const systemPrompt = `És o "Sábio da Nova Jerusalém" — o teu papel principal agora é atuar como um EXCELENTE VENDEDOR E CONSULTOR LITERÁRIO.
 
-Regras:
-1. Baseia as respostas nas Escrituras. Cita versículos bíblicos sempre que relevante.
-2. Usa o conhecimento da FAQ como base principal.
-3. Quando o utilizador perguntar sobre livros, recomenda com o link Amazon.
-4. Sê conciso mas completo (3-4 parágrafos). Usa Markdown simples (negrito **texto**).
-5. Termina SEMPRE com uma bênção ou versículo motivador curto.
-6. Nunca inventes versículos — se não saben, diz que não encontras.
+INSTRUÇÕES DE VENDA E ATENDIMENTO COMPLETO:
+1. Saudação e Acolhimento: Começa a conversa de forma empática e amável (ex: "Graça e paz! Bem-vindo. Estou aqui para te guiar na melhor escolha para o teu crescimento.").
+2. Investigação (Pergunta Breve): Se o utilizador tem dúvidas sobre qual livro escolher ou faz uma pergunta ampla, FAZ UMA PERGUNTA DIRETA E BREVE para descobrir a "dor" dele. (Ex: "Atualmente, estás a procurar mais sabedoria na área financeira, necessitas de ajuda com batalha espiritual, ou buscas enriquecer a tua oração?"). Identifica a necessidade para direcionar!
+3. Sugestão Certeira: Assim que entenderes a necessidade, ou se ele pedir ajuda, recomenda apenas 1 ou 2 opções ideais do nosso catálogo. Mostra de forma persuasiva como o livro específico o vai libertar ou ajudar.
+4. Guia de Compra (Call to Action): Quando sugeri-lo, INSTRUÇÕES CLARAS DE COMPRA SÃO OBRIGATÓRIAS. Explica como adquirir: "Para comprares de forma 100% segura, basta clicares no link da Amazon logo abaixo. Recebes o livro rapidamente em tua casa ou podes ler no telemóvel!"
+5. Links Obrigatórios: Inclui sempre o link de associado da Amazon de forma destacada e entusiasmada.
+6. Personalidade: Português de Portugal. Fala com a autoridade de um conselheiro experiente. Vendes porque sabes que esse material trará libertação espiritual e prosperidade.
 
-CONHECIMENTO DA FAQ:
-${faqCtx}${bookCtx}${bibleCtx}`;
+BASE DE CONHECIMENTO E CATÁLOGO:\n${faqCtx}${bookCtx}${bibleCtx}`;
 
                 const response = await this.callAI(systemPrompt, query);
 
-                // Montar HTML
+                // Montar HTML da Resposta
                 let html = '';
-                // Versículos da Bíblia
+                
+                // Exibe versículos bíblicos de apoio no topo
                 if (scriptures.length) {
                     scriptures.forEach(s => {
-                        html += `<div class="bible-block"><span class="bible-ref">📖 ${s.ref}</span>${s.text.trim()}</div>`;
+                        html += `<div class="bible-block"><span class="bible-ref">📖 ${s.ref} (KJ)</span>${s.text.trim()}</div>`;
                     });
+                } else if (relevantBooks.length) {
+                   // Se não houver versículo, mas houver livro, gerar uma citação de autoridade
+                   html += `<div class="bible-block"><span class="bible-ref">💡 Sabedoria do Dia</span>"O meu povo foi destruído, porque lhe faltou o conhecimento." — Oséias 4:6</div>`;
                 }
-                // Resposta da IA
+
+                // Corpo da resposta da IA
                 html += `<div>${this.fmt(response)}</div>`;
-                // Livros sugeridos
+                
+                // Chips de livros recomendados (Garante que apareçam sempre que houver relevância)
                 if (relevantBooks.length) {
-                    html += `<div style="margin-top:10px">`;
+                    html += `<div style="margin-top:15px; border-top: 2px solid var(--gold); padding-top:10px; background: rgba(212,175,55,0.05); padding: 10px; border-radius: 12px;">`;
+                    html += `<p style="font-size:12px; color:var(--gold); font-weight:700; margin-bottom:8px; text-transform:uppercase;">🛒 INVESTIMENTO ESPIRITUAL RECOMENDADO:</p>`;
                     relevantBooks.slice(0, 3).forEach(b => {
-                        html += `<a href="${b.affiliate_link || '#'}" target="_blank" rel="noopener" class="book-chip">📚 ${b.title}</a>`;
+                        html += `<a href="${b.affiliate_link || '#'}" target="_blank" rel="noopener" class="book-chip" style="display:block; margin-bottom:5px; padding: 8px; font-weight: 600;">📖 Adquirir "${b.title}" ➔</a>`;
                     });
                     html += `</div>`;
                 }
-                html += `<div class="ai-badge">✦ Nova Jerusalém IA</div>`;
+                
+                html += `<div class="ai-badge">✦ Portaria Sales Agent • King James</div>`;
 
                 this.addBotMessage(html);
             }
 
-            // ── POLLINATIONS.AI ───────────────────────────────────────────────────
+            // ── OLLAMA API CALL ───────────────────────────────────────────────────
             async callAI(systemPrompt, userQuery) {
                 try {
-                    const res = await fetch(CONFIG.aiEndpoint, {
+                    // Tenta usar Pollinations (Llama 3.1 405B ou similiar via API gratuita) para melhor performance de venda
+                    const pollinationURL = `https://text.pollinations.ai/`;
+                    const res = await fetch(pollinationURL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            model:    CONFIG.aiModel,
-                            private:  true,
                             messages: [
-                                { role: 'system', content: systemPrompt },
-                                { role: 'user',   content: userQuery }
+                                { role: "system", content: systemPrompt },
+                                { role: "user", content: userQuery }
                             ],
-                            temperature: 0.7,
-                            max_tokens:  800
-                        }),
-                        signal: AbortSignal.timeout(25000)
+                            model: "openai", // Usa o modelo padrão de alta performance deles
+                            seed: 42
+                        })
                     });
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    return data.choices?.[0]?.message?.content || data.text || '';
+                    
+                    if (res.ok) {
+                        return await res.text();
+                    }
+                    throw new Error("Pollinations failed");
                 } catch (e) {
-                    console.warn('[Sábio/AI] Usando FAQ local:', e.message);
-                    return this.fallbackFAQ(userQuery);
+                    console.warn('[Sábio/AI] Fallback para Ollama Local:', e.message);
+                    try {
+                        const res = await fetch(CONFIG.aiEndpoint, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                model:  CONFIG.aiModel,
+                                prompt: `Sistema: ${systemPrompt}\n\nUtilizador: ${userQuery}\n\nSábio:`,
+                                stream: false
+                            }),
+                            signal: AbortSignal.timeout(15000)
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            return data.response || '';
+                        }
+                    } catch (e2) {
+                        return this.fallbackFAQ(userQuery);
+                    }
                 }
             }
 
@@ -599,7 +626,7 @@ ${faqCtx}${bookCtx}${bibleCtx}`;
                     if (score > bestScore) { bestScore = score; best = item; }
                 }
                 if (best && bestScore > 1) return best.answer;
-                return 'Não encontrei estudos específicos sobre este tema. Contacte-nos em **leituradacuraportugal@gmail.com** e respondemos com prazer. 🙏';
+                return 'Neste momento não consigo encontrar a resposta exacta, mas recomendo imenso que explores a nossa **Biblioteca** abaixo. Lá encontrarás livros que respondem a quase todas as aflições da alma. 🙏';
             }
 
             // ── FETCH VERSÍCULOS ──────────────────────────────────────────────────
@@ -619,13 +646,15 @@ ${faqCtx}${bookCtx}${bibleCtx}`;
                 return results;
             }
 
-            // ── BUSCA DE LIVROS LOCAL ─────────────────────────────────────────────
+            // ── BUSCA DE LIVROS LOCAL (MELHORADA PARA MELHOR MATCH DE VENDA) ──────
             searchBooks(query) {
-                const tokens = this.norm(query).split(/\s+/).filter(t => t.length > 3);
-                if (!tokens.length) return [];
+                const normQuery = this.norm(query);
+                const tokens = normQuery.split(/\s+/).filter(t => t.length > 3);
+                if (!tokens.length) return kb.books.slice(0, 2); // Sugere básicos se nada bater
+                
                 return kb.books.filter(b => {
-                    const bn = this.norm(b.title);
-                    return tokens.some(t => bn.includes(t));
+                    const bn = this.norm(b.title + ' ' + (b.category || ''));
+                    return tokens.some(t => bn.includes(t)) || tokens.some(t => t.includes(bn));
                 }).slice(0, 3);
             }
 
