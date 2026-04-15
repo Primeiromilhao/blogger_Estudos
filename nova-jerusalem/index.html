@@ -652,8 +652,8 @@
                     img.alt = book.title;
                     img.loading = 'lazy';
                     if (book.cover) {
-                        const clearUrl = book.cover.replace(/^https?:\/\//, '');
-                        img.src = 'https://wsrv.nl/?url=' + encodeURIComponent(clearUrl) + '&w=240&output=webp';
+                        img.src = book.cover;
+                        img.setAttribute('referrerpolicy', 'no-referrer');
                     } else {
                         img.classList.add('no-src');
                     }
