@@ -313,6 +313,24 @@
     }
   }
 
+  /* ── VITRINE RESPONSIVE ── */
+  .vitrine-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem
+  }
+
+  @media(max-width:480px) {
+    .vitrine-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem
+    }
+    .book-card { padding: 0.8rem; }
+    .book-img { width: 100px !important; height: 150px !important; }
+    .book-title { font-size: 0.8rem; }
+  }
+
   /* ── SECTION LABELS ── */
   .sec-lbl {
     display: flex;
@@ -1829,7 +1847,6 @@
         `;
       }
     }
-    loadCategorizedBooks();
     loadCategorizedBooks();
   </script>
 
