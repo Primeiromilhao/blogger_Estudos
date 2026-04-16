@@ -44,7 +44,7 @@
             /* ── WIDGET WRAPPER ── */
             .sabio-widget {
                 position: fixed; bottom: 24px; right: 24px;
-                z-index: 10000; font-family: 'Inter', sans-serif;
+                z-index: 2147483647; font-family: 'Inter', sans-serif;
             }
 
             /* ── TOGGLE BUBBLE ── */
@@ -276,8 +276,8 @@
 
             /* MOBILE */
             @media (max-width: 500px) {
-                .sabio-widget { bottom: 14px; right: 14px; }
-                .sabio-chat-window { width: calc(100vw - 28px); height: 84vh; right: 0; bottom: 78px; border-radius: 22px; }
+                .sabio-widget { bottom: 20px; left: 14px; right: auto; }
+                .sabio-chat-window { width: calc(100vw - 28px); height: 84vh; left: 0; bottom: 78px; border-radius: 22px; }
                 .sabio-bubble { width: 60px; height: 60px; font-size: 28px; }
             }
             @media (max-height: 640px) { .sabio-chat-window { height: 90vh; } }
@@ -288,6 +288,8 @@
             constructor() {
                 this.host   = document.createElement('div');
                 this.shadow = this.host.attachShadow({ mode: 'open' });
+                this.host.style.zIndex = "2147483647";
+                this.host.style.position = "relative";
                 document.body.appendChild(this.host);
                 this.init();
             }
