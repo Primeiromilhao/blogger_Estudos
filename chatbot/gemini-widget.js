@@ -1,5 +1,15 @@
-// gemini-widget.js - Sábio da Nova Jerusalém
-// Versão: 6.0.0 (Motor: Pollinations.ai — 100% gratuito, sem API key, disponível para todos)
+// gemini-widget.js — Sábio da Nova Jerusalém
+// Versão: 7.0.0 (Conselheiro Humano + Almeida PT + Memória + Recomendação Inteligente)
+//
+// MELHORIAS DESTA VERSÃO:
+// • Português europeu natural, caloroso, sem mecanicismos
+// • Bíblia em Almeida (português) por defeito — KJV apenas para inglês
+// • Deteção semântica de temas (não precisa o utilizador citar versículo)
+// • Memória de conversa (últimas 6 mensagens) → contexto humano real
+// • Recomendação de livros com scoring por tema + sinónimos
+// • Fallback robusto se IA falhar
+// • Saudações naturais variadas por hora do dia
+// • Persistência de sessão (localStorage)
 
 (function () {
     'use strict';
@@ -10,18 +20,114 @@
             faqPath:          options.jsonConfigUrl || 'chatbot/faq_library.json',
             booksPath:        options.booksUrl      || 'books_categorized.json',
             bibleApi:         'https://bible-api.com',
-            bibleTranslation: 'kjv', // King James Version
-            // ── OLLAMA LOCAL ────────────────────────────────────────────────────
-            aiEndpoint: 'http://localhost:11434/api/generate',
-            aiModel:    'llama3.2',
-            // ────────────────────────────────────────────────────────────────────
+            bibleTranslation: 'almeida',   // João Ferreira de Almeida (PT)
+            bibleFallbackEn:  'kjv',       // só usada se a pergunta for em inglês
+            // ── POLLINATIONS (gratuito) ──
+            aiEndpoint:       'https://text.pollinations.ai/',
+            aiModel:          'openai',
+            aiTimeoutMs:      25000,
+            // ── OLLAMA local (fallback) ──
+            ollamaEndpoint:   'http://localhost:11434/api/generate',
+            ollamaModel:      'llama3.2',
+            // ── MEMÓRIA ──
+            maxHistory:       6,
+            storageKey:       'sabio_nj_history_v7',
         };
 
         const STOPWORDS = ['o','a','os','as','um','uma','de','da','do','das','dos',
             'em','no','na','nos','nas','por','para','com','sem','sobre','que',
-            'qual','como','quando','onde','porque','é','são','foi','ser','estar','eu','voce'];
+            'qual','como','quando','onde','porque','é','são','foi','ser','estar','eu','voce','você',
+            'me','meu','minha','meus','minhas','seu','sua','seus','suas','isso','isto','este','esta',
+            'the','of','and','to','in','is','it','for','on','my','i','you','we','your'];
 
-        let kb = { faq: [], books: [] };
+        // ── DICIONÁRIO DE TEMAS → versículos + livros sugeridos ───────────────
+        // Quando o utilizador menciona qualquer destes termos, puxamos automaticamente
+        // os versículos certos da Almeida E os livros relacionados.
+        const TEMAS = [
+            {
+                keywords: ['oração','orar','rezar','intercessão','intercessao','prayer','pray'],
+                verses: ['Filipenses 4:6-7','Tiago 5:16','Mateus 6:6','1 Tessalonicenses 5:17'],
+                bookKeywords: ['chave mestre','oração','prayer'],
+            },
+            {
+                keywords: ['espírito marinho','espirito marinho','marinhos','mami wata','sereia','sonho erótico','sonhos eroticos','marine spirit'],
+                verses: ['Salmos 18:16','Êxodo 14:21','Isaías 43:2','Apocalipse 21:1'],
+                bookKeywords: ['marine','marinho','mami wata'],
+            },
+            {
+                keywords: ['altar satânico','altar satanico','altar','feitiço','feitico','macumba','despacho','ocultismo'],
+                verses: ['Deuteronômio 12:3','Êxodo 34:13','2 Reis 23:15','Juízes 6:25-26'],
+                bookKeywords: ['altar','destruir'],
+            },
+            {
+                keywords: ['maldição','maldicao','curse','geração','geracao','herança família','heranca familia','hereditária','hereditaria','generational'],
+                verses: ['Gálatas 3:13','Êxodo 20:5','Ezequiel 18:20','Provérbios 26:2'],
+                bookKeywords: ['generational','maldição','quebrar','curse'],
+            },
+            {
+                keywords: ['prosperidade','dinheiro','finanças','financas','riqueza','escassez','pobreza','wealth','money'],
+                verses: ['Malaquias 3:10','Provérbios 10:22','Filipenses 4:19','Deuteronômio 8:18','3 João 1:2'],
+                bookKeywords: ['prosperidade','conta bancária','airdrop','compounding','millionaire','riqueza','contribuição','lei'],
+            },
+            {
+                keywords: ['casamento','matrimônio','matrimonio','marido','esposa','mulher','rainha','marriage','spouse','sexo','intimidade'],
+                verses: ['Efésios 5:25','Provérbios 18:22','1 Coríntios 7:3','Hebreus 13:4','Provérbios 31:10'],
+                bookKeywords: ['casamento','rainha','mulher','marido','amor','intimidade'],
+            },
+            {
+                keywords: ['anjo','anjos','angel','arcanjo','querubim','serafim','guardião','guardiao'],
+                verses: ['Salmos 91:11','Hebreus 1:14','Daniel 10:13','Salmos 34:7'],
+                bookKeywords: ['anjos','anjo','angel'],
+            },
+            {
+                keywords: ['medo','ansiedade','depressão','depressao','aflição','aflicao','tristeza','desespero','fear','anxiety','depression'],
+                verses: ['Isaías 41:10','Salmos 23:4','Filipenses 4:6-7','2 Timóteo 1:7','Salmos 34:18'],
+                bookKeywords: ['medo','aflição','depressão','self-pity','fracasso','focus'],
+            },
+            {
+                keywords: ['solidão','solidao','sozinho','sozinha','abandonado','lonely','alone'],
+                verses: ['Hebreus 13:5','Salmos 27:10','Mateus 28:20','Deuteronômio 31:8'],
+                bookKeywords: ['amor','focus'],
+            },
+            {
+                keywords: ['perdão','perdao','arrependimento','culpa','forgive','repent','sin','pecado'],
+                verses: ['1 João 1:9','Mateus 6:14','Salmos 51:10','Isaías 1:18'],
+                bookKeywords: ['salvação','altar','testemunho'],
+            },
+            {
+                keywords: ['cura','doença','doenca','enfermidade','heal','sick','sickness'],
+                verses: ['Isaías 53:5','Tiago 5:14-15','Salmos 103:3','Êxodo 15:26'],
+                bookKeywords: ['cura','sangue','jesus'],
+            },
+            {
+                keywords: ['nova jerusalém','nova jerusalem','apocalipse','eternidade','céu','ceu','heaven','jerusalem'],
+                verses: ['Apocalipse 21:1-4','Apocalipse 22:1-2','João 14:2-3','Hebreus 11:16'],
+                bookKeywords: ['eternidade','jerusalém'],
+            },
+            {
+                keywords: ['salvação','salvacao','novo nascimento','converter','salvation','born again'],
+                verses: ['João 3:16','Romanos 10:9','Atos 4:12','2 Coríntios 5:17'],
+                bookKeywords: ['salvação','novo nascimento'],
+            },
+            {
+                keywords: ['pensamento','mente','mind','thought','foco','focus','distração','distracao'],
+                verses: ['Filipenses 4:8','Romanos 12:2','2 Coríntios 10:5','Provérbios 23:7'],
+                bookKeywords: ['pensamento','mente','focus','mindset','distração'],
+            },
+            {
+                keywords: ['testemunho','testimony','poder de deus','milagre','miracle'],
+                verses: ['Apocalipse 12:11','Salmos 107:2','Marcos 5:19'],
+                bookKeywords: ['testemunho'],
+            },
+            {
+                keywords: ['pessoas difíceis','dificeis','inimigos','perseguição','perseguicao','difficult people'],
+                verses: ['Romanos 12:18','Mateus 5:44','Provérbios 15:1','Romanos 12:21'],
+                bookKeywords: ['pessoas difíceis','dificeis'],
+            },
+        ];
+
+        let kb = { faq: [], books: [], categories: null };
+        let history = [];        // memória da conversa: [{role, content}]
         let activeTab = 'chat';
         let isOpen    = false;
         let isLoading = false;
@@ -41,13 +147,11 @@
                 --ai:     #4DB8FF;
             }
 
-            /* ── WIDGET WRAPPER ── */
             .sabio-widget {
                 position: fixed; bottom: 24px; right: 24px;
                 z-index: 2147483647; font-family: 'Inter', sans-serif;
             }
 
-            /* ── TOGGLE BUBBLE ── */
             .sabio-bubble {
                 width: 68px; height: 68px; border-radius: 50%;
                 background: linear-gradient(135deg, #D4AF37, #B8860B);
@@ -65,7 +169,6 @@
             .sabio-bubble:hover  { transform: scale(1.1) rotate(5deg); animation: none; }
             .sabio-bubble.active { transform: rotate(45deg); background: #b02020; border-color: #ff8080; animation: none; }
 
-            /* ── NOTIFICATION BADGE ── */
             .notif-badge {
                 position: absolute; top: -4px; right: -4px;
                 width: 16px; height: 16px; border-radius: 50%;
@@ -74,7 +177,6 @@
                 display: flex; align-items: center; justify-content: center;
             }
 
-            /* ── CHAT WINDOW ── */
             .sabio-chat-window {
                 position: absolute; bottom: 82px; right: 0;
                 width: 440px; height: 700px; max-height: 88vh;
@@ -90,7 +192,6 @@
                 opacity: 1; transform: translateY(0) scale(1); pointer-events: all;
             }
 
-            /* ── HEADER ── */
             .sabio-hdr {
                 display: flex; align-items: center; gap: 10px;
                 padding: 16px 20px 10px;
@@ -106,8 +207,14 @@
             .hdr-name { font-size: 14px; font-weight: 600; color: var(--gold); line-height: 1; }
             .hdr-sub  { font-size: 10.5px; color: var(--txt-m); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
             .online-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 5px #4ade80; flex-shrink: 0; }
+            .hdr-reset {
+                background: rgba(255,255,255,.08); color: var(--txt-m);
+                border: 1px solid rgba(255,255,255,.1);
+                padding: 5px 10px; border-radius: 14px; font-size: 10.5px;
+                cursor: pointer; transition: all .2s;
+            }
+            .hdr-reset:hover { background: rgba(212,175,55,.15); color: var(--gold); }
 
-            /* ── ABAS ── */
             .sabio-tabs {
                 display: flex; background: rgba(0,0,0,.25);
                 border-bottom: 1px solid rgba(255,255,255,.06);
@@ -125,13 +232,11 @@
             }
             .sabio-tab:hover:not(.active) { color: var(--txt); background: rgba(255,255,255,.04); }
 
-            /* ── CONTEÚDO ── */
             .sabio-content { flex: 1; overflow-y: auto; display: none; padding: 18px; flex-direction: column; }
             .sabio-content.active { display: flex; }
             .sabio-content::-webkit-scrollbar { width: 4px; }
             .sabio-content::-webkit-scrollbar-thumb { background: rgba(212,175,55,.3); border-radius: 4px; }
 
-            /* ── MENSAGENS ── */
             .sabio-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 4px; }
             .sabio-messages::-webkit-scrollbar { width: 3px; }
             .sabio-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); }
@@ -156,8 +261,9 @@
                 font-family: 'Crimson Text', serif; font-size: 15.5px;
                 border: 1px solid rgba(255,255,255,.08);
             }
+            .message.bot p { margin-bottom: 8px; }
+            .message.bot p:last-child { margin-bottom: 0; }
 
-            /* BÍBLIA BLOCK */
             .bible-block {
                 background: rgba(212,175,55,.12);
                 border-left: 3px solid var(--gold);
@@ -171,7 +277,6 @@
                 letter-spacing: 1px; margin-bottom: 4px;
             }
 
-            /* BOOK SUGESTÃO */
             .book-chip {
                 display: inline-flex; align-items: center; gap: 5px;
                 background: rgba(212,175,55,.1); border: 1px solid rgba(212,175,55,.25);
@@ -181,10 +286,38 @@
             }
             .book-chip:hover { background: rgba(212,175,55,.2); }
 
-            /* AI BADGE */
-            .ai-badge { font-size: 9.5px; color: var(--ai); float: right; margin-top: 6px; opacity: .75; }
+            .reco-box {
+                margin-top: 14px; padding: 11px 13px;
+                background: linear-gradient(135deg, rgba(212,175,55,.08), rgba(212,175,55,.03));
+                border: 1px solid rgba(212,175,55,.25);
+                border-radius: 14px;
+            }
+            .reco-title {
+                font-size: 10.5px; font-weight: 700; color: var(--gold);
+                text-transform: uppercase; letter-spacing: .12em;
+                margin-bottom: 8px; font-family: 'Inter', sans-serif;
+            }
+            .reco-card {
+                display: flex; gap: 10px; align-items: center;
+                background: rgba(0,0,0,.25); padding: 8px;
+                border-radius: 10px; margin-bottom: 6px;
+                text-decoration: none; transition: all .2s;
+                border: 1px solid transparent;
+            }
+            .reco-card:hover { background: rgba(212,175,55,.12); border-color: rgba(212,175,55,.35); transform: translateX(2px); }
+            .reco-card:last-child { margin-bottom: 0; }
+            .reco-cover {
+                width: 38px; height: 56px; object-fit: cover;
+                border-radius: 4px; flex-shrink: 0;
+                background: linear-gradient(135deg,#1a1a2e,#2a2a4e);
+            }
+            .reco-info { flex: 1; min-width: 0; }
+            .reco-info h5 { color: var(--gold); font-size: 12px; line-height: 1.3; margin-bottom: 2px; font-family: 'Inter', sans-serif; font-weight: 600; }
+            .reco-info p  { color: var(--txt-m); font-size: 10px; line-height: 1.3; font-family: 'Inter', sans-serif; }
+            .reco-cta { color: #FF9900; font-size: 10.5px; font-weight: 700; font-family: 'Inter', sans-serif; white-space: nowrap; }
 
-            /* TYPING ── */
+            .ai-badge { font-size: 9.5px; color: var(--ai); float: right; margin-top: 6px; opacity: .75; font-family: 'Inter', sans-serif; }
+
             .typing-wrap { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
             .typing-dots { display: flex; gap: 4px; }
             .typing-dots span {
@@ -196,7 +329,6 @@
             .typing-dots span:nth-child(3) { animation-delay: .4s; }
             @keyframes blink { 0%,80%,100% { opacity:.2; transform:scale(.9); } 40% { opacity:1; transform:scale(1); } }
 
-            /* ESTUDOS */
             .study-item {
                 background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
                 padding: 13px 15px; border-radius: 13px; margin-bottom: 9px;
@@ -206,7 +338,6 @@
             .study-item h4 { color: var(--gold); font-size: 13.5px; margin-bottom: 4px; line-height: 1.3; }
             .study-item p  { color: var(--txt-m); font-size: 11.5px; line-height: 1.45; }
 
-            /* BIBLIOTECA */
             .book-section-label {
                 font-size: 10px; font-weight: 600; text-transform: uppercase;
                 letter-spacing: .15em; color: var(--txt-m);
@@ -237,7 +368,6 @@
             }
             .amazon-btn:hover { opacity: .85; }
 
-            /* INPUT */
             .sabio-input-area {
                 padding: 13px 16px 14px;
                 background: rgba(0,0,0,.35);
@@ -262,8 +392,8 @@
             }
             .sabio-send:hover { transform: scale(1.08); box-shadow: 0 5px 18px rgba(212,175,55,.45); }
             .sabio-send:active { transform: scale(.95); }
+            .sabio-send:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 
-            /* SUGESTÕES RÁPIDAS */
             .quick-suggestions {
                 display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 0 12px;
             }
@@ -274,7 +404,6 @@
             }
             .quick-btn:hover { background: rgba(212,175,55,.2); border-color: var(--gold); }
 
-            /* MOBILE */
             @media (max-width: 500px) {
                 .sabio-widget { bottom: 20px; left: 14px; right: auto; }
                 .sabio-chat-window { width: calc(100vw - 28px); height: 84vh; left: 0; bottom: 78px; border-radius: 22px; }
@@ -301,9 +430,35 @@
                 this.render();
                 await this.loadData();
                 this.setupTabs();
-                this.addBotMessage('✦ Graça e Paz! Sou o <strong>Sábio da Nova Jerusalém</strong>. Posso responder questões bíblicas, ajudá-lo a encontrar livros e partilhar estudos. Como posso servir?');
+                this.loadHistory();
+                if (!history.length) {
+                    this.addBotMessage(this.openingGreeting(), false);
+                } else {
+                    // Restaurar histórico visualmente
+                    history.forEach(h => {
+                        if (h.role === 'user') this.addUserMessage(h.content, false);
+                        else this.addBotMessage(h.content, false);
+                    });
+                }
                 this.populateStudies();
                 this.populateLibrary();
+            }
+
+            // ── SAUDAÇÃO HUMANA POR HORA ─────────────────────────────────────────
+            openingGreeting() {
+                const h = new Date().getHours();
+                let saudacao;
+                if (h < 6)       saudacao = 'Boa noite, querida alma';
+                else if (h < 12) saudacao = 'Bom dia, irmão(ã) querido(a)';
+                else if (h < 19) saudacao = 'Boa tarde, paz seja contigo';
+                else             saudacao = 'Boa noite, que o Senhor te console';
+
+                const variantes = [
+                    `${saudacao}. Sou o <strong>Sábio da Nova Jerusalém</strong>. Estou aqui para ouvir-te, partilhar a Palavra contigo e ajudar-te a encontrar o livro certo para esta fase da tua vida. Conta-me — o que pesa no teu coração hoje?`,
+                    `${saudacao}. Que bom ter-te aqui. Podes falar comigo como falas com um amigo de longa data. Tens uma dúvida bíblica? Uma luta espiritual? Precisas de orientação sobre que livro ler? Estou contigo.`,
+                    `${saudacao}. Antes de mais, respira fundo. A Palavra de Deus tem resposta para o que estás a sentir. Diz-me em poucas palavras o que te trouxe aqui e vamos encontrar luz juntos.`,
+                ];
+                return variantes[Math.floor(Math.random() * variantes.length)];
             }
 
             // ── RENDER ───────────────────────────────────────────────────────────
@@ -316,26 +471,24 @@
                     </div>
                     <div class="sabio-chat-window" id="window">
 
-                        <!-- HEADER -->
                         <div class="sabio-hdr">
                             <div class="hdr-avatar">📖</div>
                             <div class="hdr-info">
                                 <div class="hdr-name">Sábio da Nova Jerusalém</div>
                                 <div class="hdr-sub">
                                     <div class="online-dot"></div>
-                                    <span>IA disponível • Escola Bíblica Online</span>
+                                    <span>Conselheiro bíblico • Almeida PT</span>
                                 </div>
                             </div>
+                            <button class="hdr-reset" id="resetBtn" title="Nova conversa">↻ Nova</button>
                         </div>
 
-                        <!-- ABAS -->
                         <div class="sabio-tabs">
-                            <div class="sabio-tab active" data-tab="chat"><span>💬</span>Chat</div>
+                            <div class="sabio-tab active" data-tab="chat"><span>💬</span>Conversa</div>
                             <div class="sabio-tab" data-tab="estudos"><span>📝</span>Estudos</div>
                             <div class="sabio-tab" data-tab="biblioteca"><span>📚</span>Livros</div>
                         </div>
 
-                        <!-- ABA CHAT -->
                         <div class="sabio-content active" id="tab-chat">
                             <div class="sabio-messages" id="messages"></div>
                             <div id="typingWrap" style="display:none; padding:4px 0;">
@@ -347,27 +500,25 @@
                                 </div>
                             </div>
                             <div class="quick-suggestions" id="quickSuggestions">
-                                <div class="quick-btn">🛡️ Espíritos Marinhos</div>
-                                <div class="quick-btn">💰 Prosperidade Bíblica</div>
-                                <div class="quick-btn">🙏 Como orar melhor?</div>
-                                <div class="quick-btn">📖 O que é a eternidade?</div>
+                                <div class="quick-btn">🙏 Como vencer o medo?</div>
+                                <div class="quick-btn">💰 Bíblia e prosperidade</div>
+                                <div class="quick-btn">🛡️ Pesadelos recorrentes</div>
+                                <div class="quick-btn">💍 Salvar o meu casamento</div>
                             </div>
                             <div class="sabio-input-area">
-                                <input type="text" class="sabio-input" id="userInput" placeholder="Faça sua pergunta bíblica...">
+                                <input type="text" class="sabio-input" id="userInput" placeholder="Conta-me o que sentes...">
                                 <button class="sabio-send" id="sendBtn">➤</button>
                             </div>
                         </div>
 
-                        <!-- ABA ESTUDOS -->
                         <div class="sabio-content" id="tab-estudos">
-                            <h3 style="color:var(--gold);font-size:14px;margin-bottom:14px;letter-spacing:.05em">📝 ESTUDOS BÍBLICOS DISPONÍVEIS</h3>
+                            <h3 style="color:var(--gold);font-size:14px;margin-bottom:14px;letter-spacing:.05em">📝 ESTUDOS BÍBLICOS</h3>
                             <div id="list-estudos"></div>
                         </div>
 
-                        <!-- ABA BIBLIOTECA -->
                         <div class="sabio-content" id="tab-biblioteca">
                             <h3 style="color:var(--gold);font-size:14px;margin-bottom:6px;letter-spacing:.05em">📚 BIBLIOTECA RECOMENDADA</h3>
-                            <p style="color:var(--txt-m);font-size:11px;margin-bottom:12px">Livros seleccionados para o seu crescimento espiritual e financeiro.</p>
+                            <p style="color:var(--txt-m);font-size:11px;margin-bottom:12px">Livros selecionados para o teu crescimento espiritual e financeiro.</p>
                             <div id="list-biblioteca"></div>
                         </div>
 
@@ -382,6 +533,7 @@
                 this.sendBtn      = this.shadow.querySelector('#sendBtn');
                 this.msgContainer = this.shadow.querySelector('#messages');
                 this.typingWrap   = this.shadow.querySelector('#typingWrap');
+                this.resetBtn     = this.shadow.querySelector('#resetBtn');
 
                 this.toggleBtn.onclick = () => {
                     isOpen = !isOpen;
@@ -395,8 +547,8 @@
 
                 this.sendBtn.onclick  = () => this.handleSend();
                 this.input.onkeypress = (e) => { if (e.key === 'Enter') this.handleSend(); };
+                this.resetBtn.onclick = () => this.resetConversation();
 
-                // Quick suggestions
                 this.shadow.querySelectorAll('.quick-btn').forEach(btn => {
                     btn.onclick = () => {
                         this.input.value = btn.textContent.replace(/^[^\s]+\s/, '');
@@ -419,6 +571,26 @@
                 });
             }
 
+            // ── HISTÓRICO/MEMÓRIA ───────────────────────────────────────────────
+            loadHistory() {
+                try {
+                    const raw = localStorage.getItem(CONFIG.storageKey);
+                    if (raw) history = JSON.parse(raw).slice(-CONFIG.maxHistory * 2);
+                } catch (_) { history = []; }
+            }
+            saveHistory() {
+                try {
+                    localStorage.setItem(CONFIG.storageKey, JSON.stringify(history.slice(-CONFIG.maxHistory * 2)));
+                } catch (_) {}
+            }
+            resetConversation() {
+                history = [];
+                try { localStorage.removeItem(CONFIG.storageKey); } catch(_){}
+                this.msgContainer.innerHTML = '';
+                this.addBotMessage(this.openingGreeting(), false);
+                this.shadow.querySelector('#quickSuggestions').style.display = 'flex';
+            }
+
             // ── CARREGAR DADOS ────────────────────────────────────────────────────
             async loadData() {
                 try {
@@ -428,7 +600,6 @@
                     ]);
                     kb.faq = (faqRes.status === 'fulfilled' ? (faqRes.value.questions || faqRes.value || []) : []);
                     const br = booksRes.status === 'fulfilled' ? booksRes.value : [];
-                    // Suporta tanto books_categorized.json (array de cats) como books.json (array plano)
                     if (Array.isArray(br) && br.length && br[0]?.books) {
                         kb.books = br.flatMap(cat => cat.books.map(b => ({ ...b, category: cat.category })));
                         kb.categories = br;
@@ -466,7 +637,6 @@
                     return;
                 }
                 if (kb.categories) {
-                    // Exibe por categorias
                     c.innerHTML = kb.categories.map(cat => `
                         <div class="book-section-label">${cat.icon || '📚'} ${cat.category}</div>
                         ${cat.books.map(b => this.bookItemHTML(b)).join('')}
@@ -481,7 +651,7 @@
                 return `
                     <div class="book-item">
                         <img class="book-cover" src="${b.cover || ''}" alt="${this.esc(b.title)}"
-                             loading="lazy"
+                             loading="lazy" referrerpolicy="no-referrer"
                              onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#2a2a4e)';this.removeAttribute('src')">
                         <div class="book-info">
                             <div>
@@ -501,167 +671,274 @@
                 this.shadow.querySelector('#quickSuggestions').style.display = 'none';
                 this.addUserMessage(text);
                 this.typingWrap.style.display = 'block';
+                this.sendBtn.disabled = true;
                 isLoading = true;
                 try   { await this.processQuery(text); }
-                finally { this.typingWrap.style.display = 'none'; isLoading = false; }
+                catch (e) {
+                    console.error('[Sábio]', e);
+                    this.addBotMessage('Peço desculpa, tive uma falha momentânea a ligar-me à minha fonte. Tenta novamente em alguns segundos — estou aqui contigo.');
+                }
+                finally {
+                    this.typingWrap.style.display = 'none';
+                    this.sendBtn.disabled = false;
+                    isLoading = false;
+                    this.input.focus();
+                }
             }
 
-            // ── PROCESSAMENTO ─────────────────────────────────────────────────────
+            // ── DETETOR DE TEMAS ──────────────────────────────────────────────────
+            detectThemes(query) {
+                const norm = this.norm(query);
+                const matched = [];
+                for (const t of TEMAS) {
+                    for (const kw of t.keywords) {
+                        if (norm.includes(this.norm(kw))) {
+                            matched.push(t);
+                            break;
+                        }
+                    }
+                }
+                return matched;
+            }
+
+            // ── PROCESSAMENTO PRINCIPAL ───────────────────────────────────────────
             async processQuery(query) {
+                // 1. Detetar temas → versículos por intenção + referências citadas
+                const themes = this.detectThemes(query);
+                const explicitRefs = this.extractExplicitRefs(query);
+
+                // Reunir versículos: refs explícitas (máx 2) + 1 por tema (máx 2 temas)
+                const allRefs = [...explicitRefs];
+                themes.slice(0, 2).forEach(t => {
+                    if (t.verses && t.verses.length) {
+                        const pick = t.verses[Math.floor(Math.random() * t.verses.length)];
+                        if (!allRefs.includes(pick)) allRefs.push(pick);
+                    }
+                });
+
+                const isEnglish = /^[a-zA-Z0-9\s,.\?!'-]+$/.test(query) && !/[áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]/.test(query);
+                const translation = isEnglish ? CONFIG.bibleFallbackEn : CONFIG.bibleTranslation;
+
                 const [scriptures, relevantBooks] = await Promise.all([
-                    this.fetchBibleVerses(query),
-                    Promise.resolve(this.searchBooks(query))
+                    this.fetchBibleVerses(allRefs, translation),
+                    Promise.resolve(this.searchBooks(query, themes))
                 ]);
 
-                const faqCtx = kb.faq.slice(0, 15).map(f => `P: ${f.question}\nR: ${f.answer}`).join('\n\n');
-                
-                // Melhoria do contexto de livros para a IA
-                const bookCtx = kb.books.length 
-                    ? '\n\nCATÁLOGO COMPLETO DE LIVROS (Escolha os mais relevantes para vender!):\n' + 
-                      kb.books.map(b => `- "${b.title}" (Categoria: ${b.category || 'Geral'}) → Compre aqui: ${b.affiliate_link || '#'}`).join('\n')
-                    : '';
-
+                // 2. Construir contexto enxuto para a IA
+                const faqCtx = this.relevantFAQ(query, 4).map(f => `P: ${f.question}\nR: ${f.answer}`).join('\n\n');
+                const bookCtx = relevantBooks.length
+                    ? relevantBooks.slice(0, 4).map(b => `• "${b.title}" — ${b.category || 'Recomendado'} → ${b.affiliate_link || ''}`).join('\n')
+                    : kb.books.slice(0, 6).map(b => `• "${b.title}" — ${b.category || ''}`).join('\n');
                 const bibleCtx = scriptures.length
-                    ? '\n\nVERSÍCULOS DA BÍBLIA (King James):\n' + scriptures.map(s => `${s.ref}: "${s.text.trim()}"`).join('\n')
+                    ? scriptures.map(s => `${s.ref}: "${s.text.trim()}"`).join('\n')
                     : '';
 
-                const systemPrompt = `És o "Sábio da Nova Jerusalém" — o teu papel principal agora é atuar como um EXCELENTE VENDEDOR E CONSULTOR LITERÁRIO.
+                // 3. Prompt humano, em português europeu, com 4 regras claras
+                const systemPrompt = `Tu és o "Sábio da Nova Jerusalém" — um conselheiro cristão experiente, caloroso e profundamente bíblico. Falas português europeu natural (usa "tu", não "você").
 
-INSTRUÇÕES DE VENDA E ATENDIMENTO COMPLETO:
-1. Saudação e Acolhimento: Começa a conversa de forma empática e amável (ex: "Graça e paz! Bem-vindo. Estou aqui para te guiar na melhor escolha para o teu crescimento.").
-2. Investigação (Pergunta Breve): Se o utilizador tem dúvidas sobre qual livro escolher ou faz uma pergunta ampla, FAZ UMA PERGUNTA DIRETA E BREVE para descobrir a "dor" dele. (Ex: "Atualmente, estás a procurar mais sabedoria na área financeira, necessitas de ajuda com batalha espiritual, ou buscas enriquecer a tua oração?"). Identifica a necessidade para direcionar!
-3. Sugestão Certeira: Assim que entenderes a necessidade, ou se ele pedir ajuda, recomenda apenas 1 ou 2 opções ideais do nosso catálogo. Mostra de forma persuasiva como o livro específico o vai libertar ou ajudar.
-4. Guia de Compra (Call to Action): Quando sugeri-lo, INSTRUÇÕES CLARAS DE COMPRA SÃO OBRIGATÓRIAS. Explica como adquirir: "Para comprares de forma 100% segura, basta clicares no link da Amazon logo abaixo. Recebes o livro rapidamente em tua casa ou podes ler no telemóvel!"
-5. Links Obrigatórios: Inclui sempre o link de associado da Amazon de forma destacada e entusiasmada.
-6. Personalidade: Português de Portugal. Fala com a autoridade de um conselheiro experiente. Vendes porque sabes que esse material trará libertação espiritual e prosperidade.
+REGRAS DE OURO:
+1. SEJA HUMANO: começa por validar a emoção/situação da pessoa ("Compreendo...", "Sinto a tua dor...", "Que bom que perguntas isso..."). Nunca arranques com listas frias.
+2. SEJA BÍBLICO: liga a resposta a princípios das Escrituras. Se vires versículos no CONTEXTO BÍBLICO, podes citá-los naturalmente DENTRO da resposta (sem repetir o texto completo, basta a referência tipo "como diz o salmista em Salmos 23").
+3. SEJA BREVE: 3 a 6 frases curtas. Parágrafos pequenos. Nada de sermões longos.
+4. RECOMENDA UM LIVRO COM JEITO: se houver um livro do nosso catálogo verdadeiramente relevante para a dor/dúvida da pessoa, mencionas naturalmente UM (não vários) na última frase, explicando porquê — não como vendedor agressivo, mas como amigo que recomenda. O link da Amazon aparecerá automaticamente abaixo da resposta, NÃO precisas de o colar no texto.
+5. NUNCA inventes versículos. Se não tens contexto bíblico, fala de princípios gerais da fé sem citar referências.
+6. NUNCA repitas saudações como "Graça e paz" várias vezes na mesma conversa.
 
-BASE DE CONHECIMENTO E CATÁLOGO:\n${faqCtx}${bookCtx}${bibleCtx}`;
+CONTEXTO BÍBLICO (versículos relevantes já carregados em ${isEnglish ? 'KJV' : 'Almeida'}):
+${bibleCtx || '(nenhum versículo específico desta vez — apoia-te em princípios bíblicos gerais)'}
 
-                const response = await this.callAI(systemPrompt, query);
+LIVROS DISPONÍVEIS PARA RECOMENDAR (catálogo da loja):
+${bookCtx}
 
-                // Montar HTML da Resposta
-                let html = '';
-                
-                // Exibe versículos bíblicos de apoio no topo
-                if (scriptures.length) {
-                    scriptures.forEach(s => {
-                        html += `<div class="bible-block"><span class="bible-ref">📖 ${s.ref} (KJ)</span>${s.text.trim()}</div>`;
-                    });
-                } else if (relevantBooks.length) {
-                   // Se não houver versículo, mas houver livro, gerar uma citação de autoridade
-                   html += `<div class="bible-block"><span class="bible-ref">💡 Sabedoria do Dia</span>"O meu povo foi destruído, porque lhe faltou o conhecimento." — Oséias 4:6</div>`;
+BASE DE CONHECIMENTO DOUTRINÁRIO (responde alinhado com isto):
+${faqCtx || '(sem entradas FAQ relevantes — usa conhecimento bíblico geral)'}`;
+
+                // 4. Construir mensagens com memória de conversa
+                const messages = [
+                    { role: 'system', content: systemPrompt },
+                    ...history.slice(-CONFIG.maxHistory).map(h => ({ role: h.role, content: h.content.replace(/<[^>]+>/g, '') })),
+                    { role: 'user', content: query },
+                ];
+
+                // 5. Chamar IA
+                let aiResponse = await this.callAI(messages);
+                if (!aiResponse || aiResponse.length < 10) {
+                    aiResponse = this.fallbackFAQ(query, themes);
                 }
 
-                // Corpo da resposta da IA
-                html += `<div>${this.fmt(response)}</div>`;
-                
-                // Chips de livros recomendados (Garante que apareçam sempre que houver relevância)
+                // 6. Montar HTML final
+                let html = '';
+                scriptures.forEach(s => {
+                    const tag = isEnglish ? '(KJV)' : '(Almeida)';
+                    html += `<div class="bible-block"><span class="bible-ref">📖 ${s.ref} ${tag}</span>${s.text.trim()}</div>`;
+                });
+
+                html += `<div>${this.fmt(aiResponse)}</div>`;
+
+                // Caixa de recomendação visual (sempre que houver livros relevantes)
                 if (relevantBooks.length) {
-                    html += `<div style="margin-top:15px; border-top: 2px solid var(--gold); padding-top:10px; background: rgba(212,175,55,0.05); padding: 10px; border-radius: 12px;">`;
-                    html += `<p style="font-size:12px; color:var(--gold); font-weight:700; margin-bottom:8px; text-transform:uppercase;">🛒 INVESTIMENTO ESPIRITUAL RECOMENDADO:</p>`;
-                    relevantBooks.slice(0, 3).forEach(b => {
-                        html += `<a href="${b.affiliate_link || '#'}" target="_blank" rel="noopener" class="book-chip" style="display:block; margin-bottom:5px; padding: 8px; font-weight: 600;">📖 Adquirir "${b.title}" ➔</a>`;
+                    html += `<div class="reco-box">`;
+                    html += `<div class="reco-title">📚 Leituras que te podem ajudar</div>`;
+                    relevantBooks.slice(0, 2).forEach(b => {
+                        const link = b.affiliate_link || '#';
+                        const cover = b.cover || '';
+                        html += `<a href="${link}" target="_blank" rel="noopener" class="reco-card">
+                            <img class="reco-cover" src="${cover}" alt="${this.esc(b.title)}" referrerpolicy="no-referrer"
+                                 onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#2a2a4e)';this.removeAttribute('src')">
+                            <div class="reco-info">
+                                <h5>${this.esc(b.title)}</h5>
+                                <p>${b.category || 'Recomendado para ti'}</p>
+                            </div>
+                            <span class="reco-cta">Ver →</span>
+                        </a>`;
                     });
                     html += `</div>`;
                 }
-                
-                html += `<div class="ai-badge">✦ Portaria Sales Agent • King James</div>`;
+
+                html += `<div class="ai-badge">✦ Conselheiro Bíblico ${isEnglish ? '• KJV' : '• Almeida'}</div>`;
 
                 this.addBotMessage(html);
+
+                // Guardar na memória
+                history.push({ role: 'user', content: query });
+                history.push({ role: 'assistant', content: aiResponse });
+                history = history.slice(-CONFIG.maxHistory * 2);
+                this.saveHistory();
             }
 
-            // ── OLLAMA API CALL ───────────────────────────────────────────────────
-            async callAI(systemPrompt, userQuery) {
+            // ── CHAMADA DE IA ────────────────────────────────────────────────────
+            async callAI(messages) {
+                // Tentativa 1: Pollinations (POST com mensagens)
                 try {
-                    // Tenta usar Pollinations (Llama 3.1 405B ou similiar via API gratuita) para melhor performance de venda
-                    const pollinationURL = `https://text.pollinations.ai/`;
-                    const res = await fetch(pollinationURL, {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), CONFIG.aiTimeoutMs);
+
+                    const res = await fetch(CONFIG.aiEndpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            messages: [
-                                { role: "system", content: systemPrompt },
-                                { role: "user", content: userQuery }
-                            ],
-                            model: "openai", // Usa o modelo padrão de alta performance deles
-                            seed: 42
-                        })
+                            messages,
+                            model: CONFIG.aiModel,
+                            seed: Math.floor(Math.random() * 10000),
+                        }),
+                        signal: controller.signal,
                     });
-                    
+                    clearTimeout(timeout);
+
                     if (res.ok) {
-                        return await res.text();
-                    }
-                    throw new Error("Pollinations failed");
-                } catch (e) {
-                    console.warn('[Sábio/AI] Fallback para Ollama Local:', e.message);
-                    try {
-                        const res = await fetch(CONFIG.aiEndpoint, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                model:  CONFIG.aiModel,
-                                prompt: `Sistema: ${systemPrompt}\n\nUtilizador: ${userQuery}\n\nSábio:`,
-                                stream: false
-                            }),
-                            signal: AbortSignal.timeout(15000)
-                        });
-                        if (res.ok) {
-                            const data = await res.json();
-                            return data.response || '';
+                        const txt = await res.text();
+                        if (txt && txt.length > 10 && !txt.toLowerCase().includes('error')) {
+                            return txt.trim();
                         }
-                    } catch (e2) {
-                        return this.fallbackFAQ(userQuery);
                     }
+                } catch (e) {
+                    console.warn('[Sábio] Pollinations falhou:', e.message);
                 }
+
+                // Tentativa 2: Ollama local (só funciona se utilizador tiver Ollama)
+                try {
+                    const sysMsg = messages.find(m => m.role === 'system')?.content || '';
+                    const lastUser = messages.filter(m => m.role === 'user').slice(-1)[0]?.content || '';
+                    const res = await fetch(CONFIG.ollamaEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model:  CONFIG.ollamaModel,
+                            prompt: `Sistema: ${sysMsg}\n\nUtilizador: ${lastUser}\n\nSábio (em português europeu, caloroso, breve):`,
+                            stream: false,
+                        }),
+                        signal: AbortSignal.timeout(15000),
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        return (data.response || '').trim();
+                    }
+                } catch (_) {}
+
+                return null;
             }
 
             // ── FALLBACK FAQ ──────────────────────────────────────────────────────
-            fallbackFAQ(query) {
-                const norm   = this.norm(query);
-                const tokens = norm.split(/\s+/).filter(t => t.length > 2 && !STOPWORDS.includes(t));
-                let best = null, bestScore = 0;
-                for (const item of kb.faq) {
-                    let score = 0;
-                    const qn = this.norm(item.question), an = this.norm(item.answer);
-                    if (qn.includes(norm)) score += 10;
-                    tokens.forEach(t => { if (qn.includes(t)) score += 2; if (an.includes(t)) score += 1; });
-                    if (score > bestScore) { bestScore = score; best = item; }
+            fallbackFAQ(query, themes) {
+                const best = this.relevantFAQ(query, 1)[0];
+                if (best) {
+                    return `Compreendo o que perguntas. ${best.answer}\n\nSe quiseres aprofundar, dá uma vista de olhos no livro recomendado abaixo — pode trazer-te muita luz.`;
                 }
-                if (best && bestScore > 1) return best.answer;
-                return 'Neste momento não consigo encontrar a resposta exacta, mas recomendo imenso que explores a nossa **Biblioteca** abaixo. Lá encontrarás livros que respondem a quase todas as aflições da alma. 🙏';
+                if (themes && themes.length) {
+                    return `Sinto a tua pergunta. Embora eu não tenha agora todas as respostas, encorajo-te a abrir a Palavra e meditar nos versículos acima — Deus fala através das Escrituras de forma muito pessoal. Se quiseres, vê também os livros sugeridos abaixo, foram escolhidos a pensar em ti.`;
+                }
+                return `Obrigado por partilhares isso comigo. Para te dar a melhor orientação, conta-me um pouco mais — é uma dúvida bíblica, uma luta espiritual, ou procuras um livro sobre um tema específico? Estou aqui para te ouvir.`;
             }
 
-            // ── FETCH VERSÍCULOS ──────────────────────────────────────────────────
-            async fetchBibleVerses(text) {
-                const regex = /\b(\d?\s*[a-zA-ZçÇãÃõÕáÁéÉíÍóÓúÚ]+)\s+(\d+):(\d+)(?:-(\d+))?\b/g;
-                const refs = []; let m;
-                while ((m = regex.exec(text)) !== null)
+            // ── RELEVÂNCIA FAQ ────────────────────────────────────────────────────
+            relevantFAQ(query, limit = 3) {
+                const norm = this.norm(query);
+                const tokens = norm.split(/\s+/).filter(t => t.length > 2 && !STOPWORDS.includes(t));
+                const scored = kb.faq.map(item => {
+                    let score = 0;
+                    const qn = this.norm(item.question);
+                    const an = this.norm(item.answer);
+                    if (qn.includes(norm)) score += 15;
+                    tokens.forEach(t => {
+                        if (qn.includes(t)) score += 3;
+                        if (an.includes(t)) score += 1;
+                    });
+                    return { item, score };
+                }).filter(x => x.score > 0)
+                  .sort((a,b) => b.score - a.score)
+                  .slice(0, limit)
+                  .map(x => x.item);
+                return scored;
+            }
+
+            // ── EXTRAIR REFERÊNCIAS BÍBLICAS EXPLÍCITAS ──────────────────────────
+            extractExplicitRefs(text) {
+                const regex = /\b(\d?\s*[a-zA-ZçÇãÃõÕáÁéÉíÍóÓúÚâÂêÊîÎôÔûÛ]+)\s+(\d+):(\d+)(?:-(\d+))?\b/g;
+                const refs = [];
+                let m;
+                while ((m = regex.exec(text)) !== null) {
                     refs.push(`${m[1].trim()} ${m[2]}:${m[3]}${m[4] ? '-'+m[4] : ''}`);
+                }
+                return [...new Set(refs)].slice(0, 2);
+            }
+
+            // ── BUSCAR VERSÍCULOS NA BIBLE API ───────────────────────────────────
+            async fetchBibleVerses(refs, translation) {
                 const results = [];
-                for (const ref of [...new Set(refs)].slice(0, 2)) {
+                for (const ref of refs.slice(0, 3)) {
                     try {
-                        const r = await fetch(`${CONFIG.bibleApi}/${encodeURIComponent(ref)}?translation=${CONFIG.bibleTranslation}`);
+                        const r = await fetch(`${CONFIG.bibleApi}/${encodeURIComponent(ref)}?translation=${translation}`);
                         const d = await r.json();
-                        if (d?.text) results.push({ ref: d.reference, text: d.text });
+                        if (d?.text) results.push({ ref: d.reference || ref, text: d.text });
                     } catch (_) {}
                 }
                 return results;
             }
 
-            // ── BUSCA DE LIVROS LOCAL (MELHORADA PARA MELHOR MATCH DE VENDA) ──────
-            searchBooks(query) {
+            // ── BUSCA DE LIVROS POR TEMA + TOKEN ─────────────────────────────────
+            searchBooks(query, themes) {
                 const normQuery = this.norm(query);
-                const tokens = normQuery.split(/\s+/).filter(t => t.length > 3);
-                if (!tokens.length) return kb.books.slice(0, 2); // Sugere básicos se nada bater
-                
-                return kb.books.filter(b => {
-                    const bn = this.norm(b.title + ' ' + (b.category || ''));
-                    return tokens.some(t => bn.includes(t)) || tokens.some(t => t.includes(bn));
-                }).slice(0, 3);
+                const tokens = normQuery.split(/\s+/).filter(t => t.length > 2 && !STOPWORDS.includes(t));
+                const themeBookKeywords = themes.flatMap(t => t.bookKeywords || []);
+
+                // Scoring
+                const scored = kb.books.map(b => {
+                    const bn = this.norm((b.title || '') + ' ' + (b.subtitle || '') + ' ' + (b.category || ''));
+                    let score = 0;
+                    tokens.forEach(t => { if (bn.includes(t)) score += 3; });
+                    themeBookKeywords.forEach(kw => { if (bn.includes(this.norm(kw))) score += 5; });
+                    return { book: b, score };
+                }).filter(x => x.score > 0)
+                  .sort((a,b) => b.score - a.score);
+
+                if (scored.length) return scored.slice(0, 4).map(x => x.book);
+
+                // Se nada bate, devolve 2 livros aleatórios populares como sugestão suave
+                return [];
             }
 
             // ── DOM HELPERS ───────────────────────────────────────────────────────
-            addBotMessage(html) {
+            addBotMessage(html, save = true) {
                 const wrap = document.createElement('div');
                 wrap.className = 'message-wrap';
                 wrap.innerHTML = `<div class="msg-avatar msg-av-bot">📖</div><div class="message bot">${html}</div>`;
@@ -669,7 +946,7 @@ BASE DE CONHECIMENTO E CATÁLOGO:\n${faqCtx}${bookCtx}${bibleCtx}`;
                 this.msgContainer.scrollTop = this.msgContainer.scrollHeight;
             }
 
-            addUserMessage(text) {
+            addUserMessage(text, save = true) {
                 const wrap = document.createElement('div');
                 wrap.className = 'message-wrap user';
                 wrap.innerHTML = `<div class="msg-avatar msg-av-usr">👤</div><div class="message user">${this.esc(text)}</div>`;
@@ -677,13 +954,17 @@ BASE DE CONHECIMENTO E CATÁLOGO:\n${faqCtx}${bookCtx}${bibleCtx}`;
                 this.msgContainer.scrollTop = this.msgContainer.scrollHeight;
             }
 
-            norm(t) { return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,'').trim(); }
+            norm(t) { return (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim(); }
             fmt(t)  {
-                return t
-                    .replace(/\n\n/g, '</p><p>')
-                    .replace(/\n/g, '<br>')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+                // Quebras em parágrafos
+                const paragraphs = t.split(/\n\n+/).map(p => p.trim()).filter(Boolean);
+                return paragraphs.map(p => {
+                    p = p
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/\n/g, '<br>');
+                    return `<p>${p}</p>`;
+                }).join('');
             }
             esc(s)  { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
         }
